@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>행사용 명패 생성기</title>
+  <style>
+    :root {
+      --ui-bg: #f3f5f8;
+      --ui-card: #ffffff;
+      --ui-line: #d9e0e8;
+      --ui-text: #1f2937;
+      --ui-muted: #667085;
+      --ui-primary: #0b4f87;
+      --ui-primary-dark: #083c67;
+      --ui-danger: #c93636;
+
+      --plate-color: #07518a;
+      --plate-border: #07518a;
+      --plate-name-size: 78pt;
+      --plate-title-size: 27pt;
+      --plate-footer-size: 10pt;
+      --plate-name-spacing: 0.18em;
+      --plate-logo-width: 54mm;
+      --plate-font: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo",
+                    "Malgun Gothic", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--ui-bg);
+      color: var(--ui-text);
+      font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo",
+                   "Malgun Gothic", Arial, sans-serif;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 20px;
+      background: rgba(255,255,255,.96);
+      border-bottom: 1px solid var(--ui-line);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 21px;
+      letter-spacing: -0.03em;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      color: var(--ui-muted);
+      font-size: 13px;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(350px, 430px) minmax(0, 1fr);
+      min-height: calc(100vh - 72px);
+    }
+
+    .panel {
+      padding: 18px;
+      background: #fff;
+      border-right: 1px solid var(--ui-line);
+      overflow: auto;
+    }
+
+    .workspace {
+      min-width: 0;
+      padding: 22px;
+      overflow: auto;
+    }
+
+    .section {
+      margin-bottom: 16px;
+      padding: 16px;
+      border: 1px solid var(--ui-line);
+      border-radius: 14px;
+      background: var(--ui-card);
+      box-shadow: 0 2px 10px rgba(15,23,42,.04);
+    }
+
+    .section h2 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+
+    .section h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    .hint {
+      margin: -4px 0 12px;
+      color: var(--ui-muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 11px;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    .field label,
+    .field-label {
+      color: #344054;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"],
+    .field input[type="file"],
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid #cfd7e2;
+      border-radius: 9px;
+      background: #fff;
+      padding: 9px 10px;
+      color: var(--ui-text);
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: #4f8dbc;
+      box-shadow: 0 0 0 3px rgba(11,79,135,.10);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 72px;
+      align-items: center;
+      gap: 9px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .color-row {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    input[type="color"] {
+      width: 42px;
+      height: 38px;
+      padding: 2px;
+      border: 1px solid #cfd7e2;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin: 8px 0;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .check-row input {
+      margin-top: 2px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid #cfd7e2;
+      border-radius: 9px;
+      background: #fff;
+      color: #253041;
+      font-weight: 700;
+      font-size: 13px;
+      text-decoration: none;
+      transition: .15s ease;
+    }
+
+    .btn:hover {
+      background: #f6f8fa;
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      border-color: var(--ui-primary);
+      background: var(--ui-primary);
+      color: #fff;
+    }
+
+    .btn.primary:hover {
+      background: var(--ui-primary-dark);
+    }
+
+    .btn.danger {
+      border-color: #f0caca;
+      color: var(--ui-danger);
+    }
+
+    .btn.small {
+      min-height: 31px;
+      padding: 5px 8px;
+      font-size: 12px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .bulk-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .people-wrap {
+      overflow: auto;
+      border: 1px solid var(--ui-line);
+      border-radius: 10px;
+    }
+
+    .people-table {
+      width: 100%;
+      min-width: 660px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .people-table th,
+    .people-table td {
+      padding: 7px;
+      border-bottom: 1px solid #edf0f4;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .people-table th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f8fafc;
+      color: #475467;
+      font-size: 11px;
+    }
+
+    .people-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .people-table input[type="text"] {
+      width: 100%;
+      min-width: 105px;
+      padding: 7px 8px;
+      border: 1px solid #d5dce5;
+      border-radius: 7px;
+    }
+
+    .row-number {
+      width: 34px;
+      color: var(--ui-muted);
+      text-align: center !important;
+    }
+
+    .empty-message {
+      padding: 24px;
+      color: var(--ui-muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .preview-title {
+      min-width: 0;
+    }
+
+    .preview-title h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .preview-title p {
+      margin: 4px 0 0;
+      color: var(--ui-muted);
+      font-size: 12px;
+    }
+
+    .page-navigation {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .page-counter {
+      min-width: 82px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .preview-zone {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      min-height: 620px;
+      padding: 18px;
+      border: 1px solid var(--ui-line);
+      border-radius: 16px;
+      background:
+        linear-gradient(45deg, #eef1f5 25%, transparent 25%) 0 0 / 24px 24px,
+        linear-gradient(45deg, transparent 75%, #eef1f5 75%) 0 0 / 24px 24px,
+        linear-gradient(45deg, transparent 75%, #eef1f5 75%) 12px -12px / 24px 24px,
+        linear-gradient(45deg, #eef1f5 25%, #f7f8fa 25%) 12px 12px / 24px 24px;
+      overflow: hidden;
+    }
+
+    .preview-scaler {
+      width: 297mm;
+      height: 210mm;
+      transform-origin: top center;
+    }
+
+    .paper-page {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8mm;
+      width: 297mm;
+      height: 210mm;
+      background: #fff;
+      box-shadow: 0 12px 32px rgba(15,23,42,.18);
+      overflow: hidden;
+    }
+
+    .nameplate {
+      position: relative;
+      width: 250mm;
+      height: 83mm;
+      border: 0.75mm solid var(--plate-border);
+      background: #fff;
+      color: var(--plate-color);
+      overflow: hidden;
+      font-family: var(--plate-font);
+    }
+
+    .nameplate.back-rotated {
+      transform: rotate(180deg);
+    }
+
+    .plate-main {
+      position: absolute;
+      inset: 0 0 10mm 0;
+      display: grid;
+      grid-template-columns: 67mm minmax(0, 1fr);
+      align-items: stretch;
+    }
+
+    .logo-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      padding: 5mm 4mm 3mm 6mm;
+    }
+
+    .logo-box img {
+      display: block;
+      width: var(--plate-logo-width);
+      max-width: 100%;
+      max-height: 62mm;
+      object-fit: contain;
+    }
+
+    .logo-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 49mm;
+      height: 49mm;
+      border: 0.55mm dashed #b9c5d2;
+      border-radius: 5mm;
+      color: #9aa7b5;
+      font-size: 14pt;
+      font-weight: 800;
+      letter-spacing: .08em;
+    }
+
+    .plate-text {
+      display: grid;
+      grid-template-rows: 29mm minmax(0, 1fr);
+      min-width: 0;
+      padding: 2.5mm 8mm 2mm 1mm;
+    }
+
+    .plate-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      overflow: hidden;
+      padding: 2mm 1mm 0;
+      color: var(--plate-color);
+      font-size: var(--plate-title-size);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .plate-name {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      overflow: hidden;
+      padding: 0 1mm 3mm;
+      color: var(--plate-color);
+      font-size: var(--plate-name-size);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: var(--plate-name-spacing);
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .plate-footer {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 10mm;
+      border-top: 2.05mm solid var(--plate-color);
+      color: var(--plate-color);
+    }
+
+    .plate-footer::before {
+      content: "";
+      position: absolute;
+      top: -2.05mm;
+      right: 61mm;
+      width: 9mm;
+      height: 2.05mm;
+      background: #fff;
+      clip-path: polygon(100% 0, 0 100%, 100% 100%);
+    }
+
+    .footer-text {
+      position: absolute;
+      right: 13mm;
+      top: 2.2mm;
+      max-width: 115mm;
+      overflow: hidden;
+      font-size: var(--plate-footer-size);
+      font-weight: 900;
+      letter-spacing: .1em;
+      line-height: 1;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .page-label {
+      position: absolute;
+      top: 5mm;
+      left: 7mm;
+      color: #98a2b3;
+      font-size: 8pt;
+    }
+
+    .thumbs {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 4px 2px 10px;
+      overflow-x: auto;
+    }
+
+    .thumb {
+      flex: 0 0 auto;
+      min-width: 92px;
+      padding: 8px 10px;
+      border: 1px solid var(--ui-line);
+      border-radius: 9px;
+      background: #fff;
+      color: #344054;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .thumb.active {
+      border-color: var(--ui-primary);
+      box-shadow: 0 0 0 2px rgba(11,79,135,.12);
+      color: var(--ui-primary);
+      font-weight: 800;
+    }
+
+    .status {
+      display: none;
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 999;
+      max-width: min(420px, calc(100vw - 36px));
+      padding: 11px 14px;
+      border-radius: 10px;
+      background: #152436;
+      color: #fff;
+      box-shadow: 0 10px 26px rgba(0,0,0,.22);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .privacy-note {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 9px;
+      background: #f7fafc;
+      color: var(--ui-muted);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .print-stage {
+      position: fixed;
+      left: -100000px;
+      top: 0;
+      visibility: hidden;
+    }
+
+    @media (max-width: 1050px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        border-right: 0;
+        border-bottom: 1px solid var(--ui-line);
+      }
+
+      .preview-zone {
+        min-height: 480px;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .app-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .header-actions .btn {
+        flex: 1;
+      }
+
+      .panel, .workspace {
+        padding: 12px;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+
+    @media print {
+      html, body {
+        width: 297mm;
+        min-height: 210mm;
+        margin: 0 !important;
+        background: #fff !important;
+      }
+
+      body > *:not(.print-stage) {
+        display: none !important;
+      }
+
+      .print-stage {
+        position: static !important;
+        left: auto !important;
+        top: auto !important;
+        display: block !important;
+        visibility: visible !important;
+      }
+
+      .print-stage .paper-page {
+        display: flex;
+        width: 297mm !important;
+        height: 210mm !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .print-stage .paper-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      body.print-current .print-stage .paper-page:not(.is-current) {
+        display: none !important;
+      }
+
+      .page-label,
+      .logo-placeholder {
+        display: none !important;
+      }
+
+      .nameplate {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <h1>행사용 명패 생성기</h1>
+      <p>명단 붙여넣기 → A4 양면 명패 자동 생성 → 인쇄 또는 PDF 저장</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn" id="saveProjectBtn">작업 저장</button>
+      <button class="btn" id="loadProjectBtn">작업 불러오기</button>
+      <button class="btn" id="printCurrentBtn">현재 1장 인쇄</button>
+      <button class="btn primary" id="printAllBtn">전체 인쇄·PDF</button>
+    </div>
+  </header>
+
+  <main class="app">
+    <aside class="panel">
+      <section class="section">
+        <h2>
+          <span>1. 명단 입력</span>
+          <span id="peopleCount" style="font-size:12px;color:#667085;">0명</span>
+        </h2>
+        <p class="hint">
+          엑셀에서 <strong>이름 · 소속 · 직책</strong> 열을 복사해 붙여넣으면 가장 빠릅니다.
+          탭 또는 쉼표로 구분된 자료를 인식합니다.
+        </p>
+
+        <div class="field">
+          <label for="bulkInput">엑셀·CSV 붙여넣기</label>
+          <textarea id="bulkInput" placeholder="홍길동&#9;한양대학교 ERICA&#9;발전협력처장&#10;김한양&#9;총동문회&#9;회장"></textarea>
+        </div>
+
+        <div class="bulk-actions">
+          <button class="btn primary" id="replaceBulkBtn">붙여넣은 명단으로 교체</button>
+          <button class="btn" id="appendBulkBtn">기존 명단 뒤에 추가</button>
+          <button class="btn" id="addPersonBtn">빈 행 1개 추가</button>
+          <button class="btn" id="csvImportBtn">CSV·TSV 파일 불러오기</button>
+        </div>
+        <input type="file" id="csvFileInput" accept=".csv,.tsv,.txt" hidden />
+
+        <h3>현재 명단</h3>
+        <div class="people-wrap">
+          <table class="people-table" aria-label="명패 대상자 명단">
+            <thead>
+              <tr>
+                <th class="row-number">#</th>
+                <th>이름</th>
+                <th>소속·기관</th>
+                <th>직책·직위</th>
+                <th style="width:55px;">삭제</th>
+              </tr>
+            </thead>
+            <tbody id="peopleTableBody"></tbody>
+          </table>
+          <div class="empty-message" id="emptyMessage">명단이 없습니다.</div>
+        </div>
+
+        <div class="btn-row" style="margin-top:10px;">
+          <button class="btn danger small" id="clearPeopleBtn">명단 전체 삭제</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>2. 로고와 문구</h2>
+
+        <div class="field">
+          <label for="logoInput">좌측 로고 업로드</label>
+          <input type="file" id="logoInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+        </div>
+
+        <div class="btn-row" style="margin-bottom:11px;">
+          <button class="btn small" id="removeLogoBtn">로고 제거</button>
+        </div>
+
+        <div class="field">
+          <label for="footerText">하단 영문·기관명</label>
+          <input type="text" id="footerText" value="HANYANG UNIVERSITY" />
+        </div>
+
+        <div class="field">
+          <label for="titleSeparator">소속과 직책 사이</label>
+          <select id="titleSeparator">
+            <option value=" ">공백 1칸</option>
+            <option value=" · ">가운데점</option>
+            <option value=" | ">세로선</option>
+            <option value="&#10;">줄바꿈</option>
+          </select>
+        </div>
+
+        <div class="privacy-note">
+          로고와 명단은 서버로 전송되지 않습니다. 현재 브라우저 안에서만 처리됩니다.
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>3. 디자인 설정</h2>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="textColor">글자·하단선 색상</label>
+            <div class="color-row">
+              <input type="color" id="textColor" value="#07518a" />
+              <input type="text" id="textColorHex" value="#07518a" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="borderColor">외곽선 색상</label>
+            <div class="color-row">
+              <input type="color" id="borderColor" value="#07518a" />
+              <input type="text" id="borderColorHex" value="#07518a" />
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="nameSize">이름 크기</label>
+          <div class="range-row">
+            <input type="range" id="nameSize" min="40" max="105" value="78" />
+            <input type="number" id="nameSizeNumber" min="40" max="105" value="78" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="titleSize">상단 문구 크기</label>
+          <div class="range-row">
+            <input type="range" id="titleSize" min="15" max="44" value="27" />
+            <input type="number" id="titleSizeNumber" min="15" max="44" value="27" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="nameSpacing">이름 자간</label>
+          <div class="range-row">
+            <input type="range" id="nameSpacing" min="-2" max="35" value="18" />
+            <input type="number" id="nameSpacingNumber" min="-2" max="35" value="18" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="logoWidth">로고 너비</label>
+          <div class="range-row">
+            <input type="range" id="logoWidth" min="25" max="62" value="54" />
+            <input type="number" id="logoWidthNumber" min="25" max="62" value="54" />
+          </div>
+        </div>
+
+        <label class="check-row">
+          <input type="checkbox" id="autoFit" checked />
+          <span>긴 이름과 상단 문구는 지정 크기에서 자동으로 축소</span>
+        </label>
+
+        <label class="check-row">
+          <input type="checkbox" id="rotateBack" />
+          <span>아래쪽 명패를 180도 회전</span>
+        </label>
+
+        <label class="check-row">
+          <input type="checkbox" id="showPageLabel" />
+          <span>화면 미리보기에 페이지 번호 표시</span>
+        </label>
+
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn small" id="saveDesignBtn">디자인 기본값 저장</button>
+          <button class="btn small" id="resetDesignBtn">디자인 초기화</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>인쇄 설정</h2>
+        <p class="hint" style="margin-bottom:0;">
+          인쇄창에서 <strong>A4 · 가로 · 배율 100% · 여백 없음 · 머리글/바닥글 해제</strong>로 설정하세요.
+          한 사람당 A4 한 페이지이며, 한 페이지에 250mm × 83mm 명패가 2개 배치됩니다.
+        </p>
+      </section>
+    </aside>
+
+    <section class="workspace">
+      <div class="preview-toolbar">
+        <div class="preview-title">
+          <h2>인쇄 미리보기</h2>
+          <p id="selectedPersonLabel">대상자를 추가해 주세요.</p>
+        </div>
+
+        <div class="page-navigation">
+          <button class="btn small" id="prevBtn">이전</button>
+          <div class="page-counter" id="pageCounter">0 / 0</div>
+          <button class="btn small" id="nextBtn">다음</button>
+        </div>
+      </div>
+
+      <div class="preview-zone" id="previewZone">
+        <div class="preview-scaler" id="previewScaler">
+          <div id="previewPage"></div>
+        </div>
+      </div>
+
+      <div class="thumbs" id="thumbs"></div>
+    </section>
+  </main>
+
+  <div class="print-stage" id="printStage" aria-hidden="true"></div>
+  <div class="status" id="status"></div>
+  <input type="file" id="projectFileInput" accept=".json,application/json" hidden />
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "nameplate-maker-project-v1";
+      const DESIGN_KEY = "nameplate-maker-design-v1";
+
+      const defaultDesign = {
+        textColor: "#07518a",
+        borderColor: "#07518a",
+        nameSize: 78,
+        titleSize: 27,
+        nameSpacing: 18,
+        logoWidth: 54,
+        footerText: "HANYANG UNIVERSITY",
+        titleSeparator: " ",
+        autoFit: true,
+        rotateBack: false,
+        showPageLabel: false
+      };
+
+      const state = {
+        people: [
+          { id: cryptoId(), name: "홍길동", organization: "한양대학교 ERICA", position: "발전협력처장" }
+        ],
+        logoDataUrl: "",
+        design: { ...defaultDesign },
+        selectedIndex: 0
+      };
+
+      const $ = (selector) => document.querySelector(selector);
+      const $$ = (selector) => [...document.querySelectorAll(selector)];
+
+      const elements = {
+        peopleCount: $("#peopleCount"),
+        bulkInput: $("#bulkInput"),
+        peopleTableBody: $("#peopleTableBody"),
+        emptyMessage: $("#emptyMessage"),
+        logoInput: $("#logoInput"),
+        footerText: $("#footerText"),
+        titleSeparator: $("#titleSeparator"),
+        textColor: $("#textColor"),
+        textColorHex: $("#textColorHex"),
+        borderColor: $("#borderColor"),
+        borderColorHex: $("#borderColorHex"),
+        nameSize: $("#nameSize"),
+        nameSizeNumber: $("#nameSizeNumber"),
+        titleSize: $("#titleSize"),
+        titleSizeNumber: $("#titleSizeNumber"),
+        nameSpacing: $("#nameSpacing"),
+        nameSpacingNumber: $("#nameSpacingNumber"),
+        logoWidth: $("#logoWidth"),
+        logoWidthNumber: $("#logoWidthNumber"),
+        autoFit: $("#autoFit"),
+        rotateBack: $("#rotateBack"),
+        showPageLabel: $("#showPageLabel"),
+        previewZone: $("#previewZone"),
+        previewScaler: $("#previewScaler"),
+        previewPage: $("#previewPage"),
+        printStage: $("#printStage"),
+        pageCounter: $("#pageCounter"),
+        selectedPersonLabel: $("#selectedPersonLabel"),
+        thumbs: $("#thumbs"),
+        status: $("#status"),
+        csvFileInput: $("#csvFileInput"),
+        projectFileInput: $("#projectFileInput")
+      };
+
+      function cryptoId() {
+        if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+        return "id-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+      }
+
+      function sanitizePerson(person = {}) {
+        return {
+          id: person.id || cryptoId(),
+          name: String(person.name || "").trim(),
+          organization: String(person.organization || "").trim(),
+          position: String(person.position || "").trim()
+        };
+      }
+
+      function clamp(value, min, max) {
+        const number = Number(value);
+        if (!Number.isFinite(number)) return min;
+        return Math.min(max, Math.max(min, number));
+      }
+
+      function showStatus(message) {
+        elements.status.textContent = message;
+        elements.status.classList.add("show");
+        clearTimeout(showStatus.timer);
+        showStatus.timer = setTimeout(() => {
+          elements.status.classList.remove("show");
+        }, 2800);
+      }
+
+      function parseRows(text) {
+        const lines = String(text || "")
+          .replace(/\r/g, "")
+          .split("\n")
+          .map(line => line.trim())
+          .filter(Boolean);
+
+        return lines.map(line => {
+          let columns;
+          if (line.includes("\t")) {
+            columns = line.split("\t");
+          } else {
+            columns = parseCsvLine(line);
+          }
+
+          columns = columns.map(value => String(value || "").trim());
+
+          return sanitizePerson({
+            name: columns[0] || "",
+            organization: columns[1] || "",
+            position: columns.slice(2).join(" ").trim()
+          });
+        }).filter(person => person.name || person.organization || person.position);
+      }
+
+      function parseCsvLine(line) {
+        const result = [];
+        let value = "";
+        let inQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          const next = line[i + 1];
+
+          if (char === '"' && inQuotes && next === '"') {
+            value += '"';
+            i++;
+          } else if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === "," && !inQuotes) {
+            result.push(value);
+            value = "";
+          } else {
+            value += char;
+          }
+        }
+
+        result.push(value);
+        return result;
+      }
+
+      function getTitle(person) {
+        const parts = [person.organization, person.position].filter(Boolean);
+        const separator = state.design.titleSeparator === "\n" ? "\n" : state.design.titleSeparator;
+        return parts.join(separator);
+      }
+
+      function applyCssVariables() {
+        const root = document.documentElement;
+        root.style.setProperty("--plate-color", state.design.textColor);
+        root.style.setProperty("--plate-border", state.design.borderColor);
+        root.style.setProperty("--plate-name-size", `${state.design.nameSize}pt`);
+        root.style.setProperty("--plate-title-size", `${state.design.titleSize}pt`);
+        root.style.setProperty("--plate-name-spacing", `${state.design.nameSpacing / 100}em`);
+        root.style.setProperty("--plate-logo-width", `${state.design.logoWidth}mm`);
+      }
+
+      function createNameplate(person, isBack = false) {
+        const plate = document.createElement("div");
+        plate.className = "nameplate";
+        if (isBack && state.design.rotateBack) plate.classList.add("back-rotated");
+
+        const main = document.createElement("div");
+        main.className = "plate-main";
+
+        const logoBox = document.createElement("div");
+        logoBox.className = "logo-box";
+
+        if (state.logoDataUrl) {
+          const img = document.createElement("img");
+          img.src = state.logoDataUrl;
+          img.alt = "업로드한 로고";
+          logoBox.appendChild(img);
+        } else {
+          const placeholder = document.createElement("div");
+          placeholder.className = "logo-placeholder";
+          placeholder.textContent = "LOGO";
+          logoBox.appendChild(placeholder);
+        }
+
+        const textBox = document.createElement("div");
+        textBox.className = "plate-text";
+
+        const title = document.createElement("div");
+        title.className = "plate-title auto-fit-title";
+        title.textContent = getTitle(person) || "소속 및 직책";
+
+        if (state.design.titleSeparator === "\n") {
+          title.style.whiteSpace = "pre-line";
+          title.style.textAlign = "center";
+        }
+
+        const name = document.createElement("div");
+        name.className = "plate-name auto-fit-name";
+        name.textContent = person.name || "이름";
+
+        textBox.append(title, name);
+        main.append(logoBox, textBox);
+
+        const footer = document.createElement("div");
+        footer.className = "plate-footer";
+
+        const footerText = document.createElement("div");
+        footerText.className = "footer-text";
+        footerText.textContent = state.design.footerText || "";
+        footer.appendChild(footerText);
+
+        plate.append(main, footer);
+        return plate;
+      }
+
+      function createPage(person, index, forPrint = false) {
+        const page = document.createElement("div");
+        page.className = "paper-page";
+        page.dataset.index = String(index);
+
+        if (forPrint && index === state.selectedIndex) {
+          page.classList.add("is-current");
+        }
+
+        if (state.design.showPageLabel && !forPrint) {
+          const label = document.createElement("div");
+          label.className = "page-label";
+          label.textContent = `${index + 1}페이지 · ${person.name || "이름 없음"}`;
+          page.appendChild(label);
+        }
+
+        page.appendChild(createNameplate(person, false));
+        page.appendChild(createNameplate(person, true));
+        return page;
+      }
+
+      function renderTable() {
+        elements.peopleTableBody.replaceChildren();
+        elements.emptyMessage.style.display = state.people.length ? "none" : "block";
+        elements.peopleCount.textContent = `${state.people.length}명`;
+
+        state.people.forEach((person, index) => {
+          const tr = document.createElement("tr");
+          tr.dataset.id = person.id;
+
+          const numberCell = document.createElement("td");
+          numberCell.className = "row-number";
+          numberCell.textContent = String(index + 1);
+
+          const nameCell = document.createElement("td");
+          const nameInput = createTableInput(person.name, "name", index, "이름");
+          nameCell.appendChild(nameInput);
+
+          const orgCell = document.createElement("td");
+          const orgInput = createTableInput(person.organization, "organization", index, "소속·기관");
+          orgCell.appendChild(orgInput);
+
+          const positionCell = document.createElement("td");
+          const positionInput = createTableInput(person.position, "position", index, "직책·직위");
+          positionCell.appendChild(positionInput);
+
+          const deleteCell = document.createElement("td");
+          const deleteButton = document.createElement("button");
+          deleteButton.className = "btn danger small";
+          deleteButton.type = "button";
+          deleteButton.textContent = "삭제";
+          deleteButton.addEventListener("click", () => {
+            state.people.splice(index, 1);
+            state.selectedIndex = Math.min(state.selectedIndex, Math.max(0, state.people.length - 1));
+            renderAll();
+          });
+          deleteCell.appendChild(deleteButton);
+
+          tr.append(numberCell, nameCell, orgCell, positionCell, deleteCell);
+          elements.peopleTableBody.appendChild(tr);
+        });
+      }
+
+      function createTableInput(value, key, index, label) {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = value;
+        input.placeholder = label;
+        input.addEventListener("input", () => {
+          state.people[index][key] = input.value;
+          renderPreviewOnly();
+          saveLocal();
+        });
+        input.addEventListener("focus", () => {
+          state.selectedIndex = index;
+          renderPreviewOnly();
+        });
+        return input;
+      }
+
+      function renderPreviewOnly() {
+        applyCssVariables();
+
+        elements.previewPage.replaceChildren();
+        elements.printStage.replaceChildren();
+        elements.thumbs.replaceChildren();
+
+        if (!state.people.length) {
+          elements.pageCounter.textContent = "0 / 0";
+          elements.selectedPersonLabel.textContent = "대상자를 추가해 주세요.";
+          fitPreviewScale();
+          saveLocal();
+          return;
+        }
+
+        state.selectedIndex = clamp(state.selectedIndex, 0, state.people.length - 1);
+        const selected = state.people[state.selectedIndex];
+
+        elements.previewPage.appendChild(createPage(selected, state.selectedIndex, false));
+        elements.selectedPersonLabel.textContent =
+          `${selected.name || "이름 없음"} · ${getTitle(selected) || "상단 문구 없음"}`;
+        elements.pageCounter.textContent = `${state.selectedIndex + 1} / ${state.people.length}`;
+
+        state.people.forEach((person, index) => {
+          elements.printStage.appendChild(createPage(person, index, true));
+
+          const thumb = document.createElement("button");
+          thumb.className = "thumb" + (index === state.selectedIndex ? " active" : "");
+          thumb.type = "button";
+          thumb.textContent = `${index + 1}. ${person.name || "이름 없음"}`;
+          thumb.addEventListener("click", () => {
+            state.selectedIndex = index;
+            renderPreviewOnly();
+          });
+          elements.thumbs.appendChild(thumb);
+        });
+
+        requestAnimationFrame(() => {
+          fitText(elements.previewPage);
+          fitText(elements.printStage);
+          fitPreviewScale();
+        });
+
+        saveLocal();
+      }
+
+      function renderAll() {
+        renderTable();
+        syncControlsFromState();
+        renderPreviewOnly();
+      }
+
+      function fitText(container) {
+        if (!state.design.autoFit) return;
+
+        const fitTargets = [
+          ...container.querySelectorAll(".auto-fit-name"),
+          ...container.querySelectorAll(".auto-fit-title")
+        ];
+
+        fitTargets.forEach(element => {
+          const isName = element.classList.contains("auto-fit-name");
+          const start = isName ? state.design.nameSize : state.design.titleSize;
+          const min = isName ? 34 : 12;
+          let size = start;
+          element.style.fontSize = `${size}pt`;
+
+          let guard = 0;
+          while (
+            (element.scrollWidth > element.clientWidth + 1 ||
+             element.scrollHeight > element.clientHeight + 1) &&
+            size > min &&
+            guard < 100
+          ) {
+            size -= 1;
+            element.style.fontSize = `${size}pt`;
+            guard++;
+          }
+        });
+      }
+
+      function fitPreviewScale() {
+        const availableWidth = Math.max(280, elements.previewZone.clientWidth - 36);
+        const availableHeight = Math.max(360, elements.previewZone.clientHeight - 36);
+        const pageWidthPx = 297 * (96 / 25.4);
+        const pageHeightPx = 210 * (96 / 25.4);
+        const scale = Math.min(availableWidth / pageWidthPx, availableHeight / pageHeightPx, 0.92);
+        elements.previewScaler.style.transform = `scale(${scale})`;
+        elements.previewZone.style.minHeight = `${Math.max(360, pageHeightPx * scale + 36)}px`;
+      }
+
+      function syncControlsFromState() {
+        const d = state.design;
+        elements.footerText.value = d.footerText;
+        elements.titleSeparator.value = d.titleSeparator;
+        elements.textColor.value = d.textColor;
+        elements.textColorHex.value = d.textColor;
+        elements.borderColor.value = d.borderColor;
+        elements.borderColorHex.value = d.borderColor;
+
+        setPairedValue("nameSize", d.nameSize);
+        setPairedValue("titleSize", d.titleSize);
+        setPairedValue("nameSpacing", d.nameSpacing);
+        setPairedValue("logoWidth", d.logoWidth);
+
+        elements.autoFit.checked = d.autoFit;
+        elements.rotateBack.checked = d.rotateBack;
+        elements.showPageLabel.checked = d.showPageLabel;
+      }
+
+      function setPairedValue(key, value) {
+        elements[key].value = value;
+        elements[`${key}Number`].value = value;
+      }
+
+      function bindPair(key, min, max, stateKey = key) {
+        const range = elements[key];
+        const number = elements[`${key}Number`];
+
+        const update = (value) => {
+          const safe = clamp(value, min, max);
+          range.value = safe;
+          number.value = safe;
+          state.design[stateKey] = safe;
+          renderPreviewOnly();
+        };
+
+        range.addEventListener("input", () => update(range.value));
+        number.addEventListener("input", () => update(number.value));
+      }
+
+      function normalizeHex(value, fallback) {
+        const text = String(value || "").trim();
+        if (/^#[0-9a-fA-F]{6}$/.test(text)) return text.toLowerCase();
+        if (/^[0-9a-fA-F]{6}$/.test(text)) return "#" + text.toLowerCase();
+        return fallback;
+      }
+
+      function bindColor(colorElement, hexElement, stateKey) {
+        colorElement.addEventListener("input", () => {
+          hexElement.value = colorElement.value;
+          state.design[stateKey] = colorElement.value;
+          renderPreviewOnly();
+        });
+
+        hexElement.addEventListener("change", () => {
+          const valid = normalizeHex(hexElement.value, state.design[stateKey]);
+          hexElement.value = valid;
+          colorElement.value = valid;
+          state.design[stateKey] = valid;
+          renderPreviewOnly();
+        });
+      }
+
+      function saveLocal() {
+        const payload = {
+          people: state.people,
+          logoDataUrl: state.logoDataUrl,
+          design: state.design,
+          selectedIndex: state.selectedIndex
+        };
+
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        } catch (error) {
+          console.warn("자동 저장 실패:", error);
+        }
+      }
+
+      function restoreLocal() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+
+          const saved = JSON.parse(raw);
+          if (Array.isArray(saved.people)) {
+            state.people = saved.people.map(sanitizePerson);
+          }
+          state.logoDataUrl = typeof saved.logoDataUrl === "string" ? saved.logoDataUrl : "";
+          state.design = { ...defaultDesign, ...(saved.design || {}) };
+          state.selectedIndex = clamp(saved.selectedIndex || 0, 0, Math.max(0, state.people.length - 1));
+        } catch (error) {
+          console.warn("자동 복구 실패:", error);
+        }
+      }
+
+      function readImageFile(file) {
+        return new Promise((resolve, reject) => {
+          if (!file) return reject(new Error("파일이 없습니다."));
+          if (!file.type.startsWith("image/")) return reject(new Error("이미지 파일만 올릴 수 있습니다."));
+          if (file.size > 6 * 1024 * 1024) return reject(new Error("로고는 6MB 이하 파일을 사용해 주세요."));
+
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result || ""));
+          reader.onerror = () => reject(new Error("이미지를 읽지 못했습니다."));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function downloadText(filename, text, type = "application/json") {
+        const blob = new Blob([text], { type });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = filename;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function exportProject() {
+        const payload = {
+          app: "nameplate-maker",
+          version: 1,
+          savedAt: new Date().toISOString(),
+          people: state.people,
+          logoDataUrl: state.logoDataUrl,
+          design: state.design
+        };
+        downloadText(
+          `명패작업_${new Date().toISOString().slice(0,10)}.json`,
+          JSON.stringify(payload, null, 2)
+        );
+        showStatus("현재 명단과 디자인을 작업 파일로 저장했습니다.");
+      }
+
+      function importProject(file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(String(reader.result || ""));
+            if (!Array.isArray(parsed.people)) throw new Error("명단 형식이 없습니다.");
+
+            state.people = parsed.people.map(sanitizePerson);
+            state.logoDataUrl = typeof parsed.logoDataUrl === "string" ? parsed.logoDataUrl : "";
+            state.design = { ...defaultDesign, ...(parsed.design || {}) };
+            state.selectedIndex = 0;
+            renderAll();
+            showStatus("작업 파일을 불러왔습니다.");
+          } catch (error) {
+            showStatus("작업 파일을 읽지 못했습니다. 올바른 JSON 파일인지 확인해 주세요.");
+          }
+        };
+        reader.readAsText(file, "utf-8");
+      }
+
+      function loadDelimitedFile(file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const people = parseRows(reader.result);
+          if (!people.length) {
+            showStatus("명단을 찾지 못했습니다. 열 순서는 이름, 소속, 직책이어야 합니다.");
+            return;
+          }
+          state.people = people;
+          state.selectedIndex = 0;
+          renderAll();
+          showStatus(`${people.length}명의 명단을 불러왔습니다.`);
+        };
+        reader.readAsText(file, "utf-8");
+      }
+
+      function printPages(mode) {
+        if (!state.people.length) {
+          showStatus("먼저 명단을 추가해 주세요.");
+          return;
+        }
+
+        $$(".print-stage .paper-page").forEach((page, index) => {
+          page.classList.toggle("is-current", index === state.selectedIndex);
+        });
+
+        document.body.classList.toggle("print-current", mode === "current");
+
+        requestAnimationFrame(() => {
+          fitText(elements.printStage);
+          window.print();
+        });
+      }
+
+      window.addEventListener("afterprint", () => {
+        document.body.classList.remove("print-current");
+      });
+
+      $("#replaceBulkBtn").addEventListener("click", () => {
+        const people = parseRows(elements.bulkInput.value);
+        if (!people.length) {
+          showStatus("붙여넣은 명단을 읽지 못했습니다.");
+          return;
+        }
+        state.people = people;
+        state.selectedIndex = 0;
+        renderAll();
+        showStatus(`${people.length}명의 명단으로 교체했습니다.`);
+      });
+
+      $("#appendBulkBtn").addEventListener("click", () => {
+        const people = parseRows(elements.bulkInput.value);
+        if (!people.length) {
+          showStatus("붙여넣은 명단을 읽지 못했습니다.");
+          return;
+        }
+        state.people.push(...people);
+        renderAll();
+        showStatus(`${people.length}명을 기존 명단 뒤에 추가했습니다.`);
+      });
+
+      $("#addPersonBtn").addEventListener("click", () => {
+        state.people.push(sanitizePerson());
+        state.selectedIndex = state.people.length - 1;
+        renderAll();
+      });
+
+      $("#clearPeopleBtn").addEventListener("click", () => {
+        if (!confirm("현재 명단을 전부 삭제할까요?")) return;
+        state.people = [];
+        state.selectedIndex = 0;
+        renderAll();
+      });
+
+      $("#csvImportBtn").addEventListener("click", () => elements.csvFileInput.click());
+
+      elements.csvFileInput.addEventListener("change", () => {
+        const file = elements.csvFileInput.files?.[0];
+        if (file) loadDelimitedFile(file);
+        elements.csvFileInput.value = "";
+      });
+
+      elements.logoInput.addEventListener("change", async () => {
+        const file = elements.logoInput.files?.[0];
+        if (!file) return;
+
+        try {
+          state.logoDataUrl = await readImageFile(file);
+          renderPreviewOnly();
+          showStatus("로고를 적용했습니다.");
+        } catch (error) {
+          showStatus(error.message || "로고를 적용하지 못했습니다.");
+        } finally {
+          elements.logoInput.value = "";
+        }
+      });
+
+      $("#removeLogoBtn").addEventListener("click", () => {
+        state.logoDataUrl = "";
+        renderPreviewOnly();
+        showStatus("로고를 제거했습니다.");
+      });
+
+      elements.footerText.addEventListener("input", () => {
+        state.design.footerText = elements.footerText.value;
+        renderPreviewOnly();
+      });
+
+      elements.titleSeparator.addEventListener("change", () => {
+        state.design.titleSeparator = elements.titleSeparator.value;
+        renderPreviewOnly();
+      });
+
+      bindColor(elements.textColor, elements.textColorHex, "textColor");
+      bindColor(elements.borderColor, elements.borderColorHex, "borderColor");
+
+      bindPair("nameSize", 40, 105);
+      bindPair("titleSize", 15, 44);
+      bindPair("nameSpacing", -2, 35);
+      bindPair("logoWidth", 25, 62);
+
+      elements.autoFit.addEventListener("change", () => {
+        state.design.autoFit = elements.autoFit.checked;
+        renderPreviewOnly();
+      });
+
+      elements.rotateBack.addEventListener("change", () => {
+        state.design.rotateBack = elements.rotateBack.checked;
+        renderPreviewOnly();
+      });
+
+      elements.showPageLabel.addEventListener("change", () => {
+        state.design.showPageLabel = elements.showPageLabel.checked;
+        renderPreviewOnly();
+      });
+
+      $("#prevBtn").addEventListener("click", () => {
+        if (!state.people.length) return;
+        state.selectedIndex = (state.selectedIndex - 1 + state.people.length) % state.people.length;
+        renderPreviewOnly();
+      });
+
+      $("#nextBtn").addEventListener("click", () => {
+        if (!state.people.length) return;
+        state.selectedIndex = (state.selectedIndex + 1) % state.people.length;
+        renderPreviewOnly();
+      });
+
+      $("#printCurrentBtn").addEventListener("click", () => printPages("current"));
+      $("#printAllBtn").addEventListener("click", () => printPages("all"));
+
+      $("#saveProjectBtn").addEventListener("click", exportProject);
+
+      $("#loadProjectBtn").addEventListener("click", () => {
+        elements.projectFileInput.click();
+      });
+
+      elements.projectFileInput.addEventListener("change", () => {
+        const file = elements.projectFileInput.files?.[0];
+        if (file) importProject(file);
+        elements.projectFileInput.value = "";
+      });
+
+      $("#saveDesignBtn").addEventListener("click", () => {
+        localStorage.setItem(DESIGN_KEY, JSON.stringify(state.design));
+        showStatus("현재 디자인을 이 브라우저의 기본값으로 저장했습니다.");
+      });
+
+      $("#resetDesignBtn").addEventListener("click", () => {
+        if (!confirm("디자인 설정을 초기값으로 되돌릴까요?")) return;
+        state.design = { ...defaultDesign };
+        renderAll();
+        showStatus("디자인을 초기화했습니다.");
+      });
+
+      window.addEventListener("resize", fitPreviewScale);
+
+      const resizeObserver = new ResizeObserver(fitPreviewScale);
+      resizeObserver.observe(elements.previewZone);
+
+      try {
+        const savedDesign = JSON.parse(localStorage.getItem(DESIGN_KEY) || "null");
+        if (savedDesign && typeof savedDesign === "object") {
+          state.design = { ...state.design, ...savedDesign };
+        }
+      } catch (_) {}
+
+      restoreLocal();
+      renderAll();
+    })();
+  </script>
+</body>
+</html>

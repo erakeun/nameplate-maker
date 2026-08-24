@@ -866,7 +866,7 @@
     <div class="brand">
       <div class="brand-line">
         <h1>행사용 명패 생성기</h1>
-        <span class="version-badge">v2.2</span>
+        <span class="version-badge">v2.2.1</span>
       </div>
       <p>명단 붙여넣기 → 좌측 로고 선택 → 하단 한양대/ERICA 로고 선택 → A4 양면 명패 자동 생성</p>
     </div>
@@ -1123,6 +1123,14 @@
 
           <div class="patch-body">
             <div class="patch-item">
+              <div class="patch-version">v2.2.1</div>
+              <div>· 행 추가 시 명단이 표시되지 않던 런타임 오류 수정</div>
+              <div>· 명단 미리보기와 페이지 카운터가 멈추던 오류 수정</div>
+              <div>· 엑셀 4번째 열의 좌측 로고 지정 오류 수정</div>
+              <div>· 작업 저장·불러오기 시 외부기관 로고 복원 오류 수정</div>
+            </div>
+
+            <div class="patch-item">
               <div class="patch-version">v2.2</div>
               <div>· 좌측 로고는 한양대학교를 기본값으로 유지</div>
               <div>· 외부기관 로고를 여러 개 등록하고 사람별로 선택 가능하도록 복원</div>
@@ -1325,10 +1333,41 @@
           id: person.id || cryptoId(),
           name: String(person.name || "").trim(),
           organization: String(person.organization || "").trim(),
-          position: String(person.position || "").trim()
+          position: String(person.position || "").trim(),
+          logoKey: normalizeExistingLogoKey(person.logoKey || "default")
         };
       }
 
+      function sanitizeCustomLogo(logo = {}) {
+        return {
+          id: String(logo.id || ("custom-" + cryptoId())),
+          name: String(logo.name || "외부기관").trim(),
+          dataUrl: String(logo.dataUrl || "")
+        };
+      }
+
+      function normalizeExistingLogoKey(key) {
+        const value = String(key || "").trim();
+        if (value === "default") return "default";
+        if (Object.prototype.hasOwnProperty.call(BUILTIN_LEFT_LOGOS, value)) return value;
+        if (value.startsWith("custom-")) return value;
+        return "default";
+      }
+
+      function resolveLogoKeyFromText(raw) {
+        const value = String(raw || "").trim();
+        if (!value) return "default";
+
+        const lower = value.toLowerCase();
+        if (["기본", "default", "기본로고"].includes(lower)) return "default";
+        if (["한양대", "한양대학교", "hanyang", "hyu"].includes(lower)) return "hanyang";
+        if (["없음", "로고없음", "none", "x"].includes(lower)) return "none";
+
+        const custom = state.customLogos.find(
+          logo => logo.name.trim().toLowerCase() === lower
+        );
+        return custom ? custom.id : "default";
+      }
 
       function clamp(value, min, max) {
         const number = Number(value);
@@ -1655,7 +1694,11 @@
           positionCell.appendChild(createTableInput(
             person.position, "position", index, "직책·직위"
           ));
-const deleteCell = document.createElement("td");
+
+          const logoCell = document.createElement("td");
+          logoCell.appendChild(buildLogoSelect(person, index));
+
+          const deleteCell = document.createElement("td");
           const deleteButton = document.createElement("button");
 
           deleteButton.className = "btn danger small";
@@ -1781,6 +1824,8 @@ const deleteCell = document.createElement("td");
         );
 
         const selected = state.people[state.selectedIndex];
+        const leftLogoLabel = getLeftLogoInfo(selected).label;
+
         elements.previewPage.appendChild(
           createPage(selected, state.selectedIndex, false)
         );
@@ -1991,7 +2036,12 @@ const deleteCell = document.createElement("td");
           if (!raw) return;
 
           const saved = JSON.parse(raw);
-if (Array.isArray(saved.people)) {
+
+          if (Array.isArray(saved.customLogos)) {
+            state.customLogos = saved.customLogos.map(sanitizeCustomLogo);
+          }
+
+          if (Array.isArray(saved.people)) {
             state.people =
               saved.people.map(sanitizePerson);
           }
@@ -2062,7 +2112,7 @@ if (Array.isArray(saved.people)) {
       function exportProject() {
         const payload = {
           app: "nameplate-maker",
-          version: 2.2,
+          version: "2.2.1",
           savedAt: new Date().toISOString(),
           people: state.people,
           customLogos: state.customLogos,
@@ -2088,8 +2138,12 @@ if (Array.isArray(saved.people)) {
             if (!Array.isArray(parsed.people)) {
               throw new Error("명단 형식이 없습니다.");
             }
-state.people =
-              parsed.people.map(sanitizePerson);
+
+            state.customLogos = Array.isArray(parsed.customLogos)
+              ? parsed.customLogos.map(sanitizeCustomLogo)
+              : [];
+
+            state.people = parsed.people.map(sanitizePerson);
 
             state.design = {
               ...defaultDesign,
@@ -2176,7 +2230,7 @@ state.people =
           ``,
           `종류: ${type}`,
           `작성자·부서: ${name}`,
-          `버전: v2.2`,
+          `버전: v2.2.1`,
           ``,
           `내용`,
           text

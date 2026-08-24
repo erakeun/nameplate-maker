@@ -25,6 +25,12 @@
       --plate-footer-size: 10pt;
       --plate-name-spacing: 0.18em;
       --plate-logo-width: 54mm;
+      --plate-logo-x: 0mm;
+      --plate-logo-y: 0mm;
+
+      --footer-logo-width: 58mm;
+      --footer-logo-x: 0mm;
+      --footer-logo-y: 0mm;
 
       --plate-font: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo",
                     "Malgun Gothic", Arial, sans-serif;
@@ -107,20 +113,31 @@
     .app {
       display: grid;
       grid-template-columns: minmax(370px, 450px) minmax(0, 1fr);
-      min-height: calc(100vh - 72px);
+      height: calc(100vh - 72px);
+      min-height: 0;
+      overflow: hidden;
     }
 
     .panel {
+      height: 100%;
+      min-height: 0;
       padding: 18px;
       background: #fff;
       border-right: 1px solid var(--ui-line);
-      overflow: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
     }
 
     .workspace {
+      position: sticky;
+      top: 0;
+      height: 100%;
       min-width: 0;
+      min-height: 0;
       padding: 22px;
       overflow: auto;
+      align-self: start;
     }
 
     .section {
@@ -491,12 +508,52 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 8mm;
       width: 297mm;
       height: 210mm;
       background: #fff;
       box-shadow: 0 12px 32px rgba(15,23,42,.18);
       overflow: hidden;
+    }
+
+    .nameplate-stack {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 250mm;
+      height: 166mm;
+      gap: 0;
+      overflow: visible;
+    }
+
+    .nameplate-stack .nameplate {
+      flex: 0 0 83mm;
+    }
+
+    .fold-guide {
+      position: absolute;
+      z-index: 20;
+      left: 0;
+      right: 0;
+      top: 83mm;
+      height: 0;
+      border-top: 0.22mm dashed rgba(15, 23, 42, .28);
+      pointer-events: none;
+    }
+
+    .fold-guide-label {
+      position: absolute;
+      z-index: 21;
+      top: calc(83mm - 3.2mm);
+      left: 50%;
+      transform: translateX(-50%);
+      padding: .5mm 2mm;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      color: #7b8794;
+      font-size: 6.5pt;
+      font-weight: 700;
+      letter-spacing: .02em;
+      pointer-events: none;
     }
 
     .nameplate {
@@ -505,7 +562,7 @@
       height: 83mm;
       border: 0.75mm solid var(--plate-border);
       background: #fff;
-      color: var(--plate-color);
+      color: var(--plate-name-color);
       overflow: hidden;
       font-family: var(--plate-font);
     }
@@ -562,6 +619,7 @@
       max-width: 100%;
       max-height: 62mm;
       object-fit: contain;
+      transform: translate(var(--plate-logo-x), var(--plate-logo-y));
     }
 
     .logo-placeholder {
@@ -646,12 +704,13 @@
       position: absolute;
       right: 10mm;
       top: 1.2mm;
-      width: 58mm;
+      width: var(--footer-logo-width);
       height: 6.2mm;
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      overflow: hidden;
+      overflow: visible;
+      transform: translate(var(--footer-logo-x), var(--footer-logo-y));
     }
 
     .footer-logo-box img {
@@ -810,6 +869,83 @@
       gap: 10px;
     }
 
+
+    .color-simple-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .palette-toolbar {
+      display: grid;
+      grid-template-columns: 145px minmax(0, 1fr);
+      gap: 9px;
+      align-items: center;
+      margin: 6px 0 12px;
+    }
+
+    .palette-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .palette-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 31px;
+      padding: 5px 8px;
+      border: 1px solid #d8e0e8;
+      border-radius: 999px;
+      background: #fff;
+      color: #344054;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .palette-chip:hover {
+      border-color: #9db0c2;
+      background: #f8fafc;
+    }
+
+    .palette-dot {
+      width: 14px;
+      height: 14px;
+      flex: 0 0 14px;
+      border: 1px solid rgba(0,0,0,.15);
+      border-radius: 50%;
+      background: var(--chip-color);
+    }
+
+    .advanced-colors {
+      margin: 4px 0 12px;
+      border: 1px solid #e1e7ee;
+      border-radius: 10px;
+      background: #fafbfc;
+      overflow: hidden;
+    }
+
+    .advanced-colors summary {
+      padding: 10px 12px;
+      color: #475467;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .advanced-color-body {
+      padding: 0 12px 12px;
+    }
+
+    .mixed-color-note {
+      margin-top: 5px;
+      color: #8a6c22;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
     .privacy-note {
       margin-top: 10px;
       padding: 10px;
@@ -876,11 +1012,22 @@
     @media (max-width: 1050px) {
       .app {
         grid-template-columns: 1fr;
+        height: auto;
+        min-height: 0;
+        overflow: visible;
       }
 
       .panel {
+        height: auto;
+        overflow: visible;
         border-right: 0;
         border-bottom: 1px solid var(--ui-line);
+      }
+
+      .workspace {
+        position: static;
+        height: auto;
+        overflow: visible;
       }
 
       .preview-zone {
@@ -909,7 +1056,9 @@
 
       .grid-2,
       .grid-3,
+      .color-simple-grid,
       .template-grid,
+      .palette-toolbar,
       .custom-logo-add {
         grid-template-columns: 1fr;
       }
@@ -965,7 +1114,9 @@
       }
 
       .page-label,
-      .logo-placeholder {
+      .logo-placeholder,
+      .fold-guide,
+      .fold-guide-label {
         display: none !important;
       }
 
@@ -982,7 +1133,7 @@
     <div class="brand">
       <div class="brand-line">
         <h1>행사용 명패 생성기</h1>
-        <span class="version-badge">v2.3</span>
+        <span class="version-badge">v2.5</span>
       </div>
       <p>명단 붙여넣기 → 명패 디자인 선택 → 로고·글자색 설정 → A4 양면 명패 자동 생성</p>
     </div>
@@ -1066,6 +1217,32 @@
             명단에서 별도 로고를 지정하지 않으면 이 로고가 기본으로 적용됩니다.
           </div>
 
+          <h3>좌측 로고 크기·위치</h3>
+
+          <div class="field">
+            <label for="logoWidth">좌측 로고 크기</label>
+            <div class="range-row">
+              <input type="range" id="logoWidth" min="20" max="65" value="54" />
+              <input type="number" id="logoWidthNumber" min="20" max="65" value="54" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="logoX">좌측 로고 좌우 위치</label>
+            <div class="range-row">
+              <input type="range" id="logoX" min="-25" max="25" step="1" value="0" />
+              <input type="number" id="logoXNumber" min="-25" max="25" step="1" value="0" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="logoY">좌측 로고 상하 위치</label>
+            <div class="range-row">
+              <input type="range" id="logoY" min="-20" max="20" step="1" value="0" />
+              <input type="number" id="logoYNumber" min="-20" max="20" step="1" value="0" />
+            </div>
+          </div>
+
           <h3>외부기관 좌측 로고 추가</h3>
 
           <div class="custom-logo-add">
@@ -1103,6 +1280,32 @@
             하단 로고 파일 경로<br>
             · 한양대학교: <strong>assets/footer-hanyang.png</strong><br>
             · 한양대학교 ERICA: <strong>assets/footer-erica.png</strong>
+          </div>
+
+          <h3>하단 로고 크기·위치</h3>
+
+          <div class="field">
+            <label for="footerLogoWidth">하단 로고 크기</label>
+            <div class="range-row">
+              <input type="range" id="footerLogoWidth" min="20" max="90" value="58" />
+              <input type="number" id="footerLogoWidthNumber" min="20" max="90" value="58" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="footerLogoX">하단 로고 좌우 위치</label>
+            <div class="range-row">
+              <input type="range" id="footerLogoX" min="-35" max="35" step="1" value="0" />
+              <input type="number" id="footerLogoXNumber" min="-35" max="35" step="1" value="0" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="footerLogoY">하단 로고 상하 위치</label>
+            <div class="range-row">
+              <input type="range" id="footerLogoY" min="-8" max="8" step="0.5" value="0" />
+              <input type="number" id="footerLogoYNumber" min="-8" max="8" step="0.5" value="0" />
+            </div>
           </div>
         </div>
       </section>
@@ -1161,29 +1364,70 @@
           </select>
         </div>
 
-        <div class="grid-3">
+        <div class="color-simple-grid">
           <div class="field">
-            <label for="nameColor">이름 색상</label>
+            <label for="overallTextColor">글자색</label>
             <div class="color-row">
-              <input type="color" id="nameColor" value="#07518a" />
-              <input type="text" id="nameColorHex" value="#07518a" />
+              <input type="color" id="overallTextColor" value="#07518a" />
+              <input type="text" id="overallTextColorHex" value="#07518a" />
             </div>
+            <div class="mixed-color-note" id="mixedColorNote"></div>
           </div>
+
           <div class="field">
-            <label for="titleColor">소속·직책 색상</label>
-            <div class="color-row">
-              <input type="color" id="titleColor" value="#07518a" />
-              <input type="text" id="titleColorHex" value="#07518a" />
-            </div>
-          </div>
-          <div class="field">
-            <label for="borderColor">기본형 선 색상</label>
+            <label for="borderColor">선·외곽선색 (기본형)</label>
             <div class="color-row">
               <input type="color" id="borderColor" value="#07518a" />
               <input type="text" id="borderColorHex" value="#07518a" />
             </div>
           </div>
         </div>
+
+        <div class="field">
+          <label>대표색 빠른 선택</label>
+          <div class="palette-toolbar">
+            <select id="paletteTarget">
+              <option value="text">글자 전체</option>
+              <option value="border">선·외곽선</option>
+              <option value="name">이름만</option>
+              <option value="title">소속·직책만</option>
+            </select>
+
+            <div class="palette-swatches" id="paletteSwatches">
+              <button type="button" class="palette-chip" data-color="#07518a" data-label="한양블루"><span class="palette-dot" style="--chip-color:#07518a;"></span>한양블루</button>
+              <button type="button" class="palette-chip" data-color="#0a3768" data-label="딥 네이비"><span class="palette-dot" style="--chip-color:#0a3768;"></span>딥 네이비</button>
+              <button type="button" class="palette-chip" data-color="#111111" data-label="블랙"><span class="palette-dot" style="--chip-color:#111111;"></span>블랙</button>
+              <button type="button" class="palette-chip" data-color="#3b4148" data-label="차콜"><span class="palette-dot" style="--chip-color:#3b4148;"></span>차콜</button>
+              <button type="button" class="palette-chip" data-color="#b4892d" data-label="골드"><span class="palette-dot" style="--chip-color:#b4892d;"></span>골드</button>
+              <button type="button" class="palette-chip" data-color="#7a2232" data-label="버건디"><span class="palette-dot" style="--chip-color:#7a2232;"></span>버건디</button>
+              <button type="button" class="palette-chip" data-color="#1f5b48" data-label="딥그린"><span class="palette-dot" style="--chip-color:#1f5b48;"></span>딥그린</button>
+              <button type="button" class="palette-chip" data-color="#7b8794" data-label="그레이"><span class="palette-dot" style="--chip-color:#7b8794;"></span>그레이</button>
+            </div>
+          </div>
+        </div>
+
+        <details class="advanced-colors">
+          <summary>세부 글자 색상 설정</summary>
+          <div class="advanced-color-body">
+            <div class="grid-2">
+              <div class="field">
+                <label for="nameColor">이름 색상</label>
+                <div class="color-row">
+                  <input type="color" id="nameColor" value="#07518a" />
+                  <input type="text" id="nameColorHex" value="#07518a" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="titleColor">소속·직책 색상</label>
+                <div class="color-row">
+                  <input type="color" id="titleColor" value="#07518a" />
+                  <input type="text" id="titleColorHex" value="#07518a" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
 
         <div class="field">
           <label for="nameSize">이름 크기</label>
@@ -1208,23 +1452,14 @@
             <input type="number" id="nameSpacingNumber" min="-2" max="35" value="18" />
           </div>
         </div>
-
-        <div class="field">
-          <label for="logoWidth">로고 너비</label>
-          <div class="range-row">
-            <input type="range" id="logoWidth" min="25" max="62" value="54" />
-            <input type="number" id="logoWidthNumber" min="25" max="62" value="54" />
-          </div>
-        </div>
-
-        <label class="check-row">
+<label class="check-row">
           <input type="checkbox" id="autoFit" checked />
           <span>긴 이름과 상단 문구는 지정 크기에서 자동으로 축소</span>
         </label>
 
         <label class="check-row">
-          <input type="checkbox" id="rotateBack" />
-          <span>아래쪽 명패를 180도 회전</span>
+          <input type="checkbox" id="rotateBack" checked />
+          <span>아래쪽 명패를 180도 회전 (명패케이스용 권장)</span>
         </label>
 
         <label class="check-row">
@@ -1286,6 +1521,24 @@
           <summary>업데이트 기록 보기</summary>
 
           <div class="patch-body">
+            <div class="patch-item">
+              <div class="patch-version">v2.5</div>
+              <div>· 앞면과 뒷면 사이 8mm 여백 제거, 250×166mm 연속 출력 구조로 변경</div>
+              <div>· 아래쪽 명패 180도 회전을 기본값으로 설정</div>
+              <div>· 화면에서만 가운데 접점 가이드 표시, 실제 인쇄에서는 자동 숨김</div>
+              <div>· 기본 색상 설정을 글자색 / 선·외곽선색으로 단순화</div>
+              <div>· 이름 / 소속·직책 개별 색상은 세부 설정으로 이동</div>
+              <div>· 한양블루·네이비·골드 등 대표색 팔레트 8종 추가</div>
+            </div>
+
+            <div class="patch-item">
+              <div class="patch-version">v2.4</div>
+              <div>· 좌측 로고 크기뿐 아니라 좌우·상하 위치 조절 추가</div>
+              <div>· 하단 한양대/ERICA 로고의 크기·좌우·상하 위치 조절 추가</div>
+              <div>· 데스크톱에서 좌측 설정 패널만 스크롤되고 우측 인쇄 미리보기는 고정되도록 개선</div>
+              <div>· 로고 위치 조절값을 작업 저장·불러오기 및 디자인 기본값 저장에 포함</div>
+            </div>
+
             <div class="patch-item">
               <div class="patch-version">v2.3</div>
               <div>· 기존 기본형 + 신규 디자인 4종 선택 기능 추가</div>
@@ -1397,8 +1650,8 @@
       const FEEDBACK_EMAIL = "keun0810@hanyang.ac.kr";
       const FEEDBACK_ISSUE_URL = "https://github.com/hyungkeunyoo/nameplate-maker/issues/new";
 
-      const STORAGE_KEY = "nameplate-maker-project-v23";
-      const DESIGN_KEY = "nameplate-maker-design-v23";
+      const STORAGE_KEY = "nameplate-maker-project-v25";
+      const DESIGN_KEY = "nameplate-maker-design-v25";
 
       const BUILTIN_LEFT_LOGOS = {
         hanyang: {
@@ -1441,9 +1694,14 @@
         titleSize: 27,
         nameSpacing: 18,
         logoWidth: 54,
+        logoX: 0,
+        logoY: 0,
+        footerLogoWidth: 58,
+        footerLogoX: 0,
+        footerLogoY: 0,
         titleSeparator: " ",
         autoFit: true,
-        rotateBack: false,
+        rotateBack: true,
         showPageLabel: false
       };
 
@@ -1478,6 +1736,11 @@
         templateCards: $$(".template-card"),
         recommendedColorBtn: $("#recommendedColorBtn"),
         titleSeparator: $("#titleSeparator"),
+        overallTextColor: $("#overallTextColor"),
+        overallTextColorHex: $("#overallTextColorHex"),
+        mixedColorNote: $("#mixedColorNote"),
+        paletteTarget: $("#paletteTarget"),
+        paletteChips: $$(".palette-chip"),
         nameColor: $("#nameColor"),
         nameColorHex: $("#nameColorHex"),
         titleColor: $("#titleColor"),
@@ -1492,6 +1755,16 @@
         nameSpacingNumber: $("#nameSpacingNumber"),
         logoWidth: $("#logoWidth"),
         logoWidthNumber: $("#logoWidthNumber"),
+        logoX: $("#logoX"),
+        logoXNumber: $("#logoXNumber"),
+        logoY: $("#logoY"),
+        logoYNumber: $("#logoYNumber"),
+        footerLogoWidth: $("#footerLogoWidth"),
+        footerLogoWidthNumber: $("#footerLogoWidthNumber"),
+        footerLogoX: $("#footerLogoX"),
+        footerLogoXNumber: $("#footerLogoXNumber"),
+        footerLogoY: $("#footerLogoY"),
+        footerLogoYNumber: $("#footerLogoYNumber"),
         autoFit: $("#autoFit"),
         rotateBack: $("#rotateBack"),
         showPageLabel: $("#showPageLabel"),
@@ -1693,6 +1966,12 @@
         root.style.setProperty("--plate-title-size", `${state.design.titleSize}pt`);
         root.style.setProperty("--plate-name-spacing", `${state.design.nameSpacing / 100}em`);
         root.style.setProperty("--plate-logo-width", `${state.design.logoWidth}mm`);
+        root.style.setProperty("--plate-logo-x", `${state.design.logoX}mm`);
+        root.style.setProperty("--plate-logo-y", `${state.design.logoY}mm`);
+
+        root.style.setProperty("--footer-logo-width", `${state.design.footerLogoWidth}mm`);
+        root.style.setProperty("--footer-logo-x", `${state.design.footerLogoX}mm`);
+        root.style.setProperty("--footer-logo-y", `${state.design.footerLogoY}mm`);
       }
 
       function getTemplateInfo() {
@@ -1837,9 +2116,26 @@
           page.appendChild(label);
         }
 
-        page.appendChild(createNameplate(person, false));
-        page.appendChild(createNameplate(person, true));
+        const stack = document.createElement("div");
+        stack.className = "nameplate-stack";
 
+        const front = createNameplate(person, false);
+        const back = createNameplate(person, true);
+
+        stack.append(front, back);
+
+        if (!forPrint) {
+          const guide = document.createElement("div");
+          guide.className = "fold-guide";
+
+          const guideLabel = document.createElement("div");
+          guideLabel.className = "fold-guide-label";
+          guideLabel.textContent = "접점";
+
+          stack.append(guide, guideLabel);
+        }
+
+        page.appendChild(stack);
         return page;
       }
 
@@ -2174,10 +2470,17 @@
         elements.borderColor.value = d.borderColor;
         elements.borderColorHex.value = d.borderColor;
 
+        syncOverallTextColorDisplay();
+
         setPairedValue("nameSize", d.nameSize);
         setPairedValue("titleSize", d.titleSize);
         setPairedValue("nameSpacing", d.nameSpacing);
         setPairedValue("logoWidth", d.logoWidth);
+        setPairedValue("logoX", d.logoX);
+        setPairedValue("logoY", d.logoY);
+        setPairedValue("footerLogoWidth", d.footerLogoWidth);
+        setPairedValue("footerLogoX", d.footerLogoX);
+        setPairedValue("footerLogoY", d.footerLogoY);
 
         elements.autoFit.checked = d.autoFit;
         elements.rotateBack.checked = d.rotateBack;
@@ -2221,10 +2524,63 @@
         return fallback;
       }
 
+      function syncOverallTextColorDisplay() {
+        const same =
+          String(state.design.nameColor).toLowerCase() ===
+          String(state.design.titleColor).toLowerCase();
+
+        const displayColor = state.design.nameColor || "#07518a";
+
+        elements.overallTextColor.value = displayColor;
+        elements.overallTextColorHex.value = displayColor;
+
+        elements.mixedColorNote.textContent = same
+          ? ""
+          : "이름과 소속·직책에 서로 다른 색상이 적용되어 있습니다.";
+      }
+
+      function setOverallTextColor(color) {
+        const valid = normalizeHex(color, state.design.nameColor || "#07518a");
+
+        state.design.nameColor = valid;
+        state.design.titleColor = valid;
+
+        elements.nameColor.value = valid;
+        elements.nameColorHex.value = valid;
+        elements.titleColor.value = valid;
+        elements.titleColorHex.value = valid;
+
+        syncOverallTextColorDisplay();
+        renderPreviewOnly();
+      }
+
+      function applyPaletteColor(color, target) {
+        const valid = normalizeHex(color, "#07518a");
+
+        if (target === "text") {
+          state.design.nameColor = valid;
+          state.design.titleColor = valid;
+        } else if (target === "border") {
+          state.design.borderColor = valid;
+        } else if (target === "name") {
+          state.design.nameColor = valid;
+        } else if (target === "title") {
+          state.design.titleColor = valid;
+        }
+
+        syncControlsFromState();
+        renderPreviewOnly();
+      }
+
       function bindColor(colorElement, hexElement, stateKey) {
         colorElement.addEventListener("input", () => {
           hexElement.value = colorElement.value;
           state.design[stateKey] = colorElement.value;
+
+          if (stateKey === "nameColor" || stateKey === "titleColor") {
+            syncOverallTextColorDisplay();
+          }
+
           renderPreviewOnly();
         });
 
@@ -2237,6 +2593,10 @@
           hexElement.value = valid;
           colorElement.value = valid;
           state.design[stateKey] = valid;
+
+          if (stateKey === "nameColor" || stateKey === "titleColor") {
+            syncOverallTextColorDisplay();
+          }
 
           renderPreviewOnly();
         });
@@ -2461,7 +2821,7 @@
           ``,
           `종류: ${type}`,
           `작성자·부서: ${name}`,
-          `버전: v2.3`,
+          `버전: v2.5`,
           ``,
           `내용`,
           text
@@ -2691,6 +3051,33 @@
         renderPreviewOnly();
       });
 
+      elements.overallTextColor.addEventListener("input", () => {
+        elements.overallTextColorHex.value = elements.overallTextColor.value;
+        setOverallTextColor(elements.overallTextColor.value);
+      });
+
+      elements.overallTextColorHex.addEventListener("change", () => {
+        const valid = normalizeHex(
+          elements.overallTextColorHex.value,
+          state.design.nameColor
+        );
+
+        elements.overallTextColor.value = valid;
+        elements.overallTextColorHex.value = valid;
+        setOverallTextColor(valid);
+      });
+
+      elements.paletteChips.forEach(chip => {
+        chip.addEventListener("click", () => {
+          const color = chip.dataset.color;
+          const label = chip.dataset.label || color;
+          const target = elements.paletteTarget.value;
+
+          applyPaletteColor(color, target);
+          showStatus(`${label} 색상을 적용했습니다.`);
+        });
+      });
+
       bindColor(
         elements.nameColor,
         elements.nameColorHex,
@@ -2712,7 +3099,12 @@
       bindPair("nameSize", 40, 105);
       bindPair("titleSize", 15, 44);
       bindPair("nameSpacing", -2, 35);
-      bindPair("logoWidth", 25, 62);
+      bindPair("logoWidth", 20, 65);
+      bindPair("logoX", -25, 25);
+      bindPair("logoY", -20, 20);
+      bindPair("footerLogoWidth", 20, 90);
+      bindPair("footerLogoX", -35, 35);
+      bindPair("footerLogoY", -8, 8);
 
       elements.autoFit.addEventListener("change", () => {
         state.design.autoFit =

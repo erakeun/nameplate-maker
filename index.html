@@ -1177,7 +1177,7 @@
     <div class="brand">
       <div class="brand-line">
         <h1>행사용 명패 생성기</h1>
-        <span class="version-badge">v2.7</span>
+        <span class="version-badge">v2.7.1</span>
       </div>
       <p>명단 붙여넣기 → 명패 디자인 선택 → 로고·글자색 설정 → A4 양면 명패 자동 생성</p>
     </div>
@@ -1192,6 +1192,45 @@
 
   <main class="app">
     <aside class="panel">
+
+<section class="section">
+        <h2>인쇄 설정</h2>
+
+        <div class="field">
+          <label for="platePreset">명패 규격</label>
+
+          <div class="size-preset-grid">
+            <select id="platePreset">
+              <option value="200x70">소형 · 200 × 70 mm</option>
+              <option value="200x80">중형 · 200 × 80 mm</option>
+              <option value="250x80" selected>대형 · 250 × 80 mm</option>
+              <option value="255x85">대형+ · 255 × 85 mm</option>
+              <option value="custom">사용자 지정</option>
+            </select>
+
+            <div class="field" style="margin:0;">
+              <label for="plateWidth">가로 mm</label>
+              <input type="number" id="plateWidth" min="100" max="290" step="1" value="250" />
+            </div>
+
+            <div class="field" style="margin:0;">
+              <label for="plateHeight">세로 mm</label>
+              <input type="number" id="plateHeight" min="45" max="100" step="1" value="80" />
+            </div>
+          </div>
+
+          <div class="size-summary" id="plateSizeSummary">
+            명패 1면 <strong>250 × 80mm</strong> · 양면 연속 출력 <strong>250 × 160mm</strong>
+          </div>
+          <div class="size-warning" id="plateSizeWarning"></div>
+        </div>
+
+        <p class="hint" style="margin-bottom:0;">
+          인쇄창에서 <strong>A4 · 가로 · 배율 100% · 여백 없음 · 머리글/바닥글 해제</strong>로 설정하세요.
+          선택한 규격의 앞·뒷면을 붙여 한 사람당 A4 한 페이지에 출력합니다.
+        </p>
+      </section>
+
       <section class="section">
         <h2>
           <span>1. 명단 입력</span>
@@ -1598,6 +1637,11 @@
 
           <div class="patch-body">
             <div class="patch-item">
+              <div class="patch-version">v2.7.1</div>
+              <div>· 명패 규격과 인쇄 배율을 먼저 확인할 수 있도록 ‘인쇄 설정’을 좌측 패널 최상단으로 이동</div>
+            </div>
+
+            <div class="patch-item">
               <div class="patch-version">v2.7</div>
               <div>· 부서별로 다른 명패 케이스에 대응하도록 명패 규격 프리셋 추가</div>
               <div>· 200×70 / 200×80 / 250×80 / 255×85mm 프리셋 제공</div>
@@ -1687,43 +1731,7 @@
         </details>
       </section>
 
-      <section class="section">
-        <h2>인쇄 설정</h2>
-
-        <div class="field">
-          <label for="platePreset">명패 규격</label>
-
-          <div class="size-preset-grid">
-            <select id="platePreset">
-              <option value="200x70">소형 · 200 × 70 mm</option>
-              <option value="200x80">중형 · 200 × 80 mm</option>
-              <option value="250x80" selected>대형 · 250 × 80 mm</option>
-              <option value="255x85">대형+ · 255 × 85 mm</option>
-              <option value="custom">사용자 지정</option>
-            </select>
-
-            <div class="field" style="margin:0;">
-              <label for="plateWidth">가로 mm</label>
-              <input type="number" id="plateWidth" min="100" max="290" step="1" value="250" />
-            </div>
-
-            <div class="field" style="margin:0;">
-              <label for="plateHeight">세로 mm</label>
-              <input type="number" id="plateHeight" min="45" max="100" step="1" value="80" />
-            </div>
-          </div>
-
-          <div class="size-summary" id="plateSizeSummary">
-            명패 1면 <strong>250 × 80mm</strong> · 양면 연속 출력 <strong>250 × 160mm</strong>
-          </div>
-          <div class="size-warning" id="plateSizeWarning"></div>
-        </div>
-
-        <p class="hint" style="margin-bottom:0;">
-          인쇄창에서 <strong>A4 · 가로 · 배율 100% · 여백 없음 · 머리글/바닥글 해제</strong>로 설정하세요.
-          선택한 규격의 앞·뒷면을 붙여 한 사람당 A4 한 페이지에 출력합니다.
-        </p>
-      </section>
+      
     </aside>
 
     <section class="workspace">
@@ -3044,7 +3052,7 @@
           ``,
           `종류: ${type}`,
           `작성자·부서: ${name}`,
-          `버전: v2.7`,
+          `버전: v2.7.1`,
           ``,
           `내용`,
           text

@@ -24,6 +24,11 @@
       --plate-title-size: 27pt;
       --plate-footer-size: 10pt;
       --plate-name-spacing: 0.18em;
+
+      --plate-name-x: 0mm;
+      --plate-name-y: 0mm;
+      --plate-title-x: 0mm;
+      --plate-title-y: 0mm;
       --plate-logo-width: 54mm;
       --plate-logo-x: 0mm;
       --plate-logo-y: 0mm;
@@ -660,6 +665,7 @@
       letter-spacing: -0.035em;
       white-space: nowrap;
       text-align: center;
+      transform: translate(var(--plate-title-x), var(--plate-title-y));
     }
 
     .plate-name {
@@ -676,6 +682,7 @@
       letter-spacing: var(--plate-name-spacing);
       white-space: nowrap;
       text-align: center;
+      transform: translate(var(--plate-name-x), var(--plate-name-y));
     }
 
     .plate-footer {
@@ -1133,7 +1140,7 @@
     <div class="brand">
       <div class="brand-line">
         <h1>행사용 명패 생성기</h1>
-        <span class="version-badge">v2.5</span>
+        <span class="version-badge">v2.6</span>
       </div>
       <p>명단 붙여넣기 → 명패 디자인 선택 → 로고·글자색 설정 → A4 양면 명패 자동 생성</p>
     </div>
@@ -1303,8 +1310,8 @@
           <div class="field">
             <label for="footerLogoY">하단 로고 상하 위치</label>
             <div class="range-row">
-              <input type="range" id="footerLogoY" min="-8" max="8" step="0.5" value="0" />
-              <input type="number" id="footerLogoYNumber" min="-8" max="8" step="0.5" value="0" />
+              <input type="range" id="footerLogoY" min="-15" max="15" step="0.5" value="0" />
+              <input type="number" id="footerLogoYNumber" min="-15" max="15" step="0.5" value="0" />
             </div>
           </div>
         </div>
@@ -1438,10 +1445,42 @@
         </div>
 
         <div class="field">
+          <label for="nameX">이름 좌우 위치</label>
+          <div class="range-row">
+            <input type="range" id="nameX" min="-35" max="35" step="1" value="0" />
+            <input type="number" id="nameXNumber" min="-35" max="35" step="1" value="0" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="nameY">이름 상하 위치</label>
+          <div class="range-row">
+            <input type="range" id="nameY" min="-20" max="20" step="1" value="0" />
+            <input type="number" id="nameYNumber" min="-20" max="20" step="1" value="0" />
+          </div>
+        </div>
+
+        <div class="field">
           <label for="titleSize">상단 문구 크기</label>
           <div class="range-row">
             <input type="range" id="titleSize" min="15" max="44" value="27" />
             <input type="number" id="titleSizeNumber" min="15" max="44" value="27" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="titleX">상단 문구 좌우 위치</label>
+          <div class="range-row">
+            <input type="range" id="titleX" min="-35" max="35" step="1" value="0" />
+            <input type="number" id="titleXNumber" min="-35" max="35" step="1" value="0" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="titleY">상단 문구 상하 위치</label>
+          <div class="range-row">
+            <input type="range" id="titleY" min="-18" max="18" step="1" value="0" />
+            <input type="number" id="titleYNumber" min="-18" max="18" step="1" value="0" />
           </div>
         </div>
 
@@ -1521,6 +1560,14 @@
           <summary>업데이트 기록 보기</summary>
 
           <div class="patch-body">
+            <div class="patch-item">
+              <div class="patch-version">v2.6</div>
+              <div>· 이름의 좌우·상하 위치 조절 슬라이더 추가</div>
+              <div>· 상단 소속·직책 문구의 좌우·상하 위치 조절 슬라이더 추가</div>
+              <div>· 하단 한양대/ERICA 로고 상하 이동 범위를 ±8mm에서 ±15mm로 확대</div>
+              <div>· 텍스트 위치값도 작업 저장·불러오기 및 디자인 기본값 저장에 포함</div>
+            </div>
+
             <div class="patch-item">
               <div class="patch-version">v2.5</div>
               <div>· 앞면과 뒷면 사이 8mm 여백 제거, 250×166mm 연속 출력 구조로 변경</div>
@@ -1691,7 +1738,11 @@
         titleColor: "#07518a",
         borderColor: "#07518a",
         nameSize: 78,
+        nameX: 0,
+        nameY: 0,
         titleSize: 27,
+        titleX: 0,
+        titleY: 0,
         nameSpacing: 18,
         logoWidth: 54,
         logoX: 0,
@@ -1749,8 +1800,16 @@
         borderColorHex: $("#borderColorHex"),
         nameSize: $("#nameSize"),
         nameSizeNumber: $("#nameSizeNumber"),
+        nameX: $("#nameX"),
+        nameXNumber: $("#nameXNumber"),
+        nameY: $("#nameY"),
+        nameYNumber: $("#nameYNumber"),
         titleSize: $("#titleSize"),
         titleSizeNumber: $("#titleSizeNumber"),
+        titleX: $("#titleX"),
+        titleXNumber: $("#titleXNumber"),
+        titleY: $("#titleY"),
+        titleYNumber: $("#titleYNumber"),
         nameSpacing: $("#nameSpacing"),
         nameSpacingNumber: $("#nameSpacingNumber"),
         logoWidth: $("#logoWidth"),
@@ -1963,7 +2022,13 @@
         root.style.setProperty("--plate-title-color", state.design.titleColor);
         root.style.setProperty("--plate-border", state.design.borderColor);
         root.style.setProperty("--plate-name-size", `${state.design.nameSize}pt`);
+        root.style.setProperty("--plate-name-x", `${state.design.nameX}mm`);
+        root.style.setProperty("--plate-name-y", `${state.design.nameY}mm`);
+
         root.style.setProperty("--plate-title-size", `${state.design.titleSize}pt`);
+        root.style.setProperty("--plate-title-x", `${state.design.titleX}mm`);
+        root.style.setProperty("--plate-title-y", `${state.design.titleY}mm`);
+
         root.style.setProperty("--plate-name-spacing", `${state.design.nameSpacing / 100}em`);
         root.style.setProperty("--plate-logo-width", `${state.design.logoWidth}mm`);
         root.style.setProperty("--plate-logo-x", `${state.design.logoX}mm`);
@@ -2473,7 +2538,13 @@
         syncOverallTextColorDisplay();
 
         setPairedValue("nameSize", d.nameSize);
+        setPairedValue("nameX", d.nameX);
+        setPairedValue("nameY", d.nameY);
+
         setPairedValue("titleSize", d.titleSize);
+        setPairedValue("titleX", d.titleX);
+        setPairedValue("titleY", d.titleY);
+
         setPairedValue("nameSpacing", d.nameSpacing);
         setPairedValue("logoWidth", d.logoWidth);
         setPairedValue("logoX", d.logoX);
@@ -2821,7 +2892,7 @@
           ``,
           `종류: ${type}`,
           `작성자·부서: ${name}`,
-          `버전: v2.5`,
+          `버전: v2.6`,
           ``,
           `내용`,
           text
@@ -3097,14 +3168,20 @@
       );
 
       bindPair("nameSize", 40, 105);
+      bindPair("nameX", -35, 35);
+      bindPair("nameY", -20, 20);
+
       bindPair("titleSize", 15, 44);
+      bindPair("titleX", -35, 35);
+      bindPair("titleY", -18, 18);
+
       bindPair("nameSpacing", -2, 35);
       bindPair("logoWidth", 20, 65);
       bindPair("logoX", -25, 25);
       bindPair("logoY", -20, 20);
       bindPair("footerLogoWidth", 20, 90);
       bindPair("footerLogoX", -35, 35);
-      bindPair("footerLogoY", -8, 8);
+      bindPair("footerLogoY", -15, 15);
 
       elements.autoFit.addEventListener("change", () => {
         state.design.autoFit =

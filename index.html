@@ -20,6 +20,11 @@
       --plate-name-color: #07518a;
       --plate-title-color: #07518a;
       --plate-border: #07518a;
+
+      --plate-width: 250mm;
+      --plate-height: 80mm;
+      --plate-stack-height: 160mm;
+      --plate-fold-y: 80mm;
       --plate-name-size: 78pt;
       --plate-title-size: 27pt;
       --plate-footer-size: 10pt;
@@ -524,14 +529,14 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      width: 250mm;
-      height: 166mm;
+      width: var(--plate-width);
+      height: var(--plate-stack-height);
       gap: 0;
       overflow: visible;
     }
 
     .nameplate-stack .nameplate {
-      flex: 0 0 83mm;
+      flex: 0 0 var(--plate-height);
     }
 
     .fold-guide {
@@ -539,7 +544,7 @@
       z-index: 20;
       left: 0;
       right: 0;
-      top: 83mm;
+      top: var(--plate-fold-y);
       height: 0;
       border-top: 0.22mm dashed rgba(15, 23, 42, .28);
       pointer-events: none;
@@ -548,7 +553,7 @@
     .fold-guide-label {
       position: absolute;
       z-index: 21;
-      top: calc(83mm - 3.2mm);
+      top: calc(var(--plate-fold-y) - 3.2mm);
       left: 50%;
       transform: translateX(-50%);
       padding: .5mm 2mm;
@@ -563,8 +568,8 @@
 
     .nameplate {
       position: relative;
-      width: 250mm;
-      height: 83mm;
+      width: var(--plate-width);
+      height: var(--plate-height);
       border: 0.75mm solid var(--plate-border);
       background: #fff;
       color: var(--plate-name-color);
@@ -953,6 +958,37 @@
       line-height: 1.4;
     }
 
+
+    .size-preset-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 110px 110px;
+      gap: 9px;
+      align-items: end;
+    }
+
+    .size-summary {
+      margin-top: 8px;
+      padding: 9px 10px;
+      border: 1px solid #e1e7ee;
+      border-radius: 9px;
+      background: #f8fafc;
+      color: #475467;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .size-summary strong {
+      color: #172b3f;
+    }
+
+    .size-warning {
+      margin-top: 7px;
+      color: #b42318;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
     .privacy-note {
       margin-top: 10px;
       padding: 10px;
@@ -1066,6 +1102,7 @@
       .color-simple-grid,
       .template-grid,
       .palette-toolbar,
+      .size-preset-grid,
       .custom-logo-add {
         grid-template-columns: 1fr;
       }
@@ -1140,7 +1177,7 @@
     <div class="brand">
       <div class="brand-line">
         <h1>행사용 명패 생성기</h1>
-        <span class="version-badge">v2.6</span>
+        <span class="version-badge">v2.7</span>
       </div>
       <p>명단 붙여넣기 → 명패 디자인 선택 → 로고·글자색 설정 → A4 양면 명패 자동 생성</p>
     </div>
@@ -1561,6 +1598,15 @@
 
           <div class="patch-body">
             <div class="patch-item">
+              <div class="patch-version">v2.7</div>
+              <div>· 부서별로 다른 명패 케이스에 대응하도록 명패 규격 프리셋 추가</div>
+              <div>· 200×70 / 200×80 / 250×80 / 255×85mm 프리셋 제공</div>
+              <div>· 사용자 지정 가로·세로(mm) 직접 입력 지원</div>
+              <div>· 명패 높이에 따라 양면 연속 출력 크기와 가운데 접점 위치 자동 계산</div>
+              <div>· A4 가로 영역을 넘는 규격 입력 시 경고 표시</div>
+            </div>
+
+            <div class="patch-item">
               <div class="patch-version">v2.6</div>
               <div>· 이름의 좌우·상하 위치 조절 슬라이더 추가</div>
               <div>· 상단 소속·직책 문구의 좌우·상하 위치 조절 슬라이더 추가</div>
@@ -1632,7 +1678,7 @@
 
             <div class="patch-item">
               <div class="patch-version">v1.0</div>
-              <div>· 250mm × 83mm 양면 명패 생성</div>
+              <div>· 가로형 양면 명패 생성</div>
               <div>· A4 가로 한 페이지당 동일 명패 2개 배치</div>
               <div>· 대량 명단 붙여넣기 및 전체 PDF 인쇄 지원</div>
               <div>· 글자 크기·자간·색상·로고 크기 조절 지원</div>
@@ -1644,9 +1690,38 @@
       <section class="section">
         <h2>인쇄 설정</h2>
 
+        <div class="field">
+          <label for="platePreset">명패 규격</label>
+
+          <div class="size-preset-grid">
+            <select id="platePreset">
+              <option value="200x70">소형 · 200 × 70 mm</option>
+              <option value="200x80">중형 · 200 × 80 mm</option>
+              <option value="250x80" selected>대형 · 250 × 80 mm</option>
+              <option value="255x85">대형+ · 255 × 85 mm</option>
+              <option value="custom">사용자 지정</option>
+            </select>
+
+            <div class="field" style="margin:0;">
+              <label for="plateWidth">가로 mm</label>
+              <input type="number" id="plateWidth" min="100" max="290" step="1" value="250" />
+            </div>
+
+            <div class="field" style="margin:0;">
+              <label for="plateHeight">세로 mm</label>
+              <input type="number" id="plateHeight" min="45" max="100" step="1" value="80" />
+            </div>
+          </div>
+
+          <div class="size-summary" id="plateSizeSummary">
+            명패 1면 <strong>250 × 80mm</strong> · 양면 연속 출력 <strong>250 × 160mm</strong>
+          </div>
+          <div class="size-warning" id="plateSizeWarning"></div>
+        </div>
+
         <p class="hint" style="margin-bottom:0;">
           인쇄창에서 <strong>A4 · 가로 · 배율 100% · 여백 없음 · 머리글/바닥글 해제</strong>로 설정하세요.
-          한 사람당 A4 한 페이지이며, 한 페이지에 250mm × 83mm 명패가 2개 배치됩니다.
+          선택한 규격의 앞·뒷면을 붙여 한 사람당 A4 한 페이지에 출력합니다.
         </p>
       </section>
     </aside>
@@ -1697,8 +1772,8 @@
       const FEEDBACK_EMAIL = "keun0810@hanyang.ac.kr";
       const FEEDBACK_ISSUE_URL = "https://github.com/hyungkeunyoo/nameplate-maker/issues/new";
 
-      const STORAGE_KEY = "nameplate-maker-project-v25";
-      const DESIGN_KEY = "nameplate-maker-design-v25";
+      const STORAGE_KEY = "nameplate-maker-project-v27";
+      const DESIGN_KEY = "nameplate-maker-design-v27";
 
       const BUILTIN_LEFT_LOGOS = {
         hanyang: {
@@ -1722,6 +1797,13 @@
         }
       };
 
+      const PLATE_SIZE_PRESETS = {
+        "200x70": { width: 200, height: 70, label: "소형 · 200 × 70 mm" },
+        "200x80": { width: 200, height: 80, label: "중형 · 200 × 80 mm" },
+        "250x80": { width: 250, height: 80, label: "대형 · 250 × 80 mm" },
+        "255x85": { width: 255, height: 85, label: "대형+ · 255 × 85 mm" }
+      };
+
       const PLATE_TEMPLATES = {
         basic: { label: "기본형", src: "", colors: { name: "#07518a", title: "#07518a", border: "#07518a" } },
         minimal: { label: "모던 미니멀", src: "assets/template-minimal.png", colors: { name: "#0a447c", title: "#0a447c", border: "#0a447c" } },
@@ -1734,6 +1816,9 @@
         defaultLeftLogo: "hanyang",
         footerLogo: "hanyang",
         templateStyle: "basic",
+        platePreset: "250x80",
+        plateWidth: 250,
+        plateHeight: 80,
         nameColor: "#07518a",
         titleColor: "#07518a",
         borderColor: "#07518a",
@@ -1827,6 +1912,11 @@
         autoFit: $("#autoFit"),
         rotateBack: $("#rotateBack"),
         showPageLabel: $("#showPageLabel"),
+        platePreset: $("#platePreset"),
+        plateWidth: $("#plateWidth"),
+        plateHeight: $("#plateHeight"),
+        plateSizeSummary: $("#plateSizeSummary"),
+        plateSizeWarning: $("#plateSizeWarning"),
         previewZone: $("#previewZone"),
         previewScaler: $("#previewScaler"),
         previewPage: $("#previewPage"),
@@ -2021,6 +2111,12 @@
         root.style.setProperty("--plate-name-color", state.design.nameColor);
         root.style.setProperty("--plate-title-color", state.design.titleColor);
         root.style.setProperty("--plate-border", state.design.borderColor);
+
+        root.style.setProperty("--plate-width", `${state.design.plateWidth}mm`);
+        root.style.setProperty("--plate-height", `${state.design.plateHeight}mm`);
+        root.style.setProperty("--plate-stack-height", `${state.design.plateHeight * 2}mm`);
+        root.style.setProperty("--plate-fold-y", `${state.design.plateHeight}mm`);
+
         root.style.setProperty("--plate-name-size", `${state.design.nameSize}pt`);
         root.style.setProperty("--plate-name-x", `${state.design.nameX}mm`);
         root.style.setProperty("--plate-name-y", `${state.design.nameY}mm`);
@@ -2041,6 +2137,51 @@
 
       function getTemplateInfo() {
         return PLATE_TEMPLATES[state.design.templateStyle] || PLATE_TEMPLATES.basic;
+      }
+
+      function detectPlatePreset(width, height) {
+        const match = Object.entries(PLATE_SIZE_PRESETS).find(
+          ([, preset]) =>
+            Number(preset.width) === Number(width) &&
+            Number(preset.height) === Number(height)
+        );
+
+        return match ? match[0] : "custom";
+      }
+
+      function updatePlateSizeSummary() {
+        const width = Number(state.design.plateWidth) || 250;
+        const height = Number(state.design.plateHeight) || 80;
+        const stackHeight = height * 2;
+
+        elements.plateSizeSummary.innerHTML =
+          `명패 1면 <strong>${width} × ${height}mm</strong> · ` +
+          `양면 연속 출력 <strong>${width} × ${stackHeight}mm</strong>`;
+
+        const warnings = [];
+
+        if (width > 297) {
+          warnings.push("가로가 A4 297mm를 초과합니다.");
+        }
+
+        if (stackHeight > 210) {
+          warnings.push("앞·뒷면을 합친 높이가 A4 210mm를 초과합니다.");
+        }
+
+        elements.plateSizeWarning.textContent = warnings.join(" ");
+      }
+
+      function setPlateSize(width, height, presetKey = null) {
+        const safeWidth = Math.min(290, Math.max(100, Number(width) || 250));
+        const safeHeight = Math.min(100, Math.max(45, Number(height) || 80));
+
+        state.design.plateWidth = safeWidth;
+        state.design.plateHeight = safeHeight;
+        state.design.platePreset =
+          presetKey || detectPlatePreset(safeWidth, safeHeight);
+
+        syncControlsFromState();
+        renderPreviewOnly();
       }
 
       function applyRecommendedColors(templateStyle = state.design.templateStyle) {
@@ -2556,6 +2697,17 @@
         elements.autoFit.checked = d.autoFit;
         elements.rotateBack.checked = d.rotateBack;
         elements.showPageLabel.checked = d.showPageLabel;
+
+        const detectedPreset =
+          PLATE_SIZE_PRESETS[d.platePreset]
+            ? d.platePreset
+            : detectPlatePreset(d.plateWidth, d.plateHeight);
+
+        elements.platePreset.value = detectedPreset;
+        elements.plateWidth.value = d.plateWidth;
+        elements.plateHeight.value = d.plateHeight;
+
+        updatePlateSizeSummary();
       }
 
       function setPairedValue(key, value) {
@@ -2892,7 +3044,7 @@
           ``,
           `종류: ${type}`,
           `작성자·부서: ${name}`,
-          `버전: v2.6`,
+          `버전: v2.7`,
           ``,
           `내용`,
           text
@@ -3203,6 +3355,32 @@
 
         renderPreviewOnly();
       });
+
+      elements.platePreset.addEventListener("change", () => {
+        const key = elements.platePreset.value;
+
+        if (key === "custom") {
+          state.design.platePreset = "custom";
+          return;
+        }
+
+        const preset = PLATE_SIZE_PRESETS[key];
+
+        if (preset) {
+          setPlateSize(preset.width, preset.height, key);
+          showStatus(`${preset.label} 규격을 적용했습니다.`);
+        }
+      });
+
+      function handleCustomPlateSize() {
+        setPlateSize(
+          Number(elements.plateWidth.value),
+          Number(elements.plateHeight.value)
+        );
+      }
+
+      elements.plateWidth.addEventListener("change", handleCustomPlateSize);
+      elements.plateHeight.addEventListener("change", handleCustomPlateSize);
 
       $("#prevBtn").addEventListener("click", () => {
         if (!state.people.length) return;

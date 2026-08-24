@@ -989,6 +989,140 @@
       line-height: 1.45;
     }
 
+
+    .settings-action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .settings-lock-status {
+      margin-top: 8px;
+      min-height: 17px;
+      color: #667085;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .settings-lock-status.locked {
+      color: #9f4a14;
+      font-weight: 800;
+    }
+
+    body.settings-locked [data-settings-section] {
+      position: relative;
+    }
+
+    body.settings-locked [data-settings-section]::after {
+      content: "설정 잠금 중";
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      z-index: 10;
+      padding: 3px 7px;
+      border: 1px solid #ead7bd;
+      border-radius: 999px;
+      background: #fff8ed;
+      color: #9f4a14;
+      font-size: 10px;
+      font-weight: 800;
+      pointer-events: none;
+    }
+
+    .cut-mark {
+      position: absolute;
+      z-index: 40;
+      width: 6mm;
+      height: 6mm;
+      pointer-events: none;
+      box-sizing: border-box;
+    }
+
+    .cut-mark.tl {
+      left: -4mm;
+      top: -4mm;
+      border-top: .18mm solid #111;
+      border-left: .18mm solid #111;
+    }
+
+    .cut-mark.tr {
+      right: -4mm;
+      top: -4mm;
+      border-top: .18mm solid #111;
+      border-right: .18mm solid #111;
+    }
+
+    .cut-mark.bl {
+      left: -4mm;
+      bottom: -4mm;
+      border-bottom: .18mm solid #111;
+      border-left: .18mm solid #111;
+    }
+
+    .cut-mark.br {
+      right: -4mm;
+      bottom: -4mm;
+      border-bottom: .18mm solid #111;
+      border-right: .18mm solid #111;
+    }
+
+    .test-print-page {
+      gap: 16mm;
+      color: #111;
+    }
+
+    .test-print-head {
+      text-align: center;
+      font-size: 13pt;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .test-print-sub {
+      margin-top: 2mm;
+      color: #555;
+      font-size: 9pt;
+      font-weight: 500;
+    }
+
+    .test-ruler-wrap {
+      display: grid;
+      justify-items: center;
+      gap: 4mm;
+    }
+
+    .test-ruler-line {
+      position: relative;
+      width: 100mm;
+      height: 0;
+      border-top: .35mm solid #111;
+    }
+
+    .test-ruler-line::before,
+    .test-ruler-line::after {
+      content: "";
+      position: absolute;
+      top: -2.3mm;
+      width: .35mm;
+      height: 4.6mm;
+      background: #111;
+    }
+
+    .test-ruler-line::before {
+      left: 0;
+    }
+
+    .test-ruler-line::after {
+      right: 0;
+    }
+
+    .test-ruler-label {
+      font-size: 10pt;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
     .privacy-note {
       margin-top: 10px;
       padding: 10px;
@@ -1177,7 +1311,7 @@
     <div class="brand">
       <div class="brand-line">
         <h1>행사용 명패 생성기</h1>
-        <span class="version-badge">v2.7.1</span>
+        <span class="version-badge">v2.8</span>
       </div>
       <p>명단 붙여넣기 → 명패 디자인 선택 → 로고·글자색 설정 → A4 양면 명패 자동 생성</p>
     </div>
@@ -1193,7 +1327,7 @@
   <main class="app">
     <aside class="panel">
 
-<section class="section">
+<section class="section" data-settings-section>
         <h2>인쇄 설정</h2>
 
         <div class="field">
@@ -1224,6 +1358,26 @@
           </div>
           <div class="size-warning" id="plateSizeWarning"></div>
         </div>
+
+        <div class="field" style="margin-top:12px;">
+          <label class="check-row">
+            <input type="checkbox" id="autoScaleElements" checked />
+            <span>명패 규격 변경 시 글자·로고를 자동 비례 조정</span>
+          </label>
+
+          <label class="check-row">
+            <input type="checkbox" id="showCutMarks" />
+            <span>인쇄할 때 재단선 표시</span>
+          </label>
+        </div>
+
+        <div class="settings-action-row">
+          <button type="button" class="btn small" id="testPrintBtn" data-lock-exempt="true">100mm 테스트 인쇄</button>
+          <button type="button" class="btn small" id="resetAdjustmentsBtn">위치·크기 초기화</button>
+          <button type="button" class="btn small" id="settingsLockBtn" data-lock-exempt="true">설정 잠금</button>
+        </div>
+
+        <div class="settings-lock-status" id="settingsLockStatus"></div>
 
         <p class="hint" style="margin-bottom:0;">
           인쇄창에서 <strong>A4 · 가로 · 배율 100% · 여백 없음 · 머리글/바닥글 해제</strong>로 설정하세요.
@@ -1282,7 +1436,7 @@
         </div>
       </section>
 
-      <section class="section">
+      <section class="section" data-settings-section>
         <h2>2. 로고 설정</h2>
 
         <div class="logo-manager">
@@ -1393,7 +1547,7 @@
         </div>
       </section>
 
-      <section class="section">
+      <section class="section" data-settings-section>
         <h2>3. 문구와 디자인</h2>
 
         <div class="field">
@@ -1637,6 +1791,15 @@
 
           <div class="patch-body">
             <div class="patch-item">
+              <div class="patch-version">v2.8</div>
+              <div>· 위치·크기 조절값 초기화 기능 추가</div>
+              <div>· 명패 외곽 4모서리 재단선 인쇄 옵션 추가</div>
+              <div>· 명패 규격 변경 시 글자·로고 자동 비례 조정 옵션 추가</div>
+              <div>· 명단 입력 중 실수 방지를 위한 디자인 설정 잠금 기능 추가</div>
+              <div>· 인쇄 배율 확인용 100mm 테스트 인쇄 페이지 추가</div>
+            </div>
+
+            <div class="patch-item">
               <div class="patch-version">v2.7.1</div>
               <div>· 명패 규격과 인쇄 배율을 먼저 확인할 수 있도록 ‘인쇄 설정’을 좌측 패널 최상단으로 이동</div>
             </div>
@@ -1827,6 +1990,9 @@
         platePreset: "250x80",
         plateWidth: 250,
         plateHeight: 80,
+        autoScaleElements: true,
+        showCutMarks: false,
+        settingsLocked: false,
         nameColor: "#07518a",
         titleColor: "#07518a",
         borderColor: "#07518a",
@@ -1925,6 +2091,12 @@
         plateHeight: $("#plateHeight"),
         plateSizeSummary: $("#plateSizeSummary"),
         plateSizeWarning: $("#plateSizeWarning"),
+        autoScaleElements: $("#autoScaleElements"),
+        showCutMarks: $("#showCutMarks"),
+        testPrintBtn: $("#testPrintBtn"),
+        resetAdjustmentsBtn: $("#resetAdjustmentsBtn"),
+        settingsLockBtn: $("#settingsLockBtn"),
+        settingsLockStatus: $("#settingsLockStatus"),
         previewZone: $("#previewZone"),
         previewScaler: $("#previewScaler"),
         previewPage: $("#previewPage"),
@@ -2179,9 +2351,72 @@
         elements.plateSizeWarning.textContent = warnings.join(" ");
       }
 
+      function scaleAndClamp(value, ratio, min, max) {
+        const next = Number(value) * ratio;
+        return Math.round(Math.min(max, Math.max(min, next)) * 10) / 10;
+      }
+
+      function scaleDesignForPlateSize(oldWidth, oldHeight, newWidth, newHeight) {
+        if (!state.design.autoScaleElements) return;
+
+        if (!oldWidth || !oldHeight) return;
+
+        const widthRatio = newWidth / oldWidth;
+        const heightRatio = newHeight / oldHeight;
+        const uniformRatio = Math.min(widthRatio, heightRatio);
+
+        state.design.nameSize =
+          scaleAndClamp(state.design.nameSize, uniformRatio, 40, 105);
+
+        state.design.titleSize =
+          scaleAndClamp(state.design.titleSize, uniformRatio, 15, 44);
+
+        state.design.logoWidth =
+          scaleAndClamp(state.design.logoWidth, uniformRatio, 20, 65);
+
+        state.design.footerLogoWidth =
+          scaleAndClamp(state.design.footerLogoWidth, uniformRatio, 20, 90);
+
+        state.design.nameX =
+          scaleAndClamp(state.design.nameX, widthRatio, -35, 35);
+
+        state.design.titleX =
+          scaleAndClamp(state.design.titleX, widthRatio, -35, 35);
+
+        state.design.logoX =
+          scaleAndClamp(state.design.logoX, widthRatio, -25, 25);
+
+        state.design.footerLogoX =
+          scaleAndClamp(state.design.footerLogoX, widthRatio, -35, 35);
+
+        state.design.nameY =
+          scaleAndClamp(state.design.nameY, heightRatio, -20, 20);
+
+        state.design.titleY =
+          scaleAndClamp(state.design.titleY, heightRatio, -18, 18);
+
+        state.design.logoY =
+          scaleAndClamp(state.design.logoY, heightRatio, -20, 20);
+
+        state.design.footerLogoY =
+          scaleAndClamp(state.design.footerLogoY, heightRatio, -15, 15);
+      }
+
       function setPlateSize(width, height, presetKey = null) {
         const safeWidth = Math.min(290, Math.max(100, Number(width) || 250));
         const safeHeight = Math.min(100, Math.max(45, Number(height) || 80));
+
+        const oldWidth = Number(state.design.plateWidth) || 250;
+        const oldHeight = Number(state.design.plateHeight) || 80;
+
+        if (safeWidth !== oldWidth || safeHeight !== oldHeight) {
+          scaleDesignForPlateSize(
+            oldWidth,
+            oldHeight,
+            safeWidth,
+            safeHeight
+          );
+        }
 
         state.design.plateWidth = safeWidth;
         state.design.plateHeight = safeHeight;
@@ -2190,6 +2425,63 @@
 
         syncControlsFromState();
         renderPreviewOnly();
+      }
+
+      function resetAdjustments() {
+        const width = Number(state.design.plateWidth) || 250;
+        const height = Number(state.design.plateHeight) || 80;
+        const baseScale = Math.min(width / 250, height / 80);
+
+        state.design.nameSize =
+          Math.round(Math.min(105, Math.max(40, 78 * baseScale)) * 10) / 10;
+
+        state.design.titleSize =
+          Math.round(Math.min(44, Math.max(15, 27 * baseScale)) * 10) / 10;
+
+        state.design.logoWidth =
+          Math.round(Math.min(65, Math.max(20, 54 * baseScale)) * 10) / 10;
+
+        state.design.footerLogoWidth =
+          Math.round(Math.min(90, Math.max(20, 58 * baseScale)) * 10) / 10;
+
+        state.design.nameX = 0;
+        state.design.nameY = 0;
+        state.design.titleX = 0;
+        state.design.titleY = 0;
+        state.design.logoX = 0;
+        state.design.logoY = 0;
+        state.design.footerLogoX = 0;
+        state.design.footerLogoY = 0;
+        state.design.nameSpacing = 18;
+
+        syncControlsFromState();
+        renderPreviewOnly();
+      }
+
+      function applySettingsLock() {
+        const locked = Boolean(state.design.settingsLocked);
+
+        document.body.classList.toggle("settings-locked", locked);
+
+        $$("[data-settings-section] input, [data-settings-section] select, [data-settings-section] textarea, [data-settings-section] button")
+          .forEach(control => {
+            if (control.dataset.lockExempt === "true") {
+              control.disabled = false;
+              return;
+            }
+
+            control.disabled = locked;
+          });
+
+        elements.settingsLockBtn.textContent =
+          locked ? "설정 잠금 해제" : "설정 잠금";
+
+        elements.settingsLockStatus.textContent =
+          locked
+            ? "디자인 설정이 잠겨 있습니다. 명단은 계속 수정할 수 있습니다."
+            : "";
+
+        elements.settingsLockStatus.classList.toggle("locked", locked);
       }
 
       function applyRecommendedColors(templateStyle = state.design.templateStyle) {
@@ -2347,6 +2639,14 @@
           guideLabel.textContent = "접점";
 
           stack.append(guide, guideLabel);
+        }
+
+        if (state.design.showCutMarks) {
+          ["tl", "tr", "bl", "br"].forEach(position => {
+            const mark = document.createElement("span");
+            mark.className = `cut-mark ${position}`;
+            stack.appendChild(mark);
+          });
         }
 
         page.appendChild(stack);
@@ -2715,7 +3015,14 @@
         elements.plateWidth.value = d.plateWidth;
         elements.plateHeight.value = d.plateHeight;
 
+        elements.autoScaleElements.checked =
+          d.autoScaleElements !== false;
+
+        elements.showCutMarks.checked =
+          Boolean(d.showCutMarks);
+
         updatePlateSizeSummary();
+        applySettingsLock();
       }
 
       function setPairedValue(key, value) {
@@ -3035,6 +3342,67 @@
         });
       }
 
+      function createTestPrintPage() {
+        const page = document.createElement("div");
+        page.className = "paper-page test-print-page";
+
+        const head = document.createElement("div");
+        head.className = "test-print-head";
+        head.innerHTML =
+          '인쇄 배율 확인용 100mm 테스트' +
+          '<div class="test-print-sub">아래 선을 자로 재서 정확히 100mm인지 확인하세요. 다르면 인쇄 배율을 100%로 다시 설정하세요.</div>';
+
+        const rulerWrap = document.createElement("div");
+        rulerWrap.className = "test-ruler-wrap";
+
+        const line = document.createElement("div");
+        line.className = "test-ruler-line";
+
+        const label = document.createElement("div");
+        label.className = "test-ruler-label";
+        label.textContent = "정확히 100mm";
+
+        rulerWrap.append(line, label);
+
+        const person =
+          state.people[state.selectedIndex] ||
+          state.people[0] ||
+          {
+            name: "TEST",
+            org: "한양대학교",
+            role: "인쇄 확인",
+            logoKey: "default"
+          };
+
+        const sample = createNameplate(person, false);
+
+        page.append(head, rulerWrap, sample);
+        return page;
+      }
+
+      function printTestPage() {
+        document.body.classList.remove("print-current");
+
+        elements.printStage.replaceChildren(
+          createTestPrintPage()
+        );
+
+        const restoreAfterPrint = () => {
+          renderPreviewOnly();
+        };
+
+        window.addEventListener(
+          "afterprint",
+          restoreAfterPrint,
+          { once: true }
+        );
+
+        requestAnimationFrame(() => {
+          fitText(elements.printStage);
+          window.print();
+        });
+      }
+
       function buildFeedbackText() {
         const type =
           elements.feedbackType.value || "기타";
@@ -3052,7 +3420,7 @@
           ``,
           `종류: ${type}`,
           `작성자·부서: ${name}`,
-          `버전: v2.7.1`,
+          `버전: v2.8`,
           ``,
           `내용`,
           text
@@ -3389,6 +3757,47 @@
 
       elements.plateWidth.addEventListener("change", handleCustomPlateSize);
       elements.plateHeight.addEventListener("change", handleCustomPlateSize);
+
+      elements.autoScaleElements.addEventListener("change", () => {
+        state.design.autoScaleElements =
+          elements.autoScaleElements.checked;
+
+        renderPreviewOnly();
+      });
+
+      elements.showCutMarks.addEventListener("change", () => {
+        state.design.showCutMarks =
+          elements.showCutMarks.checked;
+
+        renderPreviewOnly();
+      });
+
+      elements.resetAdjustmentsBtn.addEventListener("click", () => {
+        if (!confirm("현재 명패 규격에 맞춰 위치·크기 조절값을 초기화할까요?")) {
+          return;
+        }
+
+        resetAdjustments();
+        showStatus("위치·크기 조절값을 초기화했습니다.");
+      });
+
+      elements.settingsLockBtn.addEventListener("click", () => {
+        state.design.settingsLocked =
+          !state.design.settingsLocked;
+
+        applySettingsLock();
+        saveLocal();
+
+        showStatus(
+          state.design.settingsLocked
+            ? "디자인 설정을 잠갔습니다."
+            : "디자인 설정 잠금을 해제했습니다."
+        );
+      });
+
+      elements.testPrintBtn.addEventListener("click", () => {
+        printTestPage();
+      });
 
       $("#prevBtn").addEventListener("click", () => {
         if (!state.people.length) return;

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>행사용 명패 생성기</title>
+
   <style>
     :root {
       --ui-bg: #f3f5f8;
@@ -14,6 +15,7 @@
       --ui-primary: #0b4f87;
       --ui-primary-dark: #083c67;
       --ui-danger: #c93636;
+      --ui-success: #1d7a45;
 
       --plate-color: #07518a;
       --plate-border: #07518a;
@@ -22,6 +24,7 @@
       --plate-footer-size: 10pt;
       --plate-name-spacing: 0.18em;
       --plate-logo-width: 54mm;
+
       --plate-font: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo",
                     "Malgun Gothic", Arial, sans-serif;
     }
@@ -61,10 +64,30 @@
       backdrop-filter: blur(10px);
     }
 
+    .brand {
+      min-width: 0;
+    }
+
+    .brand-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     .brand h1 {
       margin: 0;
       font-size: 21px;
       letter-spacing: -0.03em;
+    }
+
+    .version-badge {
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #eaf2f8;
+      color: var(--ui-primary);
+      font-size: 11px;
+      font-weight: 800;
     }
 
     .brand p {
@@ -82,7 +105,7 @@
 
     .app {
       display: grid;
-      grid-template-columns: minmax(350px, 430px) minmax(0, 1fr);
+      grid-template-columns: minmax(370px, 450px) minmax(0, 1fr);
       min-height: calc(100vh - 72px);
     }
 
@@ -147,6 +170,7 @@
     }
 
     .field input[type="text"],
+    .field input[type="email"],
     .field input[type="number"],
     .field input[type="file"],
     .field select,
@@ -251,6 +275,12 @@
       background: var(--ui-primary-dark);
     }
 
+    .btn.success {
+      border-color: var(--ui-success);
+      background: var(--ui-success);
+      color: #fff;
+    }
+
     .btn.danger {
       border-color: #f0caca;
       color: var(--ui-danger);
@@ -282,7 +312,7 @@
 
     .people-table {
       width: 100%;
-      min-width: 660px;
+      min-width: 790px;
       border-collapse: collapse;
       font-size: 12px;
     }
@@ -308,12 +338,14 @@
       border-bottom: 0;
     }
 
-    .people-table input[type="text"] {
+    .people-table input[type="text"],
+    .people-table select {
       width: 100%;
-      min-width: 105px;
+      min-width: 110px;
       padding: 7px 8px;
       border: 1px solid #d5dce5;
       border-radius: 7px;
+      background: #fff;
     }
 
     .row-number {
@@ -327,6 +359,70 @@
       color: var(--ui-muted);
       text-align: center;
       font-size: 13px;
+    }
+
+    .logo-manager {
+      display: grid;
+      gap: 10px;
+    }
+
+    .custom-logo-add {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .custom-logo-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .custom-logo-item {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 9px;
+      padding: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #fafbfc;
+    }
+
+    .custom-logo-thumb {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 38px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .custom-logo-thumb img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .custom-logo-name {
+      min-width: 0;
+      overflow: hidden;
+      font-size: 12px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .built-in-note {
+      padding: 10px;
+      border-radius: 9px;
+      background: #f7fafc;
+      color: var(--ui-muted);
+      font-size: 11px;
+      line-height: 1.55;
     }
 
     .preview-toolbar {
@@ -447,12 +543,15 @@
       justify-content: center;
       width: 49mm;
       height: 49mm;
+      padding: 3mm;
       border: 0.55mm dashed #b9c5d2;
       border-radius: 5mm;
       color: #9aa7b5;
-      font-size: 14pt;
+      font-size: 10pt;
       font-weight: 800;
-      letter-spacing: .08em;
+      line-height: 1.35;
+      letter-spacing: .03em;
+      text-align: center;
     }
 
     .plate-text {
@@ -515,18 +614,31 @@
       clip-path: polygon(100% 0, 0 100%, 100% 100%);
     }
 
-    .footer-text {
+    .footer-logo-box {
       position: absolute;
-      right: 13mm;
-      top: 2.2mm;
-      max-width: 115mm;
+      right: 10mm;
+      top: 1.2mm;
+      width: 58mm;
+      height: 6.2mm;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
       overflow: hidden;
-      font-size: var(--plate-footer-size);
-      font-weight: 900;
-      letter-spacing: .1em;
-      line-height: 1;
+    }
+
+    .footer-logo-box img {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      object-position: right center;
+    }
+
+    .footer-logo-missing {
+      color: #98a2b3;
+      font-size: 6.5pt;
+      font-weight: 700;
       white-space: nowrap;
-      text-overflow: ellipsis;
     }
 
     .page-label {
@@ -570,7 +682,7 @@
       right: 18px;
       bottom: 18px;
       z-index: 999;
-      max-width: min(420px, calc(100vw - 36px));
+      max-width: min(460px, calc(100vw - 36px));
       padding: 11px 14px;
       border-radius: 10px;
       background: #152436;
@@ -590,6 +702,52 @@
       border-radius: 9px;
       background: #f7fafc;
       color: var(--ui-muted);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    details.patch {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #fafbfc;
+      overflow: hidden;
+    }
+
+    details.patch summary {
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .patch-body {
+      padding: 0 12px 12px;
+      color: #475467;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .patch-item {
+      padding: 8px 0;
+      border-top: 1px solid #edf0f4;
+    }
+
+    .patch-version {
+      font-weight: 800;
+      color: var(--ui-primary);
+    }
+
+    .feedback-box {
+      display: grid;
+      gap: 9px;
+    }
+
+    .feedback-help {
+      padding: 9px 10px;
+      border-radius: 9px;
+      background: #fff9e7;
+      color: #725b14;
       font-size: 11px;
       line-height: 1.55;
     }
@@ -635,7 +793,8 @@
         padding: 12px;
       }
 
-      .grid-2 {
+      .grid-2,
+      .custom-logo-add {
         grid-template-columns: 1fr;
       }
 
@@ -701,12 +860,17 @@
     }
   </style>
 </head>
+
 <body>
   <header class="app-header">
     <div class="brand">
-      <h1>행사용 명패 생성기</h1>
-      <p>명단 붙여넣기 → A4 양면 명패 자동 생성 → 인쇄 또는 PDF 저장</p>
+      <div class="brand-line">
+        <h1>행사용 명패 생성기</h1>
+        <span class="version-badge">v2.2</span>
+      </div>
+      <p>명단 붙여넣기 → 좌측 로고 선택 → 하단 한양대/ERICA 로고 선택 → A4 양면 명패 자동 생성</p>
     </div>
+
     <div class="header-actions">
       <button class="btn" id="saveProjectBtn">작업 저장</button>
       <button class="btn" id="loadProjectBtn">작업 불러오기</button>
@@ -722,14 +886,16 @@
           <span>1. 명단 입력</span>
           <span id="peopleCount" style="font-size:12px;color:#667085;">0명</span>
         </h2>
+
         <p class="hint">
-          엑셀에서 <strong>이름 · 소속 · 직책</strong> 열을 복사해 붙여넣으면 가장 빠릅니다.
-          탭 또는 쉼표로 구분된 자료를 인식합니다.
+          엑셀에서 <strong>이름 · 소속 · 직책 · 좌측 로고</strong> 순서로 복사해 붙여넣을 수 있습니다.
+          로고 열을 비우면 기본값인 <strong>한양대학교 로고</strong>가 적용됩니다.
+          외부기관 로고를 먼저 등록한 뒤 기관명을 4번째 열에 넣으면 사람별로 자동 지정됩니다.
         </p>
 
         <div class="field">
           <label for="bulkInput">엑셀·CSV 붙여넣기</label>
-          <textarea id="bulkInput" placeholder="홍길동&#9;한양대학교 ERICA&#9;발전협력처장&#10;김한양&#9;총동문회&#9;회장"></textarea>
+          <textarea id="bulkInput" placeholder="홍길동&#9;한양대학교&#9;총장&#9;한양대학교&#10;김ERICA&#9;한양대학교 ERICA&#9;처장&#9;기본&#10;이협력&#9;ABC주식회사&#9;대표&#9;ABC주식회사"></textarea>
         </div>
 
         <div class="bulk-actions">
@@ -738,9 +904,11 @@
           <button class="btn" id="addPersonBtn">빈 행 1개 추가</button>
           <button class="btn" id="csvImportBtn">CSV·TSV 파일 불러오기</button>
         </div>
+
         <input type="file" id="csvFileInput" accept=".csv,.tsv,.txt" hidden />
 
         <h3>현재 명단</h3>
+
         <div class="people-wrap">
           <table class="people-table" aria-label="명패 대상자 명단">
             <thead>
@@ -749,11 +917,13 @@
                 <th>이름</th>
                 <th>소속·기관</th>
                 <th>직책·직위</th>
+                <th>좌측 로고</th>
                 <th style="width:55px;">삭제</th>
               </tr>
             </thead>
             <tbody id="peopleTableBody"></tbody>
           </table>
+
           <div class="empty-message" id="emptyMessage">명단이 없습니다.</div>
         </div>
 
@@ -763,39 +933,75 @@
       </section>
 
       <section class="section">
-        <h2>2. 로고와 문구</h2>
+        <h2>2. 로고 설정</h2>
 
-        <div class="field">
-          <label for="logoInput">좌측 로고 업로드</label>
-          <input type="file" id="logoInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+        <div class="logo-manager">
+          <div class="field">
+            <label for="defaultLeftLogo">좌측 기본 로고</label>
+            <select id="defaultLeftLogo">
+              <option value="hanyang">한양대학교</option>
+              <option value="none">로고 없음</option>
+            </select>
+          </div>
+
+          <div class="built-in-note">
+            한양대학교 좌측 기본 로고 파일<br>
+            · <strong>assets/hanyang-logo.png</strong><br>
+            명단에서 별도 로고를 지정하지 않으면 이 로고가 기본으로 적용됩니다.
+          </div>
+
+          <h3>외부기관 좌측 로고 추가</h3>
+
+          <div class="custom-logo-add">
+            <div class="field" style="margin:0;">
+              <label for="customLogoName">기관명</label>
+              <input type="text" id="customLogoName" placeholder="예: 안산시 / ABC주식회사" />
+            </div>
+
+            <div class="field" style="margin:0;">
+              <label for="customLogoFile">로고 파일</label>
+              <input type="file" id="customLogoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+            </div>
+
+            <button class="btn success" id="addCustomLogoBtn">추가</button>
+          </div>
+
+          <div class="custom-logo-list" id="customLogoList"></div>
+
+          <div class="privacy-note">
+            외부기관 로고는 서버로 전송하지 않고 현재 브라우저 안에서만 처리합니다.
+            작업 저장 기능을 이용하면 외부기관 로고도 JSON 작업 파일 안에 함께 저장됩니다.
+          </div>
+
+          <h3>하단 로고</h3>
+
+          <div class="field">
+            <label for="footerLogo">하단 로고 선택</label>
+            <select id="footerLogo">
+              <option value="hanyang">한양대학교</option>
+              <option value="erica">한양대학교 ERICA</option>
+            </select>
+          </div>
+
+          <div class="built-in-note">
+            하단 로고 파일 경로<br>
+            · 한양대학교: <strong>assets/footer-hanyang.png</strong><br>
+            · 한양대학교 ERICA: <strong>assets/footer-erica.png</strong>
+          </div>
         </div>
+      </section>
 
-        <div class="btn-row" style="margin-bottom:11px;">
-          <button class="btn small" id="removeLogoBtn">로고 제거</button>
-        </div>
-
-        <div class="field">
-          <label for="footerText">하단 영문·기관명</label>
-          <input type="text" id="footerText" value="HANYANG UNIVERSITY" />
-        </div>
-
-        <div class="field">
+      <section class="section">
+        <h2>3. 문구와 디자인</h2>
+<div class="field">
           <label for="titleSeparator">소속과 직책 사이</label>
           <select id="titleSeparator">
             <option value=" ">공백 1칸</option>
             <option value=" · ">가운데점</option>
             <option value=" | ">세로선</option>
-            <option value="&#10;">줄바꿈</option>
+            <option value="__LINE_BREAK__">줄바꿈</option>
           </select>
         </div>
-
-        <div class="privacy-note">
-          로고와 명단은 서버로 전송되지 않습니다. 현재 브라우저 안에서만 처리됩니다.
-        </div>
-      </section>
-
-      <section class="section">
-        <h2>3. 디자인 설정</h2>
 
         <div class="grid-2">
           <div class="field">
@@ -869,7 +1075,94 @@
       </section>
 
       <section class="section">
+        <h2>4. 수정요청 · 불편사항</h2>
+
+        <div class="feedback-box">
+          <div class="grid-2">
+            <div class="field">
+              <label for="feedbackType">종류</label>
+              <select id="feedbackType">
+                <option value="불편사항">불편사항</option>
+                <option value="기능추가">기능 추가 요청</option>
+                <option value="오류">오류 신고</option>
+                <option value="디자인">디자인 의견</option>
+                <option value="기타">기타</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="feedbackName">작성자·부서 (선택)</label>
+              <input type="text" id="feedbackName" placeholder="예: 발전협력팀 홍길동" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="feedbackText">내용</label>
+            <textarea id="feedbackText" placeholder="예: 50명 입력할 때 로고를 한 번에 바꾸는 기능이 있었으면 좋겠어요."></textarea>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn primary" id="feedbackIssueBtn">GitHub에 수정요청 남기기</button>
+            <button class="btn" id="feedbackMailBtn">메일 앱으로 보내기</button>
+            <button class="btn" id="feedbackCopyBtn">내용 복사</button>
+          </div>
+
+          <div class="feedback-help">
+            GitHub 버튼은 <strong>hyungkeunyoo/nameplate-maker</strong>의 새 Issue 작성 화면을 엽니다.
+            GitHub 로그인이 없는 사용자는 ‘메일 앱으로 보내기’ 또는 ‘내용 복사’를 이용할 수 있습니다.
+            메일 수신 주소는 코드 상단의 <strong>FEEDBACK_EMAIL</strong> 값에 한 번만 입력하면 됩니다.
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>패치 내역</h2>
+
+        <details class="patch" open>
+          <summary>업데이트 기록 보기</summary>
+
+          <div class="patch-body">
+            <div class="patch-item">
+              <div class="patch-version">v2.2</div>
+              <div>· 좌측 로고는 한양대학교를 기본값으로 유지</div>
+              <div>· 외부기관 로고를 여러 개 등록하고 사람별로 선택 가능하도록 복원</div>
+              <div>· 엑셀 4번째 열에서 외부기관 로고명을 지정할 수 있도록 지원</div>
+              <div>· 하단 로고는 한양대학교 / 한양대학교 ERICA 선택 구조 유지</div>
+              <div>· 수정요청 메일 수신 주소 keun0810@hanyang.ac.kr 유지</div>
+            </div>
+
+            <div class="patch-item">
+              <div class="patch-version">v2.1</div>
+              <div>· 좌측 로고를 한양대학교 로고 1종으로 고정</div>
+              <div>· 하단 표기를 텍스트가 아닌 로고 이미지 방식으로 변경</div>
+              <div>· 하단 로고를 한양대학교 / 한양대학교 ERICA 중 선택 가능</div>
+              <div>· 수정요청 수신 메일을 keun0810@hanyang.ac.kr 로 설정</div>
+            </div>
+
+            <div class="patch-item">
+              <div class="patch-version">v2.0</div>
+              <div>· 한양대학교 로고를 전체 기본값으로 설정</div>
+              <div>· 한양대학교 ERICA 기본 로고 선택 추가</div>
+              <div>· 외부기관 로고를 여러 개 등록하고 사람별로 선택 가능</div>
+              <div>· 엑셀 4번째 열에서 사람별 로고 자동 지정 지원</div>
+              <div>· 수정요청·오류·기능추가 의견 작성 영역 추가</div>
+              <div>· GitHub Issue / 메일 / 클립보드 복사 방식의 의견 전달 기능 추가</div>
+            </div>
+
+            <div class="patch-item">
+              <div class="patch-version">v1.0</div>
+              <div>· 250mm × 83mm 양면 명패 생성</div>
+              <div>· A4 가로 한 페이지당 동일 명패 2개 배치</div>
+              <div>· 대량 명단 붙여넣기 및 전체 PDF 인쇄 지원</div>
+              <div>· 글자 크기·자간·색상·로고 크기 조절 지원</div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="section">
         <h2>인쇄 설정</h2>
+
         <p class="hint" style="margin-bottom:0;">
           인쇄창에서 <strong>A4 · 가로 · 배율 100% · 여백 없음 · 머리글/바닥글 해제</strong>로 설정하세요.
           한 사람당 A4 한 페이지이며, 한 페이지에 250mm × 83mm 명패가 2개 배치됩니다.
@@ -903,23 +1196,60 @@
 
   <div class="print-stage" id="printStage" aria-hidden="true"></div>
   <div class="status" id="status"></div>
+
   <input type="file" id="projectFileInput" accept=".json,application/json" hidden />
 
   <script>
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "nameplate-maker-project-v1";
-      const DESIGN_KEY = "nameplate-maker-design-v1";
+      /*
+        =========================================================
+        사용자 설정
+        =========================================================
+
+        1) 수정요청을 받을 이메일 주소를 아래에 입력하세요.
+           예: const FEEDBACK_EMAIL = "example@hanyang.ac.kr";
+
+        2) GitHub 저장소 주소를 바꾸고 싶다면 FEEDBACK_ISSUE_URL을 수정하세요.
+      */
+      const FEEDBACK_EMAIL = "keun0810@hanyang.ac.kr";
+      const FEEDBACK_ISSUE_URL = "https://github.com/hyungkeunyoo/nameplate-maker/issues/new";
+
+      const STORAGE_KEY = "nameplate-maker-project-v2";
+      const DESIGN_KEY = "nameplate-maker-design-v2";
+
+      const BUILTIN_LEFT_LOGOS = {
+        hanyang: {
+          label: "한양대학교",
+          src: "assets/hanyang-logo.png"
+        },
+        none: {
+          label: "로고 없음",
+          src: ""
+        }
+      };
+
+      const FOOTER_LOGOS = {
+        hanyang: {
+          label: "한양대학교",
+          src: "assets/footer-hanyang.png"
+        },
+        erica: {
+          label: "한양대학교 ERICA",
+          src: "assets/footer-erica.png"
+        }
+      };
 
       const defaultDesign = {
+        defaultLeftLogo: "hanyang",
+        footerLogo: "hanyang",
         textColor: "#07518a",
         borderColor: "#07518a",
         nameSize: 78,
         titleSize: 27,
         nameSpacing: 18,
         logoWidth: 54,
-        footerText: "HANYANG UNIVERSITY",
         titleSeparator: " ",
         autoFit: true,
         rotateBack: false,
@@ -928,9 +1258,15 @@
 
       const state = {
         people: [
-          { id: cryptoId(), name: "홍길동", organization: "한양대학교 ERICA", position: "발전협력처장" }
+          {
+            id: cryptoId(),
+            name: "홍길동",
+            organization: "한양대학교",
+            position: "총장",
+            logoKey: "default"
+          }
         ],
-        logoDataUrl: "",
+        customLogos: [],
         design: { ...defaultDesign },
         selectedIndex: 0
       };
@@ -943,8 +1279,11 @@
         bulkInput: $("#bulkInput"),
         peopleTableBody: $("#peopleTableBody"),
         emptyMessage: $("#emptyMessage"),
-        logoInput: $("#logoInput"),
-        footerText: $("#footerText"),
+        defaultLeftLogo: $("#defaultLeftLogo"),
+        customLogoName: $("#customLogoName"),
+        customLogoFile: $("#customLogoFile"),
+        customLogoList: $("#customLogoList"),
+        footerLogo: $("#footerLogo"),
         titleSeparator: $("#titleSeparator"),
         textColor: $("#textColor"),
         textColorHex: $("#textColorHex"),
@@ -970,7 +1309,10 @@
         thumbs: $("#thumbs"),
         status: $("#status"),
         csvFileInput: $("#csvFileInput"),
-        projectFileInput: $("#projectFileInput")
+        projectFileInput: $("#projectFileInput"),
+        feedbackType: $("#feedbackType"),
+        feedbackName: $("#feedbackName"),
+        feedbackText: $("#feedbackText")
       };
 
       function cryptoId() {
@@ -987,6 +1329,7 @@
         };
       }
 
+
       function clamp(value, min, max) {
         const number = Number(value);
         if (!Number.isFinite(number)) return min;
@@ -996,10 +1339,12 @@
       function showStatus(message) {
         elements.status.textContent = message;
         elements.status.classList.add("show");
+
         clearTimeout(showStatus.timer);
+
         showStatus.timer = setTimeout(() => {
           elements.status.classList.remove("show");
-        }, 2800);
+        }, 3000);
       }
 
       function parseRows(text) {
@@ -1011,6 +1356,7 @@
 
         return lines.map(line => {
           let columns;
+
           if (line.includes("\t")) {
             columns = line.split("\t");
           } else {
@@ -1022,9 +1368,12 @@
           return sanitizePerson({
             name: columns[0] || "",
             organization: columns[1] || "",
-            position: columns.slice(2).join(" ").trim()
+            position: columns[2] || "",
+            logoKey: resolveLogoKeyFromText(columns[3] || "")
           });
-        }).filter(person => person.name || person.organization || person.position);
+        }).filter(person =>
+          person.name || person.organization || person.position
+        );
       }
 
       function parseCsvLine(line) {
@@ -1055,12 +1404,62 @@
 
       function getTitle(person) {
         const parts = [person.organization, person.position].filter(Boolean);
-        const separator = state.design.titleSeparator === "\n" ? "\n" : state.design.titleSeparator;
-        return parts.join(separator);
+
+        if (state.design.titleSeparator === "__LINE_BREAK__") {
+          return parts.join("\n");
+        }
+
+        return parts.join(state.design.titleSeparator);
+      }
+
+      function getEffectiveLeftLogoKey(person) {
+        const key = person.logoKey || "default";
+
+        if (key === "default") {
+          return state.design.defaultLeftLogo || "hanyang";
+        }
+
+        return key;
+      }
+
+      function getLeftLogoInfo(person) {
+        const key = getEffectiveLeftLogoKey(person);
+
+        if (BUILTIN_LEFT_LOGOS[key]) {
+          return {
+            key,
+            label: BUILTIN_LEFT_LOGOS[key].label,
+            src: BUILTIN_LEFT_LOGOS[key].src,
+            isBuiltIn: true
+          };
+        }
+
+        const custom = state.customLogos.find(logo => logo.id === key);
+
+        if (custom) {
+          return {
+            key: custom.id,
+            label: custom.name,
+            src: custom.dataUrl,
+            isBuiltIn: false
+          };
+        }
+
+        const fallback =
+          BUILTIN_LEFT_LOGOS[state.design.defaultLeftLogo] ||
+          BUILTIN_LEFT_LOGOS.hanyang;
+
+        return {
+          key: state.design.defaultLeftLogo,
+          label: fallback.label,
+          src: fallback.src,
+          isBuiltIn: true
+        };
       }
 
       function applyCssVariables() {
         const root = document.documentElement;
+
         root.style.setProperty("--plate-color", state.design.textColor);
         root.style.setProperty("--plate-border", state.design.borderColor);
         root.style.setProperty("--plate-name-size", `${state.design.nameSize}pt`);
@@ -1069,28 +1468,51 @@
         root.style.setProperty("--plate-logo-width", `${state.design.logoWidth}mm`);
       }
 
+      function createLogoBox(person) {
+        const logoBox = document.createElement("div");
+        logoBox.className = "logo-box";
+
+        const logo = getLeftLogoInfo(person);
+
+        if (!logo.src) {
+          const placeholder = document.createElement("div");
+          placeholder.className = "logo-placeholder";
+          placeholder.textContent = "로고 없음";
+          logoBox.appendChild(placeholder);
+          return logoBox;
+        }
+
+        const img = document.createElement("img");
+        img.src = logo.src;
+        img.alt = logo.label;
+
+        img.addEventListener("error", () => {
+          img.remove();
+
+          const placeholder = document.createElement("div");
+          placeholder.className = "logo-placeholder";
+          placeholder.textContent = `${logo.label}
+로고 파일 없음`;
+
+          logoBox.appendChild(placeholder);
+        }, { once: true });
+
+        logoBox.appendChild(img);
+        return logoBox;
+      }
+
       function createNameplate(person, isBack = false) {
         const plate = document.createElement("div");
         plate.className = "nameplate";
-        if (isBack && state.design.rotateBack) plate.classList.add("back-rotated");
+
+        if (isBack && state.design.rotateBack) {
+          plate.classList.add("back-rotated");
+        }
 
         const main = document.createElement("div");
         main.className = "plate-main";
 
-        const logoBox = document.createElement("div");
-        logoBox.className = "logo-box";
-
-        if (state.logoDataUrl) {
-          const img = document.createElement("img");
-          img.src = state.logoDataUrl;
-          img.alt = "업로드한 로고";
-          logoBox.appendChild(img);
-        } else {
-          const placeholder = document.createElement("div");
-          placeholder.className = "logo-placeholder";
-          placeholder.textContent = "LOGO";
-          logoBox.appendChild(placeholder);
-        }
+        const logoBox = createLogoBox(person);
 
         const textBox = document.createElement("div");
         textBox.className = "plate-text";
@@ -1099,7 +1521,7 @@
         title.className = "plate-title auto-fit-title";
         title.textContent = getTitle(person) || "소속 및 직책";
 
-        if (state.design.titleSeparator === "\n") {
+        if (state.design.titleSeparator === "__LINE_BREAK__") {
           title.style.whiteSpace = "pre-line";
           title.style.textAlign = "center";
         }
@@ -1114,12 +1536,30 @@
         const footer = document.createElement("div");
         footer.className = "plate-footer";
 
-        const footerText = document.createElement("div");
-        footerText.className = "footer-text";
-        footerText.textContent = state.design.footerText || "";
-        footer.appendChild(footerText);
+        const footerLogoBox = document.createElement("div");
+        footerLogoBox.className = "footer-logo-box";
 
+        const footerLogo =
+          FOOTER_LOGOS[state.design.footerLogo] || FOOTER_LOGOS.hanyang;
+
+        const footerImg = document.createElement("img");
+        footerImg.src = footerLogo.src;
+        footerImg.alt = footerLogo.label;
+
+        footerImg.addEventListener("error", () => {
+          footerImg.remove();
+
+          const missing = document.createElement("div");
+          missing.className = "footer-logo-missing";
+          missing.textContent = `${footerLogo.label} 하단 로고 파일 없음`;
+
+          footerLogoBox.appendChild(missing);
+        }, { once: true });
+
+        footerLogoBox.appendChild(footerImg);
+        footer.appendChild(footerLogoBox);
         plate.append(main, footer);
+
         return plate;
       }
 
@@ -1141,7 +1581,51 @@
 
         page.appendChild(createNameplate(person, false));
         page.appendChild(createNameplate(person, true));
+
         return page;
+      }
+
+      function buildLogoSelect(person, index) {
+        const select = document.createElement("select");
+
+        const options = [
+          {
+            value: "default",
+            label: `기본 (${BUILTIN_LEFT_LOGOS[state.design.defaultLeftLogo]?.label || "한양대학교"})`
+          },
+          { value: "hanyang", label: "한양대학교" },
+          { value: "none", label: "로고 없음" },
+          ...state.customLogos.map(logo => ({
+            value: logo.id,
+            label: logo.name
+          }))
+        ];
+
+        options.forEach(optionData => {
+          const option = document.createElement("option");
+          option.value = optionData.value;
+          option.textContent = optionData.label;
+          select.appendChild(option);
+        });
+
+        const currentKey = options.some(option => option.value === person.logoKey)
+          ? person.logoKey
+          : "default";
+
+        select.value = currentKey;
+
+        select.addEventListener("change", () => {
+          state.people[index].logoKey = select.value;
+          renderPreviewOnly();
+          saveLocal();
+        });
+
+        select.addEventListener("focus", () => {
+          state.selectedIndex = index;
+          renderPreviewOnly();
+        });
+
+        return select;
       }
 
       function renderTable() {
@@ -1158,49 +1642,121 @@
           numberCell.textContent = String(index + 1);
 
           const nameCell = document.createElement("td");
-          const nameInput = createTableInput(person.name, "name", index, "이름");
-          nameCell.appendChild(nameInput);
+          nameCell.appendChild(createTableInput(
+            person.name, "name", index, "이름"
+          ));
 
           const orgCell = document.createElement("td");
-          const orgInput = createTableInput(person.organization, "organization", index, "소속·기관");
-          orgCell.appendChild(orgInput);
+          orgCell.appendChild(createTableInput(
+            person.organization, "organization", index, "소속·기관"
+          ));
 
           const positionCell = document.createElement("td");
-          const positionInput = createTableInput(person.position, "position", index, "직책·직위");
-          positionCell.appendChild(positionInput);
-
-          const deleteCell = document.createElement("td");
+          positionCell.appendChild(createTableInput(
+            person.position, "position", index, "직책·직위"
+          ));
+const deleteCell = document.createElement("td");
           const deleteButton = document.createElement("button");
+
           deleteButton.className = "btn danger small";
           deleteButton.type = "button";
           deleteButton.textContent = "삭제";
+
           deleteButton.addEventListener("click", () => {
             state.people.splice(index, 1);
-            state.selectedIndex = Math.min(state.selectedIndex, Math.max(0, state.people.length - 1));
+            state.selectedIndex = Math.min(
+              state.selectedIndex,
+              Math.max(0, state.people.length - 1)
+            );
             renderAll();
           });
+
           deleteCell.appendChild(deleteButton);
 
-          tr.append(numberCell, nameCell, orgCell, positionCell, deleteCell);
+          tr.append(
+            numberCell,
+            nameCell,
+            orgCell,
+            positionCell,
+            logoCell,
+            deleteCell
+          );
+
           elements.peopleTableBody.appendChild(tr);
         });
       }
 
       function createTableInput(value, key, index, label) {
         const input = document.createElement("input");
+
         input.type = "text";
         input.value = value;
         input.placeholder = label;
+
         input.addEventListener("input", () => {
           state.people[index][key] = input.value;
           renderPreviewOnly();
           saveLocal();
         });
+
         input.addEventListener("focus", () => {
           state.selectedIndex = index;
           renderPreviewOnly();
         });
+
         return input;
+      }
+
+      function renderCustomLogoList() {
+        elements.customLogoList.replaceChildren();
+
+        if (!state.customLogos.length) {
+          const empty = document.createElement("div");
+          empty.className = "built-in-note";
+          empty.textContent = "등록된 외부기관 좌측 로고가 없습니다.";
+          elements.customLogoList.appendChild(empty);
+          return;
+        }
+
+        state.customLogos.forEach(logo => {
+          const item = document.createElement("div");
+          item.className = "custom-logo-item";
+
+          const thumb = document.createElement("div");
+          thumb.className = "custom-logo-thumb";
+
+          const img = document.createElement("img");
+          img.src = logo.dataUrl;
+          img.alt = logo.name;
+          thumb.appendChild(img);
+
+          const name = document.createElement("div");
+          name.className = "custom-logo-name";
+          name.textContent = logo.name;
+
+          const remove = document.createElement("button");
+          remove.className = "btn danger small";
+          remove.type = "button";
+          remove.textContent = "삭제";
+
+          remove.addEventListener("click", () => {
+            if (!confirm(`'${logo.name}' 로고를 삭제할까요?`)) return;
+
+            state.customLogos = state.customLogos.filter(item => item.id !== logo.id);
+
+            state.people.forEach(person => {
+              if (person.logoKey === logo.id) {
+                person.logoKey = "default";
+              }
+            });
+
+            renderAll();
+            showStatus("외부기관 좌측 로고를 삭제했습니다.");
+          });
+
+          item.append(thumb, name, remove);
+          elements.customLogoList.appendChild(item);
+        });
       }
 
       function renderPreviewOnly() {
@@ -1218,25 +1774,40 @@
           return;
         }
 
-        state.selectedIndex = clamp(state.selectedIndex, 0, state.people.length - 1);
-        const selected = state.people[state.selectedIndex];
+        state.selectedIndex = clamp(
+          state.selectedIndex,
+          0,
+          state.people.length - 1
+        );
 
-        elements.previewPage.appendChild(createPage(selected, state.selectedIndex, false));
+        const selected = state.people[state.selectedIndex];
+        elements.previewPage.appendChild(
+          createPage(selected, state.selectedIndex, false)
+        );
+
         elements.selectedPersonLabel.textContent =
-          `${selected.name || "이름 없음"} · ${getTitle(selected) || "상단 문구 없음"}`;
-        elements.pageCounter.textContent = `${state.selectedIndex + 1} / ${state.people.length}`;
+          `${selected.name || "이름 없음"} · ${getTitle(selected) || "상단 문구 없음"} · 좌측 ${leftLogoLabel}`;
+
+        elements.pageCounter.textContent =
+          `${state.selectedIndex + 1} / ${state.people.length}`;
 
         state.people.forEach((person, index) => {
-          elements.printStage.appendChild(createPage(person, index, true));
+          elements.printStage.appendChild(
+            createPage(person, index, true)
+          );
 
           const thumb = document.createElement("button");
-          thumb.className = "thumb" + (index === state.selectedIndex ? " active" : "");
+          thumb.className =
+            "thumb" + (index === state.selectedIndex ? " active" : "");
           thumb.type = "button";
-          thumb.textContent = `${index + 1}. ${person.name || "이름 없음"}`;
+          thumb.textContent =
+            `${index + 1}. ${person.name || "이름 없음"}`;
+
           thumb.addEventListener("click", () => {
             state.selectedIndex = index;
             renderPreviewOnly();
           });
+
           elements.thumbs.appendChild(thumb);
         });
 
@@ -1251,6 +1822,7 @@
 
       function renderAll() {
         renderTable();
+        renderCustomLogoList();
         syncControlsFromState();
         renderPreviewOnly();
       }
@@ -1265,17 +1837,23 @@
 
         fitTargets.forEach(element => {
           const isName = element.classList.contains("auto-fit-name");
-          const start = isName ? state.design.nameSize : state.design.titleSize;
+          const start = isName
+            ? state.design.nameSize
+            : state.design.titleSize;
           const min = isName ? 34 : 12;
+
           let size = start;
+          let guard = 0;
+
           element.style.fontSize = `${size}pt`;
 
-          let guard = 0;
           while (
-            (element.scrollWidth > element.clientWidth + 1 ||
-             element.scrollHeight > element.clientHeight + 1) &&
+            (
+              element.scrollWidth > element.clientWidth + 1 ||
+              element.scrollHeight > element.clientHeight + 1
+            ) &&
             size > min &&
-            guard < 100
+            guard < 120
           ) {
             size -= 1;
             element.style.fontSize = `${size}pt`;
@@ -1285,18 +1863,35 @@
       }
 
       function fitPreviewScale() {
-        const availableWidth = Math.max(280, elements.previewZone.clientWidth - 36);
-        const availableHeight = Math.max(360, elements.previewZone.clientHeight - 36);
+        const availableWidth =
+          Math.max(280, elements.previewZone.clientWidth - 36);
+
+        const availableHeight =
+          Math.max(360, elements.previewZone.clientHeight - 36);
+
         const pageWidthPx = 297 * (96 / 25.4);
         const pageHeightPx = 210 * (96 / 25.4);
-        const scale = Math.min(availableWidth / pageWidthPx, availableHeight / pageHeightPx, 0.92);
+
+        const scale = Math.min(
+          availableWidth / pageWidthPx,
+          availableHeight / pageHeightPx,
+          0.92
+        );
+
         elements.previewScaler.style.transform = `scale(${scale})`;
-        elements.previewZone.style.minHeight = `${Math.max(360, pageHeightPx * scale + 36)}px`;
+
+        elements.previewZone.style.minHeight =
+          `${Math.max(360, pageHeightPx * scale + 36)}px`;
       }
 
       function syncControlsFromState() {
         const d = state.design;
-        elements.footerText.value = d.footerText;
+
+        elements.defaultLeftLogo.value =
+          BUILTIN_LEFT_LOGOS[d.defaultLeftLogo] ? d.defaultLeftLogo : "hanyang";
+
+        elements.footerLogo.value =
+          FOOTER_LOGOS[d.footerLogo] ? d.footerLogo : "hanyang";
         elements.titleSeparator.value = d.titleSeparator;
         elements.textColor.value = d.textColor;
         elements.textColorHex.value = d.textColor;
@@ -1324,9 +1919,11 @@
 
         const update = (value) => {
           const safe = clamp(value, min, max);
+
           range.value = safe;
           number.value = safe;
           state.design[stateKey] = safe;
+
           renderPreviewOnly();
         };
 
@@ -1336,8 +1933,15 @@
 
       function normalizeHex(value, fallback) {
         const text = String(value || "").trim();
-        if (/^#[0-9a-fA-F]{6}$/.test(text)) return text.toLowerCase();
-        if (/^[0-9a-fA-F]{6}$/.test(text)) return "#" + text.toLowerCase();
+
+        if (/^#[0-9a-fA-F]{6}$/.test(text)) {
+          return text.toLowerCase();
+        }
+
+        if (/^[0-9a-fA-F]{6}$/.test(text)) {
+          return "#" + text.toLowerCase();
+        }
+
         return fallback;
       }
 
@@ -1349,10 +1953,15 @@
         });
 
         hexElement.addEventListener("change", () => {
-          const valid = normalizeHex(hexElement.value, state.design[stateKey]);
+          const valid = normalizeHex(
+            hexElement.value,
+            state.design[stateKey]
+          );
+
           hexElement.value = valid;
           colorElement.value = valid;
           state.design[stateKey] = valid;
+
           renderPreviewOnly();
         });
       }
@@ -1360,13 +1969,16 @@
       function saveLocal() {
         const payload = {
           people: state.people,
-          logoDataUrl: state.logoDataUrl,
+          customLogos: state.customLogos,
           design: state.design,
           selectedIndex: state.selectedIndex
         };
 
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(payload)
+          );
         } catch (error) {
           console.warn("자동 저장 실패:", error);
         }
@@ -1375,15 +1987,25 @@
       function restoreLocal() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
+
           if (!raw) return;
 
           const saved = JSON.parse(raw);
-          if (Array.isArray(saved.people)) {
-            state.people = saved.people.map(sanitizePerson);
+if (Array.isArray(saved.people)) {
+            state.people =
+              saved.people.map(sanitizePerson);
           }
-          state.logoDataUrl = typeof saved.logoDataUrl === "string" ? saved.logoDataUrl : "";
-          state.design = { ...defaultDesign, ...(saved.design || {}) };
-          state.selectedIndex = clamp(saved.selectedIndex || 0, 0, Math.max(0, state.people.length - 1));
+
+          state.design = {
+            ...defaultDesign,
+            ...(saved.design || {})
+          };
+
+          state.selectedIndex = clamp(
+            saved.selectedIndex || 0,
+            0,
+            Math.max(0, state.people.length - 1)
+          );
         } catch (error) {
           console.warn("자동 복구 실패:", error);
         }
@@ -1391,78 +2013,123 @@
 
       function readImageFile(file) {
         return new Promise((resolve, reject) => {
-          if (!file) return reject(new Error("파일이 없습니다."));
-          if (!file.type.startsWith("image/")) return reject(new Error("이미지 파일만 올릴 수 있습니다."));
-          if (file.size > 6 * 1024 * 1024) return reject(new Error("로고는 6MB 이하 파일을 사용해 주세요."));
+          if (!file) {
+            reject(new Error("파일이 없습니다."));
+            return;
+          }
+
+          if (!file.type.startsWith("image/")) {
+            reject(new Error("이미지 파일만 올릴 수 있습니다."));
+            return;
+          }
+
+          if (file.size > 6 * 1024 * 1024) {
+            reject(new Error("로고는 6MB 이하 파일을 사용해 주세요."));
+            return;
+          }
 
           const reader = new FileReader();
-          reader.onload = () => resolve(String(reader.result || ""));
-          reader.onerror = () => reject(new Error("이미지를 읽지 못했습니다."));
+
+          reader.onload = () =>
+            resolve(String(reader.result || ""));
+
+          reader.onerror = () =>
+            reject(new Error("이미지를 읽지 못했습니다."));
+
           reader.readAsDataURL(file);
         });
       }
 
-      function downloadText(filename, text, type = "application/json") {
+      function downloadText(
+        filename,
+        text,
+        type = "application/json"
+      ) {
         const blob = new Blob([text], { type });
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement("a");
+
         anchor.href = url;
         anchor.download = filename;
+
         document.body.appendChild(anchor);
         anchor.click();
         anchor.remove();
+
         URL.revokeObjectURL(url);
       }
 
       function exportProject() {
         const payload = {
           app: "nameplate-maker",
-          version: 1,
+          version: 2.2,
           savedAt: new Date().toISOString(),
           people: state.people,
-          logoDataUrl: state.logoDataUrl,
+          customLogos: state.customLogos,
           design: state.design
         };
+
         downloadText(
           `명패작업_${new Date().toISOString().slice(0,10)}.json`,
           JSON.stringify(payload, null, 2)
         );
-        showStatus("현재 명단과 디자인을 작업 파일로 저장했습니다.");
+
+        showStatus("현재 명단·로고·디자인을 작업 파일로 저장했습니다.");
       }
 
       function importProject(file) {
         const reader = new FileReader();
+
         reader.onload = () => {
           try {
-            const parsed = JSON.parse(String(reader.result || ""));
-            if (!Array.isArray(parsed.people)) throw new Error("명단 형식이 없습니다.");
+            const parsed =
+              JSON.parse(String(reader.result || ""));
 
-            state.people = parsed.people.map(sanitizePerson);
-            state.logoDataUrl = typeof parsed.logoDataUrl === "string" ? parsed.logoDataUrl : "";
-            state.design = { ...defaultDesign, ...(parsed.design || {}) };
+            if (!Array.isArray(parsed.people)) {
+              throw new Error("명단 형식이 없습니다.");
+            }
+state.people =
+              parsed.people.map(sanitizePerson);
+
+            state.design = {
+              ...defaultDesign,
+              ...(parsed.design || {})
+            };
+
             state.selectedIndex = 0;
+
             renderAll();
             showStatus("작업 파일을 불러왔습니다.");
           } catch (error) {
-            showStatus("작업 파일을 읽지 못했습니다. 올바른 JSON 파일인지 확인해 주세요.");
+            showStatus(
+              "작업 파일을 읽지 못했습니다. 올바른 JSON 파일인지 확인해 주세요."
+            );
           }
         };
+
         reader.readAsText(file, "utf-8");
       }
 
       function loadDelimitedFile(file) {
         const reader = new FileReader();
+
         reader.onload = () => {
           const people = parseRows(reader.result);
+
           if (!people.length) {
-            showStatus("명단을 찾지 못했습니다. 열 순서는 이름, 소속, 직책이어야 합니다.");
+            showStatus(
+              "명단을 찾지 못했습니다. 열 순서는 이름, 소속, 직책, 좌측 로고입니다."
+            );
             return;
           }
+
           state.people = people;
           state.selectedIndex = 0;
+
           renderAll();
           showStatus(`${people.length}명의 명단을 불러왔습니다.`);
         };
+
         reader.readAsText(file, "utf-8");
       }
 
@@ -1472,16 +2139,124 @@
           return;
         }
 
-        $$(".print-stage .paper-page").forEach((page, index) => {
-          page.classList.toggle("is-current", index === state.selectedIndex);
-        });
+        $$(".print-stage .paper-page").forEach(
+          (page, index) => {
+            page.classList.toggle(
+              "is-current",
+              index === state.selectedIndex
+            );
+          }
+        );
 
-        document.body.classList.toggle("print-current", mode === "current");
+        document.body.classList.toggle(
+          "print-current",
+          mode === "current"
+        );
 
         requestAnimationFrame(() => {
           fitText(elements.printStage);
           window.print();
         });
+      }
+
+      function buildFeedbackText() {
+        const type =
+          elements.feedbackType.value || "기타";
+
+        const name =
+          elements.feedbackName.value.trim() || "미기재";
+
+        const text =
+          elements.feedbackText.value.trim();
+
+        if (!text) return "";
+
+        return [
+          `[명패 생성기 수정요청]`,
+          ``,
+          `종류: ${type}`,
+          `작성자·부서: ${name}`,
+          `버전: v2.2`,
+          ``,
+          `내용`,
+          text
+        ].join("\n");
+      }
+
+      function copyToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(text);
+        }
+
+        return new Promise((resolve, reject) => {
+          try {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+
+            document.execCommand("copy");
+            textarea.remove();
+
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+
+      function sendFeedbackToGithub() {
+        const body = buildFeedbackText();
+
+        if (!body) {
+          showStatus("수정요청 내용을 먼저 적어 주세요.");
+          return;
+        }
+
+        const title =
+          `[${elements.feedbackType.value}] 명패 생성기 수정요청`;
+
+        const url =
+          `${FEEDBACK_ISSUE_URL}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+
+      function sendFeedbackByMail() {
+        const body = buildFeedbackText();
+
+        if (!body) {
+          showStatus("수정요청 내용을 먼저 적어 주세요.");
+          return;
+        }
+
+        const subject =
+          `[${elements.feedbackType.value}] 명패 생성기 수정요청`;
+
+        if (!FEEDBACK_EMAIL) {
+          copyToClipboard(body)
+            .then(() => {
+              showStatus(
+                "FEEDBACK_EMAIL이 비어 있어 요청 내용을 복사했습니다. 코드의 FEEDBACK_EMAIL에 받을 주소를 입력해 주세요."
+              );
+            })
+            .catch(() => {
+              showStatus(
+                "FEEDBACK_EMAIL이 비어 있습니다. 코드 상단에 받을 이메일 주소를 입력해 주세요."
+              );
+            });
+
+          return;
+        }
+
+        const mailto =
+          `mailto:${encodeURIComponent(FEEDBACK_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+        window.location.href = mailto;
       }
 
       window.addEventListener("afterprint", () => {
@@ -1490,81 +2265,145 @@
 
       $("#replaceBulkBtn").addEventListener("click", () => {
         const people = parseRows(elements.bulkInput.value);
+
         if (!people.length) {
           showStatus("붙여넣은 명단을 읽지 못했습니다.");
           return;
         }
+
         state.people = people;
         state.selectedIndex = 0;
+
         renderAll();
         showStatus(`${people.length}명의 명단으로 교체했습니다.`);
       });
 
       $("#appendBulkBtn").addEventListener("click", () => {
         const people = parseRows(elements.bulkInput.value);
+
         if (!people.length) {
           showStatus("붙여넣은 명단을 읽지 못했습니다.");
           return;
         }
+
         state.people.push(...people);
+
         renderAll();
-        showStatus(`${people.length}명을 기존 명단 뒤에 추가했습니다.`);
+        showStatus(
+          `${people.length}명을 기존 명단 뒤에 추가했습니다.`
+        );
       });
 
       $("#addPersonBtn").addEventListener("click", () => {
-        state.people.push(sanitizePerson());
-        state.selectedIndex = state.people.length - 1;
+        state.people.push(
+          sanitizePerson({
+            logoKey: "default"
+          })
+        );
+
+        state.selectedIndex =
+          state.people.length - 1;
+
         renderAll();
       });
 
       $("#clearPeopleBtn").addEventListener("click", () => {
         if (!confirm("현재 명단을 전부 삭제할까요?")) return;
+
         state.people = [];
         state.selectedIndex = 0;
+
         renderAll();
       });
 
-      $("#csvImportBtn").addEventListener("click", () => elements.csvFileInput.click());
+      $("#csvImportBtn").addEventListener("click", () => {
+        elements.csvFileInput.click();
+      });
 
       elements.csvFileInput.addEventListener("change", () => {
-        const file = elements.csvFileInput.files?.[0];
-        if (file) loadDelimitedFile(file);
+        const file =
+          elements.csvFileInput.files?.[0];
+
+        if (file) {
+          loadDelimitedFile(file);
+        }
+
         elements.csvFileInput.value = "";
       });
 
-      elements.logoInput.addEventListener("change", async () => {
-        const file = elements.logoInput.files?.[0];
-        if (!file) return;
+      elements.defaultLeftLogo.addEventListener("change", () => {
+        state.design.defaultLeftLogo = elements.defaultLeftLogo.value;
+        renderAll();
+      });
+
+      $("#addCustomLogoBtn").addEventListener("click", async () => {
+        const name = elements.customLogoName.value.trim();
+        const file = elements.customLogoFile.files?.[0];
+
+        if (!name) {
+          showStatus("외부기관 이름을 입력해 주세요.");
+          return;
+        }
+
+        if (!file) {
+          showStatus("외부기관 로고 파일을 선택해 주세요.");
+          return;
+        }
+
+        if (
+          state.customLogos.some(
+            logo => logo.name.trim().toLowerCase() === name.toLowerCase()
+          )
+        ) {
+          showStatus("같은 이름의 외부기관 로고가 이미 있습니다.");
+          return;
+        }
 
         try {
-          state.logoDataUrl = await readImageFile(file);
-          renderPreviewOnly();
-          showStatus("로고를 적용했습니다.");
+          const dataUrl = await readImageFile(file);
+
+          state.customLogos.push({
+            id: "custom-" + cryptoId(),
+            name,
+            dataUrl
+          });
+
+          elements.customLogoName.value = "";
+          elements.customLogoFile.value = "";
+
+          renderAll();
+          showStatus(`'${name}' 좌측 로고를 추가했습니다.`);
         } catch (error) {
-          showStatus(error.message || "로고를 적용하지 못했습니다.");
-        } finally {
-          elements.logoInput.value = "";
+          showStatus(
+            error.message || "외부기관 로고를 추가하지 못했습니다."
+          );
         }
       });
 
-      $("#removeLogoBtn").addEventListener("click", () => {
-        state.logoDataUrl = "";
+      elements.footerLogo.addEventListener("change", () => {
+        state.design.footerLogo = elements.footerLogo.value;
         renderPreviewOnly();
-        showStatus("로고를 제거했습니다.");
       });
 
-      elements.footerText.addEventListener("input", () => {
-        state.design.footerText = elements.footerText.value;
-        renderPreviewOnly();
-      });
 
       elements.titleSeparator.addEventListener("change", () => {
-        state.design.titleSeparator = elements.titleSeparator.value;
+        state.design.titleSeparator =
+          elements.titleSeparator.value;
+
         renderPreviewOnly();
       });
 
-      bindColor(elements.textColor, elements.textColorHex, "textColor");
-      bindColor(elements.borderColor, elements.borderColorHex, "borderColor");
+      bindColor(
+        elements.textColor,
+        elements.textColorHex,
+        "textColor"
+      );
+
+      bindColor(
+        elements.borderColor,
+        elements.borderColorHex,
+        "borderColor"
+      );
 
       bindPair("nameSize", 40, 105);
       bindPair("titleSize", 15, 44);
@@ -1572,68 +2411,156 @@
       bindPair("logoWidth", 25, 62);
 
       elements.autoFit.addEventListener("change", () => {
-        state.design.autoFit = elements.autoFit.checked;
+        state.design.autoFit =
+          elements.autoFit.checked;
+
         renderPreviewOnly();
       });
 
       elements.rotateBack.addEventListener("change", () => {
-        state.design.rotateBack = elements.rotateBack.checked;
+        state.design.rotateBack =
+          elements.rotateBack.checked;
+
         renderPreviewOnly();
       });
 
       elements.showPageLabel.addEventListener("change", () => {
-        state.design.showPageLabel = elements.showPageLabel.checked;
+        state.design.showPageLabel =
+          elements.showPageLabel.checked;
+
         renderPreviewOnly();
       });
 
       $("#prevBtn").addEventListener("click", () => {
         if (!state.people.length) return;
-        state.selectedIndex = (state.selectedIndex - 1 + state.people.length) % state.people.length;
+
+        state.selectedIndex =
+          (state.selectedIndex - 1 + state.people.length) %
+          state.people.length;
+
         renderPreviewOnly();
       });
 
       $("#nextBtn").addEventListener("click", () => {
         if (!state.people.length) return;
-        state.selectedIndex = (state.selectedIndex + 1) % state.people.length;
+
+        state.selectedIndex =
+          (state.selectedIndex + 1) %
+          state.people.length;
+
         renderPreviewOnly();
       });
 
-      $("#printCurrentBtn").addEventListener("click", () => printPages("current"));
-      $("#printAllBtn").addEventListener("click", () => printPages("all"));
+      $("#printCurrentBtn").addEventListener(
+        "click",
+        () => printPages("current")
+      );
 
-      $("#saveProjectBtn").addEventListener("click", exportProject);
+      $("#printAllBtn").addEventListener(
+        "click",
+        () => printPages("all")
+      );
+
+      $("#saveProjectBtn").addEventListener(
+        "click",
+        exportProject
+      );
 
       $("#loadProjectBtn").addEventListener("click", () => {
         elements.projectFileInput.click();
       });
 
       elements.projectFileInput.addEventListener("change", () => {
-        const file = elements.projectFileInput.files?.[0];
-        if (file) importProject(file);
+        const file =
+          elements.projectFileInput.files?.[0];
+
+        if (file) {
+          importProject(file);
+        }
+
         elements.projectFileInput.value = "";
       });
 
       $("#saveDesignBtn").addEventListener("click", () => {
-        localStorage.setItem(DESIGN_KEY, JSON.stringify(state.design));
-        showStatus("현재 디자인을 이 브라우저의 기본값으로 저장했습니다.");
+        localStorage.setItem(
+          DESIGN_KEY,
+          JSON.stringify(state.design)
+        );
+
+        showStatus(
+          "현재 디자인을 이 브라우저의 기본값으로 저장했습니다."
+        );
       });
 
       $("#resetDesignBtn").addEventListener("click", () => {
-        if (!confirm("디자인 설정을 초기값으로 되돌릴까요?")) return;
+        if (!confirm("디자인 설정을 초기값으로 되돌릴까요?")) {
+          return;
+        }
+
         state.design = { ...defaultDesign };
+
         renderAll();
         showStatus("디자인을 초기화했습니다.");
       });
 
-      window.addEventListener("resize", fitPreviewScale);
+      $("#feedbackIssueBtn").addEventListener(
+        "click",
+        sendFeedbackToGithub
+      );
 
-      const resizeObserver = new ResizeObserver(fitPreviewScale);
-      resizeObserver.observe(elements.previewZone);
+      $("#feedbackMailBtn").addEventListener(
+        "click",
+        sendFeedbackByMail
+      );
+
+      $("#feedbackCopyBtn").addEventListener("click", () => {
+        const body = buildFeedbackText();
+
+        if (!body) {
+          showStatus("수정요청 내용을 먼저 적어 주세요.");
+          return;
+        }
+
+        copyToClipboard(body)
+          .then(() => {
+            showStatus("수정요청 내용을 복사했습니다.");
+          })
+          .catch(() => {
+            showStatus(
+              "복사하지 못했습니다. 내용을 직접 선택해 복사해 주세요."
+            );
+          });
+      });
+
+      window.addEventListener(
+        "resize",
+        fitPreviewScale
+      );
+
+      if ("ResizeObserver" in window) {
+        const resizeObserver =
+          new ResizeObserver(fitPreviewScale);
+
+        resizeObserver.observe(
+          elements.previewZone
+        );
+      }
 
       try {
-        const savedDesign = JSON.parse(localStorage.getItem(DESIGN_KEY) || "null");
-        if (savedDesign && typeof savedDesign === "object") {
-          state.design = { ...state.design, ...savedDesign };
+        const savedDesign =
+          JSON.parse(
+            localStorage.getItem(DESIGN_KEY) ||
+            "null"
+          );
+
+        if (
+          savedDesign &&
+          typeof savedDesign === "object"
+        ) {
+          state.design = {
+            ...state.design,
+            ...savedDesign
+          };
         }
       } catch (_) {}
 

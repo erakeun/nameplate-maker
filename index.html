@@ -17,7 +17,8 @@
       --ui-danger: #c93636;
       --ui-success: #1d7a45;
 
-      --plate-color: #07518a;
+      --plate-name-color: #07518a;
+      --plate-title-color: #07518a;
       --plate-border: #07518a;
       --plate-name-size: 78pt;
       --plate-title-size: 27pt;
@@ -513,8 +514,34 @@
       transform: rotate(180deg);
     }
 
+    .nameplate.has-template {
+      border: 0;
+      background: #fff;
+    }
+
+    .plate-template-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .nameplate.has-template .plate-footer {
+      border-top: 0;
+    }
+
+    .nameplate.has-template .plate-footer::before {
+      display: none;
+    }
+
     .plate-main {
       position: absolute;
+      z-index: 1;
       inset: 0 0 10mm 0;
       display: grid;
       grid-template-columns: 67mm minmax(0, 1fr);
@@ -568,7 +595,7 @@
       min-width: 0;
       overflow: hidden;
       padding: 2mm 1mm 0;
-      color: var(--plate-color);
+      color: var(--plate-title-color);
       font-size: var(--plate-title-size);
       font-weight: 800;
       line-height: 1.1;
@@ -584,7 +611,7 @@
       min-width: 0;
       overflow: hidden;
       padding: 0 1mm 3mm;
-      color: var(--plate-color);
+      color: var(--plate-name-color);
       font-size: var(--plate-name-size);
       font-weight: 900;
       line-height: 1;
@@ -595,12 +622,13 @@
 
     .plate-footer {
       position: absolute;
+      z-index: 1;
       right: 0;
       bottom: 0;
       left: 0;
       height: 10mm;
-      border-top: 2.05mm solid var(--plate-color);
-      color: var(--plate-color);
+      border-top: 2.05mm solid var(--plate-border);
+      color: var(--plate-border);
     }
 
     .plate-footer::before {
@@ -694,6 +722,92 @@
 
     .status.show {
       display: block;
+    }
+
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .template-card {
+      display: grid;
+      gap: 7px;
+      padding: 8px;
+      border: 1px solid #d7dee8;
+      border-radius: 10px;
+      background: #fff;
+      text-align: left;
+      transition: .15s ease;
+    }
+
+    .template-card:hover {
+      border-color: #89a9c6;
+      background: #f8fbfd;
+    }
+
+    .template-card.active {
+      border-color: var(--ui-primary);
+      box-shadow: 0 0 0 2px rgba(11,79,135,.12);
+      background: #f6fbff;
+    }
+
+    .template-thumb {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 1;
+      overflow: hidden;
+      border-radius: 6px;
+      background: #fff center / 100% 100% no-repeat;
+    }
+
+    .template-thumb.basic { border: 1px solid #0b4f87; }
+    .template-thumb.basic::before {
+      content: "";
+      position: absolute;
+      left: 24%;
+      top: 18%;
+      bottom: 21%;
+      width: 1px;
+      background: #a7b8c7;
+    }
+    .template-thumb.basic::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 8%;
+      left: 0;
+      height: 2px;
+      background: #0b4f87;
+    }
+    .template-thumb.minimal { background-image: url("assets/template-minimal.png"); }
+    .template-thumb.frame { background-image: url("assets/template-frame.png"); }
+    .template-thumb.gold { background-image: url("assets/template-gold.png"); }
+    .template-thumb.geometric { background-image: url("assets/template-geometric.png"); }
+
+    .template-card-title {
+      color: #344054;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+    .template-card-sub {
+      color: #98a2b3;
+      font-size: 10px;
+      line-height: 1.3;
+    }
+    .template-note {
+      margin: -3px 0 11px;
+      color: #667085;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
     }
 
     .privacy-note {
@@ -794,6 +908,8 @@
       }
 
       .grid-2,
+      .grid-3,
+      .template-grid,
       .custom-logo-add {
         grid-template-columns: 1fr;
       }
@@ -866,9 +982,9 @@
     <div class="brand">
       <div class="brand-line">
         <h1>행사용 명패 생성기</h1>
-        <span class="version-badge">v2.2.1</span>
+        <span class="version-badge">v2.3</span>
       </div>
-      <p>명단 붙여넣기 → 좌측 로고 선택 → 하단 한양대/ERICA 로고 선택 → A4 양면 명패 자동 생성</p>
+      <p>명단 붙여넣기 → 명패 디자인 선택 → 로고·글자색 설정 → A4 양면 명패 자동 생성</p>
     </div>
 
     <div class="header-actions">
@@ -993,7 +1109,49 @@
 
       <section class="section">
         <h2>3. 문구와 디자인</h2>
-<div class="field">
+
+        <div class="field">
+          <label>명패 디자인</label>
+
+          <div class="template-grid" id="templateGrid">
+            <button type="button" class="template-card active" data-template="basic">
+              <span class="template-thumb basic"></span>
+              <span class="template-card-title">기본형</span>
+              <span class="template-card-sub">기존 한양블루 명패</span>
+            </button>
+            <button type="button" class="template-card" data-template="minimal">
+              <span class="template-thumb minimal"></span>
+              <span class="template-card-title">모던 미니멀</span>
+              <span class="template-card-sub">얇은 선 중심의 심플형</span>
+            </button>
+            <button type="button" class="template-card" data-template="frame">
+              <span class="template-thumb frame"></span>
+              <span class="template-card-title">네이비 프레임</span>
+              <span class="template-card-sub">격식 있는 프레임형</span>
+            </button>
+            <button type="button" class="template-card" data-template="gold">
+              <span class="template-thumb gold"></span>
+              <span class="template-card-title">골드 클래식</span>
+              <span class="template-card-sub">VIP·협약식 등에 어울리는 골드형</span>
+            </button>
+            <button type="button" class="template-card" data-template="geometric">
+              <span class="template-thumb geometric"></span>
+              <span class="template-card-title">블루 지오메트릭</span>
+              <span class="template-card-sub">사선 포인트의 현대적인 형태</span>
+            </button>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn small" id="recommendedColorBtn">이 디자인 추천 색상 적용</button>
+          </div>
+        </div>
+
+        <div class="template-note">
+          디자인을 바꾸면 해당 디자인의 추천 글자색을 자동 적용합니다.
+          이후 아래 색상에서 원하는 색으로 다시 바꿀 수 있습니다.
+        </div>
+
+        <div class="field">
           <label for="titleSeparator">소속과 직책 사이</label>
           <select id="titleSeparator">
             <option value=" ">공백 1칸</option>
@@ -1003,17 +1161,23 @@
           </select>
         </div>
 
-        <div class="grid-2">
+        <div class="grid-3">
           <div class="field">
-            <label for="textColor">글자·하단선 색상</label>
+            <label for="nameColor">이름 색상</label>
             <div class="color-row">
-              <input type="color" id="textColor" value="#07518a" />
-              <input type="text" id="textColorHex" value="#07518a" />
+              <input type="color" id="nameColor" value="#07518a" />
+              <input type="text" id="nameColorHex" value="#07518a" />
             </div>
           </div>
-
           <div class="field">
-            <label for="borderColor">외곽선 색상</label>
+            <label for="titleColor">소속·직책 색상</label>
+            <div class="color-row">
+              <input type="color" id="titleColor" value="#07518a" />
+              <input type="text" id="titleColorHex" value="#07518a" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="borderColor">기본형 선 색상</label>
             <div class="color-row">
               <input type="color" id="borderColor" value="#07518a" />
               <input type="text" id="borderColorHex" value="#07518a" />
@@ -1123,6 +1287,15 @@
 
           <div class="patch-body">
             <div class="patch-item">
+              <div class="patch-version">v2.3</div>
+              <div>· 기존 기본형 + 신규 디자인 4종 선택 기능 추가</div>
+              <div>· 모던 미니멀 / 네이비 프레임 / 골드 클래식 / 블루 지오메트릭 추가</div>
+              <div>· 이름 색상과 소속·직책 색상을 각각 변경 가능</div>
+              <div>· 디자인별 추천 글자색 자동 적용 기능 추가</div>
+              <div>· 디자인 PNG를 실제 이미지 레이어로 출력해 PDF 인쇄 시 유지</div>
+            </div>
+
+            <div class="patch-item">
               <div class="patch-version">v2.2.1</div>
               <div>· 행 추가 시 명단이 표시되지 않던 런타임 오류 수정</div>
               <div>· 명단 미리보기와 페이지 카운터가 멈추던 오류 수정</div>
@@ -1224,8 +1397,8 @@
       const FEEDBACK_EMAIL = "keun0810@hanyang.ac.kr";
       const FEEDBACK_ISSUE_URL = "https://github.com/hyungkeunyoo/nameplate-maker/issues/new";
 
-      const STORAGE_KEY = "nameplate-maker-project-v2";
-      const DESIGN_KEY = "nameplate-maker-design-v2";
+      const STORAGE_KEY = "nameplate-maker-project-v23";
+      const DESIGN_KEY = "nameplate-maker-design-v23";
 
       const BUILTIN_LEFT_LOGOS = {
         hanyang: {
@@ -1249,10 +1422,20 @@
         }
       };
 
+      const PLATE_TEMPLATES = {
+        basic: { label: "기본형", src: "", colors: { name: "#07518a", title: "#07518a", border: "#07518a" } },
+        minimal: { label: "모던 미니멀", src: "assets/template-minimal.png", colors: { name: "#0a447c", title: "#0a447c", border: "#0a447c" } },
+        frame: { label: "네이비 프레임", src: "assets/template-frame.png", colors: { name: "#0a3768", title: "#0a3768", border: "#0a3768" } },
+        gold: { label: "골드 클래식", src: "assets/template-gold.png", colors: { name: "#222222", title: "#a57b2d", border: "#b4892d" } },
+        geometric: { label: "블루 지오메트릭", src: "assets/template-geometric.png", colors: { name: "#0a3b73", title: "#0a3b73", border: "#0a3b73" } }
+      };
+
       const defaultDesign = {
         defaultLeftLogo: "hanyang",
         footerLogo: "hanyang",
-        textColor: "#07518a",
+        templateStyle: "basic",
+        nameColor: "#07518a",
+        titleColor: "#07518a",
         borderColor: "#07518a",
         nameSize: 78,
         titleSize: 27,
@@ -1292,9 +1475,13 @@
         customLogoFile: $("#customLogoFile"),
         customLogoList: $("#customLogoList"),
         footerLogo: $("#footerLogo"),
+        templateCards: $$(".template-card"),
+        recommendedColorBtn: $("#recommendedColorBtn"),
         titleSeparator: $("#titleSeparator"),
-        textColor: $("#textColor"),
-        textColorHex: $("#textColorHex"),
+        nameColor: $("#nameColor"),
+        nameColorHex: $("#nameColorHex"),
+        titleColor: $("#titleColor"),
+        titleColorHex: $("#titleColorHex"),
         borderColor: $("#borderColor"),
         borderColorHex: $("#borderColorHex"),
         nameSize: $("#nameSize"),
@@ -1499,12 +1686,32 @@
       function applyCssVariables() {
         const root = document.documentElement;
 
-        root.style.setProperty("--plate-color", state.design.textColor);
+        root.style.setProperty("--plate-name-color", state.design.nameColor);
+        root.style.setProperty("--plate-title-color", state.design.titleColor);
         root.style.setProperty("--plate-border", state.design.borderColor);
         root.style.setProperty("--plate-name-size", `${state.design.nameSize}pt`);
         root.style.setProperty("--plate-title-size", `${state.design.titleSize}pt`);
         root.style.setProperty("--plate-name-spacing", `${state.design.nameSpacing / 100}em`);
         root.style.setProperty("--plate-logo-width", `${state.design.logoWidth}mm`);
+      }
+
+      function getTemplateInfo() {
+        return PLATE_TEMPLATES[state.design.templateStyle] || PLATE_TEMPLATES.basic;
+      }
+
+      function applyRecommendedColors(templateStyle = state.design.templateStyle) {
+        const template = PLATE_TEMPLATES[templateStyle] || PLATE_TEMPLATES.basic;
+        state.design.nameColor = template.colors.name;
+        state.design.titleColor = template.colors.title;
+        state.design.borderColor = template.colors.border;
+      }
+
+      function setTemplateStyle(templateStyle, applyColors = true) {
+        if (!PLATE_TEMPLATES[templateStyle]) templateStyle = "basic";
+        state.design.templateStyle = templateStyle;
+        if (applyColors) applyRecommendedColors(templateStyle);
+        syncControlsFromState();
+        renderPreviewOnly();
       }
 
       function createLogoBox(person) {
@@ -1546,6 +1753,18 @@
 
         if (isBack && state.design.rotateBack) {
           plate.classList.add("back-rotated");
+        }
+
+        const template = getTemplateInfo();
+
+        if (template.src) {
+          plate.classList.add("has-template");
+          const templateImage = document.createElement("img");
+          templateImage.className = "plate-template-bg";
+          templateImage.src = template.src;
+          templateImage.alt = "";
+          templateImage.setAttribute("aria-hidden", "true");
+          plate.appendChild(templateImage);
         }
 
         const main = document.createElement("div");
@@ -1937,9 +2156,21 @@
 
         elements.footerLogo.value =
           FOOTER_LOGOS[d.footerLogo] ? d.footerLogo : "hanyang";
+
+        const currentTemplate =
+          PLATE_TEMPLATES[d.templateStyle] ? d.templateStyle : "basic";
+
+        elements.templateCards.forEach(card => {
+          const active = card.dataset.template === currentTemplate;
+          card.classList.toggle("active", active);
+          card.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+
         elements.titleSeparator.value = d.titleSeparator;
-        elements.textColor.value = d.textColor;
-        elements.textColorHex.value = d.textColor;
+        elements.nameColor.value = d.nameColor;
+        elements.nameColorHex.value = d.nameColor;
+        elements.titleColor.value = d.titleColor;
+        elements.titleColorHex.value = d.titleColor;
         elements.borderColor.value = d.borderColor;
         elements.borderColorHex.value = d.borderColor;
 
@@ -2046,10 +2277,10 @@
               saved.people.map(sanitizePerson);
           }
 
-          state.design = {
-            ...defaultDesign,
-            ...(saved.design || {})
-          };
+          const savedDesign = saved.design || {};
+          state.design = { ...defaultDesign, ...savedDesign };
+          if (savedDesign.textColor && !savedDesign.nameColor) state.design.nameColor = savedDesign.textColor;
+          if (savedDesign.textColor && !savedDesign.titleColor) state.design.titleColor = savedDesign.textColor;
 
           state.selectedIndex = clamp(
             saved.selectedIndex || 0,
@@ -2145,10 +2376,10 @@
 
             state.people = parsed.people.map(sanitizePerson);
 
-            state.design = {
-              ...defaultDesign,
-              ...(parsed.design || {})
-            };
+            const importedDesign = parsed.design || {};
+            state.design = { ...defaultDesign, ...importedDesign };
+            if (importedDesign.textColor && !importedDesign.nameColor) state.design.nameColor = importedDesign.textColor;
+            if (importedDesign.textColor && !importedDesign.titleColor) state.design.titleColor = importedDesign.textColor;
 
             state.selectedIndex = 0;
 
@@ -2230,7 +2461,7 @@
           ``,
           `종류: ${type}`,
           `작성자·부서: ${name}`,
-          `버전: v2.2.1`,
+          `버전: v2.3`,
           ``,
           `내용`,
           text
@@ -2439,6 +2670,19 @@
         renderPreviewOnly();
       });
 
+      elements.templateCards.forEach(card => {
+        card.addEventListener("click", () => {
+          setTemplateStyle(card.dataset.template, true);
+          showStatus(`${PLATE_TEMPLATES[card.dataset.template]?.label || "디자인"}을 적용했습니다.`);
+        });
+      });
+
+      elements.recommendedColorBtn.addEventListener("click", () => {
+        applyRecommendedColors();
+        syncControlsFromState();
+        renderPreviewOnly();
+        showStatus("현재 디자인의 추천 색상을 적용했습니다.");
+      });
 
       elements.titleSeparator.addEventListener("change", () => {
         state.design.titleSeparator =
@@ -2448,9 +2692,15 @@
       });
 
       bindColor(
-        elements.textColor,
-        elements.textColorHex,
-        "textColor"
+        elements.nameColor,
+        elements.nameColorHex,
+        "nameColor"
+      );
+
+      bindColor(
+        elements.titleColor,
+        elements.titleColorHex,
+        "titleColor"
       );
 
       bindColor(
@@ -2611,10 +2861,9 @@
           savedDesign &&
           typeof savedDesign === "object"
         ) {
-          state.design = {
-            ...state.design,
-            ...savedDesign
-          };
+          state.design = { ...state.design, ...savedDesign };
+          if (savedDesign.textColor && !savedDesign.nameColor) state.design.nameColor = savedDesign.textColor;
+          if (savedDesign.textColor && !savedDesign.titleColor) state.design.titleColor = savedDesign.textColor;
         }
       } catch (_) {}
 

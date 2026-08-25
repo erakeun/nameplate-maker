@@ -1311,7 +1311,7 @@
     <div class="brand">
       <div class="brand-line">
         <h1>행사용 명패 생성기</h1>
-        <span class="version-badge">v2.8</span>
+        <span class="version-badge">v2.8.1</span>
       </div>
       <p>명단 붙여넣기 → 명패 디자인 선택 → 로고·글자색 설정 → A4 양면 명패 자동 생성</p>
     </div>
@@ -1728,7 +1728,7 @@
 
         <label class="check-row">
           <input type="checkbox" id="rotateBack" checked />
-          <span>아래쪽 명패를 180도 회전 (명패케이스용 권장)</span>
+          <span>위쪽 명패를 180도 회전 (명패케이스용 권장)</span>
         </label>
 
         <label class="check-row">
@@ -1791,6 +1791,13 @@
 
           <div class="patch-body">
             <div class="patch-item">
+              <div class="patch-version">v2.8.1</div>
+              <div>· 명패케이스 실제 삽입 방향에 맞게 앞·뒷면 출력 순서 수정</div>
+              <div>· 180도 회전된 반대면을 위쪽, 정상면을 아래쪽에 배치</div>
+              <div>· 회전 옵션 안내 문구도 실제 출력 방향에 맞게 수정</div>
+            </div>
+
+            <div class="patch-item">
               <div class="patch-version">v2.8</div>
               <div>· 위치·크기 조절값 초기화 기능 추가</div>
               <div>· 명패 외곽 4모서리 재단선 인쇄 옵션 추가</div>
@@ -1824,7 +1831,7 @@
             <div class="patch-item">
               <div class="patch-version">v2.5</div>
               <div>· 앞면과 뒷면 사이 8mm 여백 제거, 250×166mm 연속 출력 구조로 변경</div>
-              <div>· 아래쪽 명패 180도 회전을 기본값으로 설정</div>
+              <div>· 위쪽 반대면 명패 180도 회전을 기본값으로 설정</div>
               <div>· 화면에서만 가운데 접점 가이드 표시, 실제 인쇄에서는 자동 숨김</div>
               <div>· 기본 색상 설정을 글자색 / 선·외곽선색으로 단순화</div>
               <div>· 이름 / 소속·직책 개별 색상은 세부 설정으로 이동</div>
@@ -2628,7 +2635,9 @@
         const front = createNameplate(person, false);
         const back = createNameplate(person, true);
 
-        stack.append(front, back);
+        // 명패케이스 삽입 방향에 맞춰
+        // 180도 회전된 반대면을 위쪽, 정상면을 아래쪽에 배치
+        stack.append(back, front);
 
         if (!forPrint) {
           const guide = document.createElement("div");
@@ -3420,7 +3429,7 @@
           ``,
           `종류: ${type}`,
           `작성자·부서: ${name}`,
-          `버전: v2.8`,
+          `버전: v2.8.1`,
           ``,
           `내용`,
           text

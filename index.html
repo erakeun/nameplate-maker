@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>행사용 명패 생성기</title>
+  <link rel="icon" href="data:," />
 
   <style>
     :root {
@@ -50,6 +51,15 @@
       box-sizing: border-box;
     }
 
+    .app > *,
+    .panel,
+    .workspace,
+    .section,
+    .people-wrap {
+      min-width: 0;
+      max-width: 100%;
+    }
+
     html, body {
       margin: 0;
       min-height: 100%;
@@ -65,6 +75,16 @@
 
     button {
       cursor: pointer;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid #1c70b7;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 5px rgba(28, 112, 183, .18);
     }
 
     .app-header {
@@ -276,7 +296,7 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      min-height: 38px;
+      min-height: 44px;
       padding: 8px 12px;
       border: 1px solid #cfd7e2;
       border-radius: 9px;
@@ -315,8 +335,8 @@
     }
 
     .btn.small {
-      min-height: 31px;
-      padding: 5px 8px;
+      min-height: 44px;
+      padding: 8px 10px;
       font-size: 12px;
     }
 
@@ -333,7 +353,11 @@
     }
 
     .people-wrap {
-      overflow: auto;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-inline: contain;
       border: 1px solid var(--ui-line);
       border-radius: 10px;
     }
@@ -364,6 +388,15 @@
 
     .people-table tr:last-child td {
       border-bottom: 0;
+    }
+
+    .people-table tr.has-text-overflow td {
+      background: #fff8f6;
+    }
+
+    .people-table input[aria-invalid="true"] {
+      border-color: #d92d20;
+      box-shadow: 0 0 0 2px rgba(217, 45, 32, .12);
     }
 
     .people-table input[type="text"],
@@ -759,6 +792,7 @@
     .thumb {
       flex: 0 0 auto;
       min-width: 92px;
+      min-height: 44px;
       padding: 8px 10px;
       border: 1px solid var(--ui-line);
       border-radius: 9px;
@@ -773,6 +807,11 @@
       box-shadow: 0 0 0 2px rgba(11,79,135,.12);
       color: var(--ui-primary);
       font-weight: 800;
+    }
+
+    .thumb.has-text-overflow {
+      border-color: #d92d20;
+      color: #b42318;
     }
 
     .status {
@@ -906,8 +945,8 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      min-height: 31px;
-      padding: 5px 8px;
+      min-height: 44px;
+      padding: 8px 10px;
       border: 1px solid #d8e0e8;
       border-radius: 999px;
       background: #fff;
@@ -956,6 +995,53 @@
       color: #8a6c22;
       font-size: 10px;
       line-height: 1.4;
+    }
+
+    .text-overflow-alert {
+      margin: 10px 0 12px;
+      padding: 11px 12px;
+      border: 2px solid #f04438;
+      border-radius: 10px;
+      background: #fff4f2;
+      color: #912018;
+      font-size: 12px;
+      font-weight: 750;
+      line-height: 1.55;
+    }
+
+    .text-overflow-alert[hidden] {
+      display: none;
+    }
+
+    .text-overflow-warning {
+      outline: 1.2mm dashed #d92d20;
+      outline-offset: -1.8mm;
+      text-overflow: ellipsis;
+    }
+
+    .preview-overflow-badge {
+      display: none;
+      position: absolute;
+      z-index: 60;
+      top: 5mm;
+      right: 7mm;
+      padding: 1.2mm 2.6mm;
+      border-radius: 999px;
+      background: #b42318;
+      color: #fff;
+      font-size: 7pt;
+      font-weight: 900;
+      letter-spacing: -.01em;
+    }
+
+    .paper-page.has-text-overflow .preview-overflow-badge {
+      display: block;
+    }
+
+    .mobile-preview-toggle,
+    .mobile-preview-backdrop,
+    .mobile-preview-close {
+      display: none;
     }
 
 
@@ -1187,14 +1273,22 @@
     }
 
     @media (max-width: 1050px) {
+      html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
       .app {
         grid-template-columns: 1fr;
+        width: 100%;
+        max-width: 100%;
         height: auto;
         min-height: 0;
         overflow: visible;
       }
 
       .panel {
+        width: 100%;
         height: auto;
         overflow: visible;
         border-right: 0;
@@ -1203,12 +1297,82 @@
 
       .workspace {
         position: static;
+        width: 100%;
         height: auto;
         overflow: visible;
       }
 
       .preview-zone {
         min-height: 480px;
+      }
+
+      .check-row {
+        min-height: 44px;
+        align-items: center;
+      }
+
+      .check-row input {
+        width: 20px;
+        height: 20px;
+        margin-top: 0;
+      }
+
+      .people-table input[type="text"],
+      .people-table select {
+        min-height: 44px;
+      }
+
+      .mobile-preview-toggle {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 80;
+        display: inline-flex;
+        min-width: 132px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, .28);
+      }
+
+      .mobile-preview-close {
+        display: inline-flex;
+      }
+
+      body.mobile-preview-open {
+        overflow: hidden;
+      }
+
+      body.mobile-preview-open .mobile-preview-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: block;
+        border: 0;
+        background: rgba(15, 23, 42, .55);
+      }
+
+      body.mobile-preview-open .workspace {
+        position: fixed;
+        inset: 12px;
+        z-index: 101;
+        width: auto;
+        max-width: 760px;
+        height: auto;
+        max-height: calc(100dvh - 24px);
+        margin: 0 auto;
+        padding: 16px;
+        border-radius: 16px;
+        background: var(--ui-bg);
+        box-shadow: 0 18px 48px rgba(15, 23, 42, .34);
+        overflow: auto;
+        overscroll-behavior: contain;
+      }
+
+      body.mobile-preview-open .preview-zone {
+        height: 360px;
+        min-height: 360px !important;
+      }
+
+      body.mobile-preview-open .mobile-preview-toggle {
+        display: none;
       }
     }
 
@@ -1237,6 +1401,7 @@
       .template-grid,
       .palette-toolbar,
       .size-preset-grid,
+      .bulk-actions,
       .custom-logo-add {
         grid-template-columns: 1fr;
       }
@@ -1244,6 +1409,16 @@
       .preview-toolbar {
         align-items: flex-start;
         flex-direction: column;
+      }
+
+      body.mobile-preview-open .preview-zone {
+        height: 280px;
+        min-height: 280px !important;
+      }
+
+      .mobile-preview-toggle {
+        right: 12px;
+        bottom: 12px;
       }
     }
 
@@ -1294,7 +1469,8 @@
       .page-label,
       .logo-placeholder,
       .fold-guide,
-      .fold-guide-label {
+      .fold-guide-label,
+      .preview-overflow-badge {
         display: none !important;
       }
 
@@ -1311,7 +1487,7 @@
     <div class="brand">
       <div class="brand-line">
         <h1>행사용 명패 생성기</h1>
-        <span class="version-badge">v2.8.1</span>
+        <span class="version-badge" id="versionBadge"></span>
       </div>
       <p>명단 붙여넣기 → 명패 디자인 선택 → 로고·글자색 설정 → A4 양면 명패 자동 생성</p>
     </div>
@@ -1460,7 +1636,7 @@
             <label for="logoWidth">좌측 로고 크기</label>
             <div class="range-row">
               <input type="range" id="logoWidth" min="20" max="65" value="54" />
-              <input type="number" id="logoWidthNumber" min="20" max="65" value="54" />
+              <input type="number" id="logoWidthNumber" min="20" max="65" value="54" aria-label="좌측 로고 크기 숫자 입력" />
             </div>
           </div>
 
@@ -1468,7 +1644,7 @@
             <label for="logoX">좌측 로고 좌우 위치</label>
             <div class="range-row">
               <input type="range" id="logoX" min="-25" max="25" step="1" value="0" />
-              <input type="number" id="logoXNumber" min="-25" max="25" step="1" value="0" />
+              <input type="number" id="logoXNumber" min="-25" max="25" step="1" value="0" aria-label="좌측 로고 좌우 위치 숫자 입력" />
             </div>
           </div>
 
@@ -1476,7 +1652,7 @@
             <label for="logoY">좌측 로고 상하 위치</label>
             <div class="range-row">
               <input type="range" id="logoY" min="-20" max="20" step="1" value="0" />
-              <input type="number" id="logoYNumber" min="-20" max="20" step="1" value="0" />
+              <input type="number" id="logoYNumber" min="-20" max="20" step="1" value="0" aria-label="좌측 로고 상하 위치 숫자 입력" />
             </div>
           </div>
 
@@ -1525,7 +1701,7 @@
             <label for="footerLogoWidth">하단 로고 크기</label>
             <div class="range-row">
               <input type="range" id="footerLogoWidth" min="20" max="90" value="58" />
-              <input type="number" id="footerLogoWidthNumber" min="20" max="90" value="58" />
+              <input type="number" id="footerLogoWidthNumber" min="20" max="90" value="58" aria-label="하단 로고 크기 숫자 입력" />
             </div>
           </div>
 
@@ -1533,7 +1709,7 @@
             <label for="footerLogoX">하단 로고 좌우 위치</label>
             <div class="range-row">
               <input type="range" id="footerLogoX" min="-35" max="35" step="1" value="0" />
-              <input type="number" id="footerLogoXNumber" min="-35" max="35" step="1" value="0" />
+              <input type="number" id="footerLogoXNumber" min="-35" max="35" step="1" value="0" aria-label="하단 로고 좌우 위치 숫자 입력" />
             </div>
           </div>
 
@@ -1541,7 +1717,7 @@
             <label for="footerLogoY">하단 로고 상하 위치</label>
             <div class="range-row">
               <input type="range" id="footerLogoY" min="-15" max="15" step="0.5" value="0" />
-              <input type="number" id="footerLogoYNumber" min="-15" max="15" step="0.5" value="0" />
+              <input type="number" id="footerLogoYNumber" min="-15" max="15" step="0.5" value="0" aria-label="하단 로고 상하 위치 숫자 입력" />
             </div>
           </div>
         </div>
@@ -1606,7 +1782,7 @@
             <label for="overallTextColor">글자색</label>
             <div class="color-row">
               <input type="color" id="overallTextColor" value="#07518a" />
-              <input type="text" id="overallTextColorHex" value="#07518a" />
+              <input type="text" id="overallTextColorHex" value="#07518a" aria-label="글자색 HEX 값" />
             </div>
             <div class="mixed-color-note" id="mixedColorNote"></div>
           </div>
@@ -1615,7 +1791,7 @@
             <label for="borderColor">선·외곽선색 (기본형)</label>
             <div class="color-row">
               <input type="color" id="borderColor" value="#07518a" />
-              <input type="text" id="borderColorHex" value="#07518a" />
+              <input type="text" id="borderColorHex" value="#07518a" aria-label="선·외곽선색 HEX 값" />
             </div>
           </div>
         </div>
@@ -1623,7 +1799,7 @@
         <div class="field">
           <label>대표색 빠른 선택</label>
           <div class="palette-toolbar">
-            <select id="paletteTarget">
+            <select id="paletteTarget" aria-label="대표색 적용 대상">
               <option value="text">글자 전체</option>
               <option value="border">선·외곽선</option>
               <option value="name">이름만</option>
@@ -1651,7 +1827,7 @@
                 <label for="nameColor">이름 색상</label>
                 <div class="color-row">
                   <input type="color" id="nameColor" value="#07518a" />
-                  <input type="text" id="nameColorHex" value="#07518a" />
+                  <input type="text" id="nameColorHex" value="#07518a" aria-label="이름 색상 HEX 값" />
                 </div>
               </div>
 
@@ -1659,7 +1835,7 @@
                 <label for="titleColor">소속·직책 색상</label>
                 <div class="color-row">
                   <input type="color" id="titleColor" value="#07518a" />
-                  <input type="text" id="titleColorHex" value="#07518a" />
+                  <input type="text" id="titleColorHex" value="#07518a" aria-label="소속·직책 색상 HEX 값" />
                 </div>
               </div>
             </div>
@@ -1670,7 +1846,7 @@
           <label for="nameSize">이름 크기</label>
           <div class="range-row">
             <input type="range" id="nameSize" min="40" max="105" value="78" />
-            <input type="number" id="nameSizeNumber" min="40" max="105" value="78" />
+            <input type="number" id="nameSizeNumber" min="40" max="105" value="78" aria-label="이름 크기 숫자 입력" />
           </div>
         </div>
 
@@ -1678,7 +1854,7 @@
           <label for="nameX">이름 좌우 위치</label>
           <div class="range-row">
             <input type="range" id="nameX" min="-35" max="35" step="1" value="0" />
-            <input type="number" id="nameXNumber" min="-35" max="35" step="1" value="0" />
+            <input type="number" id="nameXNumber" min="-35" max="35" step="1" value="0" aria-label="이름 좌우 위치 숫자 입력" />
           </div>
         </div>
 
@@ -1686,7 +1862,7 @@
           <label for="nameY">이름 상하 위치</label>
           <div class="range-row">
             <input type="range" id="nameY" min="-20" max="20" step="1" value="0" />
-            <input type="number" id="nameYNumber" min="-20" max="20" step="1" value="0" />
+            <input type="number" id="nameYNumber" min="-20" max="20" step="1" value="0" aria-label="이름 상하 위치 숫자 입력" />
           </div>
         </div>
 
@@ -1694,7 +1870,7 @@
           <label for="titleSize">상단 문구 크기</label>
           <div class="range-row">
             <input type="range" id="titleSize" min="15" max="44" value="27" />
-            <input type="number" id="titleSizeNumber" min="15" max="44" value="27" />
+            <input type="number" id="titleSizeNumber" min="15" max="44" value="27" aria-label="상단 문구 크기 숫자 입력" />
           </div>
         </div>
 
@@ -1702,7 +1878,7 @@
           <label for="titleX">상단 문구 좌우 위치</label>
           <div class="range-row">
             <input type="range" id="titleX" min="-35" max="35" step="1" value="0" />
-            <input type="number" id="titleXNumber" min="-35" max="35" step="1" value="0" />
+            <input type="number" id="titleXNumber" min="-35" max="35" step="1" value="0" aria-label="상단 문구 좌우 위치 숫자 입력" />
           </div>
         </div>
 
@@ -1710,7 +1886,7 @@
           <label for="titleY">상단 문구 상하 위치</label>
           <div class="range-row">
             <input type="range" id="titleY" min="-18" max="18" step="1" value="0" />
-            <input type="number" id="titleYNumber" min="-18" max="18" step="1" value="0" />
+            <input type="number" id="titleYNumber" min="-18" max="18" step="1" value="0" aria-label="상단 문구 상하 위치 숫자 입력" />
           </div>
         </div>
 
@@ -1718,7 +1894,7 @@
           <label for="nameSpacing">이름 자간</label>
           <div class="range-row">
             <input type="range" id="nameSpacing" min="-2" max="35" value="18" />
-            <input type="number" id="nameSpacingNumber" min="-2" max="35" value="18" />
+            <input type="number" id="nameSpacingNumber" min="-2" max="35" value="18" aria-label="이름 자간 숫자 입력" />
           </div>
         </div>
 <label class="check-row">
@@ -1776,7 +1952,7 @@
           </div>
 
           <div class="feedback-help">
-            GitHub 버튼은 <strong>hyungkeunyoo/nameplate-maker</strong>의 새 Issue 작성 화면을 엽니다.
+            GitHub 버튼은 <strong>erakeun/nameplate-maker</strong>의 새 Issue 작성 화면을 엽니다.
             GitHub 로그인이 없는 사용자는 ‘메일 앱으로 보내기’ 또는 ‘내용 복사’를 이용할 수 있습니다.
             메일 수신 주소는 코드 상단의 <strong>FEEDBACK_EMAIL</strong> 값에 한 번만 입력하면 됩니다.
           </div>
@@ -1790,6 +1966,15 @@
           <summary>업데이트 기록 보기</summary>
 
           <div class="patch-body">
+            <div class="patch-item">
+              <div class="patch-version">V2.9.0 · RESPONSIVE SAFE PRINT</div>
+              <div>· 모바일·태블릿 전체 페이지 가로 오버플로 수정</div>
+              <div>· 모바일 미리보기 전환 오버레이 추가</div>
+              <div>· 긴 이름·소속·직책 감지 및 인쇄 전 차단</div>
+              <div>· 터치 영역·포커스·접근 가능한 이름 개선</div>
+              <div>· 피드백 저장소 URL 및 앱 버전 관리 통일</div>
+            </div>
+
             <div class="patch-item">
               <div class="patch-version">v2.8.1</div>
               <div>· 명패케이스 실제 삽입 방향에 맞게 앞·뒷면 출력 순서 수정</div>
@@ -1904,7 +2089,7 @@
       
     </aside>
 
-    <section class="workspace">
+    <section class="workspace" id="previewWorkspace" aria-label="인쇄 미리보기">
       <div class="preview-toolbar">
         <div class="preview-title">
           <h2>인쇄 미리보기</h2>
@@ -1915,8 +2100,11 @@
           <button class="btn small" id="prevBtn">이전</button>
           <div class="page-counter" id="pageCounter">0 / 0</div>
           <button class="btn small" id="nextBtn">다음</button>
+          <button class="btn small mobile-preview-close" id="mobilePreviewCloseBtn" type="button">미리보기 닫기</button>
         </div>
       </div>
+
+      <div class="text-overflow-alert" id="textOverflowAlert" role="alert" tabindex="-1" hidden></div>
 
       <div class="preview-zone" id="previewZone">
         <div class="preview-scaler" id="previewScaler">
@@ -1928,6 +2116,9 @@
     </section>
   </main>
 
+  <button class="btn primary mobile-preview-toggle" id="mobilePreviewToggleBtn" type="button" aria-controls="previewWorkspace" aria-expanded="false">미리보기 열기</button>
+  <button class="mobile-preview-backdrop" id="mobilePreviewBackdrop" type="button" aria-label="미리보기 닫기"></button>
+
   <div class="print-stage" id="printStage" aria-hidden="true"></div>
   <div class="status" id="status"></div>
 
@@ -1936,6 +2127,9 @@
   <script>
     (() => {
       "use strict";
+
+      const APP_VERSION = "2.9.0";
+      const APP_VERSION_LABEL = `V${APP_VERSION} · RESPONSIVE SAFE PRINT`;
 
       /*
         =========================================================
@@ -1948,7 +2142,7 @@
         2) GitHub 저장소 주소를 바꾸고 싶다면 FEEDBACK_ISSUE_URL을 수정하세요.
       */
       const FEEDBACK_EMAIL = "keun0810@hanyang.ac.kr";
-      const FEEDBACK_ISSUE_URL = "https://github.com/hyungkeunyoo/nameplate-maker/issues/new";
+      const FEEDBACK_ISSUE_URL = "https://github.com/erakeun/nameplate-maker/issues/new";
 
       const STORAGE_KEY = "nameplate-maker-project-v27";
       const DESIGN_KEY = "nameplate-maker-design-v27";
@@ -2041,6 +2235,7 @@
       const $$ = (selector) => [...document.querySelectorAll(selector)];
 
       const elements = {
+        versionBadge: $("#versionBadge"),
         peopleCount: $("#peopleCount"),
         bulkInput: $("#bulkInput"),
         peopleTableBody: $("#peopleTableBody"),
@@ -2104,12 +2299,17 @@
         resetAdjustmentsBtn: $("#resetAdjustmentsBtn"),
         settingsLockBtn: $("#settingsLockBtn"),
         settingsLockStatus: $("#settingsLockStatus"),
+        previewWorkspace: $("#previewWorkspace"),
         previewZone: $("#previewZone"),
         previewScaler: $("#previewScaler"),
         previewPage: $("#previewPage"),
         printStage: $("#printStage"),
         pageCounter: $("#pageCounter"),
         selectedPersonLabel: $("#selectedPersonLabel"),
+        textOverflowAlert: $("#textOverflowAlert"),
+        mobilePreviewToggleBtn: $("#mobilePreviewToggleBtn"),
+        mobilePreviewCloseBtn: $("#mobilePreviewCloseBtn"),
+        mobilePreviewBackdrop: $("#mobilePreviewBackdrop"),
         thumbs: $("#thumbs"),
         status: $("#status"),
         csvFileInput: $("#csvFileInput"),
@@ -2118,6 +2318,12 @@
         feedbackName: $("#feedbackName"),
         feedbackText: $("#feedbackText")
       };
+
+      let currentTextOverflowIssues = [];
+      let renderFrameId = 0;
+      let mobilePreviewReturnFocus = null;
+
+      elements.versionBadge.textContent = APP_VERSION_LABEL;
 
       function cryptoId() {
         if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -2539,9 +2745,10 @@
         return logoBox;
       }
 
-      function createNameplate(person, isBack = false) {
+      function createNameplate(person, isBack = false, personIndex = -1) {
         const plate = document.createElement("div");
         plate.className = "nameplate";
+        plate.dataset.personIndex = String(personIndex);
 
         if (isBack && state.design.rotateBack) {
           plate.classList.add("back-rotated");
@@ -2569,6 +2776,8 @@
 
         const title = document.createElement("div");
         title.className = "plate-title auto-fit-title";
+        title.dataset.personIndex = String(personIndex);
+        title.dataset.overflowField = "title";
         title.textContent = getTitle(person) || "소속 및 직책";
 
         if (state.design.titleSeparator === "__LINE_BREAK__") {
@@ -2578,6 +2787,8 @@
 
         const name = document.createElement("div");
         name.className = "plate-name auto-fit-name";
+        name.dataset.personIndex = String(personIndex);
+        name.dataset.overflowField = "name";
         name.textContent = person.name || "이름";
 
         textBox.append(title, name);
@@ -2632,14 +2843,19 @@
         const stack = document.createElement("div");
         stack.className = "nameplate-stack";
 
-        const front = createNameplate(person, false);
-        const back = createNameplate(person, true);
+        const front = createNameplate(person, false, index);
+        const back = createNameplate(person, true, index);
 
         // 명패케이스 삽입 방향에 맞춰
         // 180도 회전된 반대면을 위쪽, 정상면을 아래쪽에 배치
         stack.append(back, front);
 
         if (!forPrint) {
+          const overflowBadge = document.createElement("div");
+          overflowBadge.className = "preview-overflow-badge";
+          overflowBadge.textContent = "텍스트 영역 초과";
+          page.appendChild(overflowBadge);
+
           const guide = document.createElement("div");
           guide.className = "fold-guide";
 
@@ -2664,6 +2880,10 @@
 
       function buildLogoSelect(person, index) {
         const select = document.createElement("select");
+        select.setAttribute(
+          "aria-label",
+          `${index + 1}번 ${person.name || "이름 없음"} 좌측 로고`
+        );
 
         const options = [
           {
@@ -2713,6 +2933,7 @@
         state.people.forEach((person, index) => {
           const tr = document.createElement("tr");
           tr.dataset.id = person.id;
+          tr.dataset.index = String(index);
 
           const numberCell = document.createElement("td");
           numberCell.className = "row-number";
@@ -2742,6 +2963,10 @@
           deleteButton.className = "btn danger small";
           deleteButton.type = "button";
           deleteButton.textContent = "삭제";
+          deleteButton.setAttribute(
+            "aria-label",
+            `${index + 1}번 ${person.name || "이름 없음"} 삭제`
+          );
 
           deleteButton.addEventListener("click", () => {
             state.people.splice(index, 1);
@@ -2773,6 +2998,8 @@
         input.type = "text";
         input.value = value;
         input.placeholder = label;
+        input.dataset.personField = key;
+        input.setAttribute("aria-label", `${index + 1}번 ${label}`);
 
         input.addEventListener("input", () => {
           state.people[index][key] = input.value;
@@ -2843,6 +3070,11 @@
       function renderPreviewOnly() {
         applyCssVariables();
 
+        if (renderFrameId) {
+          cancelAnimationFrame(renderFrameId);
+          renderFrameId = 0;
+        }
+
         elements.previewPage.replaceChildren();
         elements.printStage.replaceChildren();
         elements.thumbs.replaceChildren();
@@ -2850,6 +3082,7 @@
         if (!state.people.length) {
           elements.pageCounter.textContent = "0 / 0";
           elements.selectedPersonLabel.textContent = "대상자를 추가해 주세요.";
+          updateTextOverflowUi([]);
           fitPreviewScale();
           saveLocal();
           return;
@@ -2883,6 +3116,7 @@
           thumb.className =
             "thumb" + (index === state.selectedIndex ? " active" : "");
           thumb.type = "button";
+          thumb.dataset.index = String(index);
           thumb.textContent =
             `${index + 1}. ${person.name || "이름 없음"}`;
 
@@ -2894,9 +3128,9 @@
           elements.thumbs.appendChild(thumb);
         });
 
-        requestAnimationFrame(() => {
-          fitText(elements.previewPage);
-          fitText(elements.printStage);
+        renderFrameId = requestAnimationFrame(() => {
+          renderFrameId = 0;
+          refreshTextOverflowState();
           fitPreviewScale();
         });
 
@@ -2910,13 +3144,56 @@
         renderPreviewOnly();
       }
 
-      function fitText(container) {
-        if (!state.design.autoFit) return;
+      function isTextOverflowing(element) {
+        return (
+          element.scrollWidth > element.clientWidth + 1 ||
+          element.scrollHeight > element.clientHeight + 1
+        );
+      }
 
+      function measureTextOverflow(element, text) {
+        if (!text) return false;
+
+        const clone = element.cloneNode(false);
+        clone.classList.remove("text-overflow-warning");
+        clone.textContent = text;
+        clone.style.position = "fixed";
+        clone.style.left = "-100000px";
+        clone.style.top = "0";
+        clone.style.width = `${element.clientWidth}px`;
+        clone.style.height = `${element.clientHeight}px`;
+        clone.style.transform = "none";
+        clone.style.visibility = "hidden";
+        clone.style.pointerEvents = "none";
+
+        document.body.appendChild(clone);
+        const overflow = isTextOverflowing(clone);
+        clone.remove();
+
+        return overflow;
+      }
+
+      function createOverflowIssue(personIndex, field) {
+        const labels = {
+          name: "이름",
+          organization: "소속",
+          position: "직책"
+        };
+
+        return {
+          personIndex,
+          field,
+          label: labels[field]
+        };
+      }
+
+      function fitText(container) {
         const fitTargets = [
           ...container.querySelectorAll(".auto-fit-name"),
           ...container.querySelectorAll(".auto-fit-title")
         ];
+
+        const issues = new Map();
 
         fitTargets.forEach(element => {
           const isName = element.classList.contains("auto-fit-name");
@@ -2931,10 +3208,8 @@
           element.style.fontSize = `${size}pt`;
 
           while (
-            (
-              element.scrollWidth > element.clientWidth + 1 ||
-              element.scrollHeight > element.clientHeight + 1
-            ) &&
+            state.design.autoFit &&
+            isTextOverflowing(element) &&
             size > min &&
             guard < 120
           ) {
@@ -2942,7 +3217,152 @@
             element.style.fontSize = `${size}pt`;
             guard++;
           }
+
+          const overflow = isTextOverflowing(element);
+          element.classList.toggle("text-overflow-warning", overflow);
+
+          if (!overflow) return;
+
+          const personIndex = Number(element.dataset.personIndex);
+          const person = state.people[personIndex];
+
+          if (!person || personIndex < 0) return;
+
+          if (isName) {
+            issues.set(
+              `${personIndex}:name`,
+              createOverflowIssue(personIndex, "name")
+            );
+            return;
+          }
+
+          const organizationOverflow = measureTextOverflow(
+            element,
+            person.organization
+          );
+          const positionOverflow = measureTextOverflow(
+            element,
+            person.position
+          );
+
+          if (organizationOverflow) {
+            issues.set(
+              `${personIndex}:organization`,
+              createOverflowIssue(personIndex, "organization")
+            );
+          }
+
+          if (positionOverflow) {
+            issues.set(
+              `${personIndex}:position`,
+              createOverflowIssue(personIndex, "position")
+            );
+          }
+
+          if (!organizationOverflow && !positionOverflow) {
+            [
+              ["organization", person.organization],
+              ["position", person.position]
+            ].forEach(([field, value]) => {
+              if (!value) return;
+              issues.set(
+                `${personIndex}:${field}`,
+                createOverflowIssue(personIndex, field)
+              );
+            });
+          }
         });
+
+        return [...issues.values()];
+      }
+
+      function updateTextOverflowUi(issues) {
+        currentTextOverflowIssues = issues;
+
+        const fieldsByPerson = new Map();
+        issues.forEach(issue => {
+          if (!fieldsByPerson.has(issue.personIndex)) {
+            fieldsByPerson.set(issue.personIndex, new Set());
+          }
+          fieldsByPerson.get(issue.personIndex).add(issue.field);
+        });
+
+        $$("#peopleTableBody tr").forEach((row, index) => {
+          const fields = fieldsByPerson.get(index) || new Set();
+          row.classList.toggle("has-text-overflow", fields.size > 0);
+
+          row.querySelectorAll("input[data-person-field]").forEach(input => {
+            const invalid = fields.has(input.dataset.personField);
+            if (invalid) {
+              input.setAttribute("aria-invalid", "true");
+              input.setAttribute("aria-describedby", "textOverflowAlert");
+            } else {
+              input.removeAttribute("aria-invalid");
+              input.removeAttribute("aria-describedby");
+            }
+          });
+        });
+
+        $$(".thumb").forEach((thumb, index) => {
+          const hasOverflow = fieldsByPerson.has(index);
+          thumb.classList.toggle("has-text-overflow", hasOverflow);
+          thumb.title = hasOverflow ? "텍스트 영역 초과 항목이 있습니다." : "";
+        });
+
+        const selectedHasOverflow = fieldsByPerson.has(state.selectedIndex);
+        const previewPaper = elements.previewPage.querySelector(".paper-page");
+        previewPaper?.classList.toggle("has-text-overflow", selectedHasOverflow);
+
+        if (!issues.length) {
+          elements.textOverflowAlert.hidden = true;
+          elements.textOverflowAlert.textContent = "";
+          return;
+        }
+
+        const summaries = [...fieldsByPerson.entries()].map(
+          ([personIndex, fields]) => {
+            const person = state.people[personIndex];
+            const fieldLabels = [...fields].map(field =>
+              createOverflowIssue(personIndex, field).label
+            );
+            return `${personIndex + 1}. ${person?.name || "이름 없음"} (${fieldLabels.join(", ")})`;
+          }
+        );
+
+        const visibleSummaries = summaries.slice(0, 5);
+        const remainingCount = summaries.length - visibleSummaries.length;
+        const remainingText = remainingCount > 0
+          ? ` · 그 외 ${remainingCount}명`
+          : "";
+
+        elements.textOverflowAlert.textContent =
+          `인쇄 영역을 초과한 텍스트가 있습니다: ${visibleSummaries.join(" · ")}${remainingText}. ` +
+          "내용을 줄이거나 글자 크기·자간을 조정한 뒤 인쇄해 주세요.";
+        elements.textOverflowAlert.hidden = false;
+      }
+
+      function refreshTextOverflowState() {
+        fitText(elements.previewPage);
+        const issues = fitText(elements.printStage);
+        updateTextOverflowUi(issues);
+        return issues;
+      }
+
+      function focusOverflowIssue(issue) {
+        const row = elements.peopleTableBody.querySelector(
+          `tr[data-index="${issue.personIndex}"]`
+        );
+        const input = row?.querySelector(
+          `input[data-person-field="${issue.field}"]`
+        );
+
+        if (input) {
+          input.focus();
+          input.scrollIntoView({ block: "center", inline: "nearest" });
+          return;
+        }
+
+        elements.textOverflowAlert.focus();
       }
 
       function fitPreviewScale() {
@@ -3250,7 +3670,7 @@
       function exportProject() {
         const payload = {
           app: "nameplate-maker",
-          version: "2.2.1",
+          version: APP_VERSION,
           savedAt: new Date().toISOString(),
           people: state.people,
           customLogos: state.customLogos,
@@ -3328,6 +3748,21 @@
       function printPages(mode) {
         if (!state.people.length) {
           showStatus("먼저 명단을 추가해 주세요.");
+          return;
+        }
+
+        const issues = refreshTextOverflowState();
+        const blockingIssues = mode === "current"
+          ? issues.filter(issue => issue.personIndex === state.selectedIndex)
+          : issues;
+
+        if (blockingIssues.length) {
+          const firstIssue = blockingIssues[0];
+          const person = state.people[firstIssue.personIndex];
+          showStatus(
+            `${firstIssue.personIndex + 1}번 ${person?.name || "이름 없음"}의 ${firstIssue.label}이(가) 출력 영역을 초과해 인쇄를 중단했습니다.`
+          );
+          focusOverflowIssue(firstIssue);
           return;
         }
 
@@ -3429,7 +3864,7 @@
           ``,
           `종류: ${type}`,
           `작성자·부서: ${name}`,
-          `버전: v2.8.1`,
+          `버전: ${APP_VERSION_LABEL}`,
           ``,
           `내용`,
           text
@@ -3510,6 +3945,36 @@
           `mailto:${encodeURIComponent(FEEDBACK_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
         window.location.href = mailto;
+      }
+
+      function openMobilePreview() {
+        if (!window.matchMedia("(max-width: 1050px)").matches) return;
+
+        mobilePreviewReturnFocus = document.activeElement;
+        document.body.classList.add("mobile-preview-open");
+        elements.mobilePreviewToggleBtn.setAttribute("aria-expanded", "true");
+        elements.previewWorkspace.setAttribute("role", "dialog");
+        elements.previewWorkspace.setAttribute("aria-modal", "true");
+
+        requestAnimationFrame(() => {
+          fitPreviewScale();
+          elements.mobilePreviewCloseBtn.focus();
+        });
+      }
+
+      function closeMobilePreview(restoreFocus = true) {
+        const wasOpen = document.body.classList.contains("mobile-preview-open");
+
+        document.body.classList.remove("mobile-preview-open");
+        elements.mobilePreviewToggleBtn.setAttribute("aria-expanded", "false");
+        elements.previewWorkspace.removeAttribute("role");
+        elements.previewWorkspace.removeAttribute("aria-modal");
+
+        if (wasOpen && restoreFocus && mobilePreviewReturnFocus?.focus) {
+          mobilePreviewReturnFocus.focus();
+        }
+
+        mobilePreviewReturnFocus = null;
       }
 
       window.addEventListener("afterprint", () => {
@@ -3909,9 +4374,64 @@
           });
       });
 
+      elements.mobilePreviewToggleBtn.addEventListener(
+        "click",
+        openMobilePreview
+      );
+
+      elements.mobilePreviewCloseBtn.addEventListener(
+        "click",
+        () => closeMobilePreview()
+      );
+
+      elements.mobilePreviewBackdrop.addEventListener(
+        "click",
+        () => closeMobilePreview()
+      );
+
+      document.addEventListener("keydown", event => {
+        const previewOpen =
+          document.body.classList.contains("mobile-preview-open");
+
+        if (
+          event.key === "Escape" &&
+          previewOpen
+        ) {
+          closeMobilePreview();
+          return;
+        }
+
+        if (event.key === "Tab" && previewOpen) {
+          const focusable = $$([
+            "#previewWorkspace button:not([disabled])",
+            "#previewWorkspace [href]",
+            "#previewWorkspace input:not([disabled])",
+            "#previewWorkspace select:not([disabled])",
+            "#previewWorkspace textarea:not([disabled])",
+            "#previewWorkspace [tabindex]:not([tabindex='-1'])"
+          ].join(",")).filter(element => element.offsetParent !== null);
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last?.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first?.focus();
+          }
+        }
+      });
+
       window.addEventListener(
         "resize",
-        fitPreviewScale
+        () => {
+          fitPreviewScale();
+          if (!window.matchMedia("(max-width: 1050px)").matches) {
+            closeMobilePreview(false);
+          }
+        }
       );
 
       if ("ResizeObserver" in window) {

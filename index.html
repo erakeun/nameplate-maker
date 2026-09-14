@@ -1976,6 +1976,12 @@
 
           <div class="patch-body">
             <div class="patch-item">
+              <div class="patch-version">v2.9.1</div>
+              <div>· 한국어 Excel에서 저장한 CSV·TSV 파일의 한글 깨짐 수정</div>
+              <div>· 기존 UTF-8 파일도 자동으로 읽도록 호환성 유지</div>
+            </div>
+
+            <div class="patch-item">
               <div class="patch-version">V2.9.0 · RESPONSIVE SAFE PRINT</div>
               <div>· 모바일·태블릿 전체 페이지 가로 오버플로 수정</div>
               <div>· 모바일 미리보기 전환 오버레이 추가</div>
@@ -2137,7 +2143,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "2.9.0";
+      const APP_VERSION = "2.9.1";
       const APP_VERSION_LABEL = `V${APP_VERSION} · RESPONSIVE SAFE PRINT`;
 
       /*
@@ -3731,11 +3737,30 @@
         reader.readAsText(file, "utf-8");
       }
 
+      function decodeDelimitedText(buffer) {
+        try {
+          // Reject invalid UTF-8 instead of silently inserting replacement characters.
+          // The default ignoreBOM: false removes a leading UTF-8 BOM.
+          return new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+        } catch (error) {
+          // WHATWG euc-kr includes Windows CP949/MS949 (Unified Hangul Code).
+          return new TextDecoder("euc-kr", { fatal: true }).decode(buffer);
+        }
+      }
+
       function loadDelimitedFile(file) {
         const reader = new FileReader();
 
         reader.onload = () => {
-          const people = parseRows(reader.result);
+          let text;
+          try {
+            text = decodeDelimitedText(reader.result);
+          } catch (error) {
+            showStatus("파일의 문자 인코딩을 확인해 주세요.");
+            return;
+          }
+
+          const people = parseRows(text);
 
           if (!people.length) {
             showStatus(
@@ -3751,7 +3776,11 @@
           showStatus(`${people.length}명의 명단을 불러왔습니다.`);
         };
 
-        reader.readAsText(file, "utf-8");
+        reader.onerror = () => {
+          showStatus("파일을 읽지 못했습니다. 다시 시도해 주세요.");
+        };
+
+        reader.readAsArrayBuffer(file);
       }
 
       function printPages(mode) {

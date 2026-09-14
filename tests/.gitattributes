@@ -1,0 +1,3 @@
+# Fixtures deliberately cover both LF and CRLF; retain their original bytes.
+fixtures/*.csv -text whitespace=cr-at-eol
+fixtures/*.tsv -text whitespace=cr-at-eol

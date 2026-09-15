@@ -2161,6 +2161,7 @@
 
       const STORAGE_KEY = "nameplate-maker-project-v27";
       let lastSavedProject = null;
+      let projectRecoveryBlocked = false;
       const DESIGN_KEY = "nameplate-maker-design-v27";
 
       const BUILTIN_LEFT_LOGOS = {
@@ -3586,6 +3587,10 @@
       }
 
       function saveLocal() {
+        if (projectRecoveryBlocked) {
+          showStatus("저장된 프로젝트를 읽지 못해 원본을 보존했습니다. 작업 저장으로 원본을 내려받은 뒤 유효한 JSON을 불러와 주세요.");
+          return;
+        }
         const payload = {
           people: state.people,
           customLogos: state.customLogos,
@@ -3616,6 +3621,7 @@
           if (!raw) return;
 
           const saved = JSON.parse(raw);
+          if (!saved || !Array.isArray(saved.people) || saved.people.some(person => !person || typeof person !== "object")) throw new Error("invalid-project");
 
           if (Array.isArray(saved.customLogos)) {
             state.customLogos = saved.customLogos.map(sanitizeCustomLogo);
@@ -3637,7 +3643,7 @@
             Math.max(0, state.people.length - 1)
           );
         } catch (error) {
-          console.warn("자동 복구 실패:", error);
+          projectRecoveryBlocked = true;
         }
       }
 
@@ -3690,6 +3696,10 @@
       }
 
       function exportProject() {
+        if (projectRecoveryBlocked && lastSavedProject) {
+          downloadText("명패작업_복구용_원본.json", lastSavedProject);
+          return;
+        }
         const payload = {
           app: "nameplate-maker",
           version: APP_VERSION,
@@ -3718,14 +3728,19 @@
             if (!Array.isArray(parsed.people)) {
               throw new Error("명단 형식이 없습니다.");
             }
-
-            state.customLogos = Array.isArray(parsed.customLogos)
+            if (parsed.people.some(person => !person || typeof person !== "object")) throw new Error("잘못된 참석자 형식");
+            const nextLogos = Array.isArray(parsed.customLogos)
               ? parsed.customLogos.map(sanitizeCustomLogo)
               : [];
-
-            state.people = parsed.people.map(sanitizePerson);
-
+            const nextPeople = parsed.people.map(sanitizePerson);
             const importedDesign = parsed.design || {};
+            if (typeof importedDesign !== "object" || Array.isArray(importedDesign)) throw new Error("잘못된 디자인 형식");
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw !== lastSavedProject) throw new Error("다른 창에서 프로젝트가 변경되었습니다.");
+            if (raw) localStorage.setItem(`${STORAGE_KEY}:before-seat-planner`, raw);
+            projectRecoveryBlocked = false;
+            state.customLogos = nextLogos;
+            state.people = nextPeople;
             state.design = { ...defaultDesign, ...importedDesign };
             if (importedDesign.textColor && !importedDesign.nameColor) state.design.nameColor = importedDesign.textColor;
             if (importedDesign.textColor && !importedDesign.titleColor) state.design.titleColor = importedDesign.textColor;
@@ -4511,7 +4526,7 @@
         const previous = JSON.stringify({ people: state.people, customLogos: state.customLogos, design: state.design, selectedIndex: state.selectedIndex });
         const next = JSON.stringify({ people: transfer.people, customLogos: state.customLogos, design: state.design, selectedIndex: 0 });
         try {
-          if (localStorage.getItem(STORAGE_KEY) !== lastSavedProject) {
+          if (projectRecoveryBlocked || localStorage.getItem(STORAGE_KEY) !== lastSavedProject) {
             showStatus("다른 창에서 명단이 변경되었습니다. 기존 명단 보호를 위해 새로고침 후 다시 전송해 주세요.");
             return;
           }

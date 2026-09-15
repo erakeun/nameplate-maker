@@ -4472,6 +4472,47 @@
         }
       );
 
+      const SEAT_PLANNER_ORIGIN = "https://erakeun.github.io";
+      let lastSeatPlannerTransferId = "";
+      window.addEventListener("message", event => {
+        const data = event.data;
+        const localPreview = ["localhost", "127.0.0.1"].includes(location.hostname);
+        const allowedLocalOrigin = localPreview && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(event.origin);
+        if (
+          (event.origin !== SEAT_PLANNER_ORIGIN && !allowedLocalOrigin) ||
+          event.source !== window.opener ||
+          !data ||
+          data.type !== "erica-seat-planner:nameplates:v1" ||
+          data.source !== "erica-seat-planner" ||
+          !Array.isArray(data.people) ||
+          data.people.length > 63
+        ) return;
+
+        const people = data.people
+          .map(person => sanitizePerson({
+            name: person?.name,
+            organization: person?.organization,
+            position: person?.position,
+            logoKey: person?.logoKey || "default"
+          }))
+          .filter(person => person.name || person.organization || person.position);
+
+        if (!people.length) return;
+        if (data.transferId !== lastSeatPlannerTransferId) {
+          state.people = people;
+          state.selectedIndex = 0;
+          lastSeatPlannerTransferId = String(data.transferId || "");
+          renderAll();
+          saveLocal();
+          showStatus(`좌석배치기에서 ${people.length}명의 명단을 받았습니다.`);
+        }
+        event.source?.postMessage({
+          type: "erica-seat-planner:nameplates:accepted",
+          transferId: data.transferId,
+          count: people.length
+        }, event.origin);
+      });
+
       if ("ResizeObserver" in window) {
         const resizeObserver =
           new ResizeObserver(fitPreviewScale);

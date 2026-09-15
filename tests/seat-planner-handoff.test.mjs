@@ -9,7 +9,7 @@ test("seat planner handoff is restricted and bounded", () => {
   assert.match(source, /data\.source !== "erica-seat-planner"/);
   assert.match(source, /event\.source !== window\.opener/);
   assert.match(source, /data\.people\.length > 63/);
-  assert.match(source, /event\.source\?\.postMessage\(\{/);
+  assert.match(source, /transfer\.source\?\.postMessage\(\{/);
   assert.match(source, /erica-seat-planner:nameplates:accepted/);
 });
 

@@ -2160,6 +2160,7 @@
       const FEEDBACK_ISSUE_URL = "https://github.com/erakeun/nameplate-maker/issues/new";
 
       const STORAGE_KEY = "nameplate-maker-project-v27";
+      let lastSavedProject = null;
       const DESIGN_KEY = "nameplate-maker-design-v27";
 
       const BUILTIN_LEFT_LOGOS = {
@@ -3593,10 +3594,15 @@
         };
 
         try {
+          if (localStorage.getItem(STORAGE_KEY) !== lastSavedProject) {
+            showStatus("다른 창의 최신 프로젝트를 보호하기 위해 저장을 중지했습니다. 현재 작업을 JSON으로 내보낸 뒤 새로고침해 주세요.");
+            return;
+          }
           localStorage.setItem(
             STORAGE_KEY,
             JSON.stringify(payload)
           );
+          lastSavedProject = JSON.stringify(payload);
         } catch (error) {
           console.warn("자동 저장 실패:", error);
         }
@@ -3605,6 +3611,7 @@
       function restoreLocal() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
+          lastSavedProject = raw;
 
           if (!raw) return;
 
@@ -4474,6 +4481,74 @@
 
       const SEAT_PLANNER_ORIGIN = "https://erakeun.github.io";
       let lastSeatPlannerTransferId = "";
+      try { lastSeatPlannerTransferId = localStorage.getItem(`${STORAGE_KEY}:last-transfer`) || ""; } catch { /* Import will report storage failures. */ }
+      let pendingSeatPlannerTransfer = null;
+      const rejectedSeatPlannerTransfers = new Set();
+      const transferDialog = document.createElement("dialog");
+      transferDialog.setAttribute("aria-labelledby", "seat-planner-transfer-title");
+      transferDialog.style.cssText = "max-width:520px;width:calc(100% - 40px);border:1px solid #ccd5df;border-radius:16px;padding:24px;color:#142c45";
+      transferDialog.innerHTML = '<h2 id="seat-planner-transfer-title">좌석배치 명단 가져오기</h2><p id="seat-planner-transfer-summary"></p><p>기존 명패 명단은 교체됩니다. 현재 명단·디자인을 먼저 백업한 뒤 가져옵니다. 기관 로고는 가져온 후 직접 지정해 주세요.</p><div style="display:flex;gap:12px;flex-wrap:wrap"><button type="button" id="seat-planner-transfer-cancel">취소 · 기존 명단 유지</button><button type="button" id="seat-planner-transfer-accept">백업 후 가져오기</button></div>';
+      document.body.append(transferDialog);
+      const respondToSeatPlanner = (transfer, accepted) => transfer.source?.postMessage({
+        type: accepted ? "erica-seat-planner:nameplates:accepted" : "erica-seat-planner:nameplates:rejected",
+        transferId: transfer.transferId,
+        count: transfer.people.length
+      }, transfer.origin);
+      function cancelSeatPlannerTransfer() {
+        if (pendingSeatPlannerTransfer) {
+          rejectedSeatPlannerTransfers.add(pendingSeatPlannerTransfer.transferId);
+          if (rejectedSeatPlannerTransfers.size > 100) rejectedSeatPlannerTransfers.delete(rejectedSeatPlannerTransfers.values().next().value);
+          respondToSeatPlanner(pendingSeatPlannerTransfer, false);
+        }
+        pendingSeatPlannerTransfer = null;
+        transferDialog.close();
+      }
+      transferDialog.querySelector("#seat-planner-transfer-cancel").addEventListener("click", cancelSeatPlannerTransfer);
+      transferDialog.addEventListener("cancel", event => { event.preventDefault(); cancelSeatPlannerTransfer(); });
+      transferDialog.querySelector("#seat-planner-transfer-accept").addEventListener("click", () => {
+        const transfer = pendingSeatPlannerTransfer;
+        if (!transfer) return;
+        const previous = JSON.stringify({ people: state.people, customLogos: state.customLogos, design: state.design, selectedIndex: state.selectedIndex });
+        const next = JSON.stringify({ people: transfer.people, customLogos: state.customLogos, design: state.design, selectedIndex: 0 });
+        try {
+          if (localStorage.getItem(STORAGE_KEY) !== lastSavedProject) {
+            showStatus("다른 창에서 명단이 변경되었습니다. 기존 명단 보호를 위해 새로고침 후 다시 전송해 주세요.");
+            return;
+          }
+          // Never replace the current list unless its complete project can be backed up.
+          localStorage.setItem(`${STORAGE_KEY}:before-seat-planner`, previous);
+          localStorage.setItem(STORAGE_KEY, next);
+          lastSavedProject = next;
+        } catch {
+          showStatus("백업 또는 저장에 실패하여 가져오지 않았습니다. 기존 명단을 유지합니다.");
+          return;
+        }
+        state.people = transfer.people;
+        state.selectedIndex = 0;
+        lastSeatPlannerTransferId = transfer.transferId;
+        try { localStorage.setItem(`${STORAGE_KEY}:last-transfer`, transfer.transferId); } catch { /* The project itself is already saved. */ }
+        pendingSeatPlannerTransfer = null;
+        transferDialog.close();
+        renderAll();
+        respondToSeatPlanner(transfer, true);
+        showStatus(`좌석배치기에서 ${transfer.people.length}명의 명단을 받았습니다. 교체 전 백업은 하단 버튼에서 내려받을 수 있습니다.`);
+      });
+      const transferBackupButton = document.createElement("button");
+      transferBackupButton.type = "button";
+      transferBackupButton.textContent = "좌석배치 연동 전 프로젝트 백업 내려받기";
+      transferBackupButton.style.cssText = "margin:16px";
+      transferBackupButton.addEventListener("click", () => {
+        let raw;
+        try { raw = localStorage.getItem(`${STORAGE_KEY}:before-seat-planner`); } catch { showStatus("백업 저장소에 접근할 수 없습니다."); return; }
+        if (!raw) { showStatus("좌석배치 연동 전 백업이 없습니다."); return; }
+        const blobUrl = URL.createObjectURL(new Blob([raw], { type: "application/json" }));
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = "nameplate-before-seat-planner.json";
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      });
+      document.body.append(transferBackupButton);
       window.addEventListener("message", event => {
         const data = event.data;
         const localPreview = ["localhost", "127.0.0.1"].includes(location.hostname);
@@ -4484,8 +4559,10 @@
           !data ||
           data.type !== "erica-seat-planner:nameplates:v1" ||
           data.source !== "erica-seat-planner" ||
+          typeof data.transferId !== "string" || !data.transferId || data.transferId.length > 120 ||
           !Array.isArray(data.people) ||
-          data.people.length > 63
+          !data.people.length || data.people.length > 63 ||
+          data.people.some(person => !person || typeof person !== "object" || ["name", "organization", "position"].some(key => typeof person[key] !== "string" || person[key].length > 500))
         ) return;
 
         const people = data.people
@@ -4493,24 +4570,18 @@
             name: person?.name,
             organization: person?.organization,
             position: person?.position,
-            logoKey: person?.logoKey || "default"
+            logoKey: typeof person?.logoKey === "string" ? person.logoKey : "none"
           }))
           .filter(person => person.name || person.organization || person.position);
 
         if (!people.length) return;
-        if (data.transferId !== lastSeatPlannerTransferId) {
-          state.people = people;
-          state.selectedIndex = 0;
-          lastSeatPlannerTransferId = String(data.transferId || "");
-          renderAll();
-          saveLocal();
-          showStatus(`좌석배치기에서 ${people.length}명의 명단을 받았습니다.`);
-        }
-        event.source?.postMessage({
-          type: "erica-seat-planner:nameplates:accepted",
-          transferId: data.transferId,
-          count: people.length
-        }, event.origin);
+        const transfer = { people, transferId: data.transferId, source: event.source, origin: event.origin };
+        if (data.transferId === lastSeatPlannerTransferId) { respondToSeatPlanner(transfer, true); return; }
+        if (rejectedSeatPlannerTransfers.has(data.transferId)) { respondToSeatPlanner(transfer, false); return; }
+        if (pendingSeatPlannerTransfer) return;
+        pendingSeatPlannerTransfer = transfer;
+        transferDialog.querySelector("#seat-planner-transfer-summary").textContent = `받을 명단 ${people.length}명 · 현재 명단 ${state.people.length}명`;
+        transferDialog.showModal();
       });
 
       if ("ResizeObserver" in window) {

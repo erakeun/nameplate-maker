@@ -10,7 +10,7 @@ function harness(){
  const source={postMessage:(data,origin)=>messages.push({data,origin})};
  const state={people:[{name:'가상 기존참석자'}],customLogos:[],design:{font:'retained'},selectedIndex:0};
  const ctx={state,STORAGE_KEY:'test-project',document:{createElement:node,body:{append(){}}},localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)},location:{hostname:'erakeun.github.io'},window:{opener:source,addEventListener:(k,fn)=>listeners[k]=fn},sanitizePerson:p=>p,renderAll(){},showStatus:s=>status.push(s),setTimeout(){},Blob};
- vm.createContext(ctx);vm.runInContext('let lastSavedProject = null;\n'+bridge,ctx);
+ vm.createContext(ctx);vm.runInContext('let lastSavedProject = null; let projectRecoveryBlocked = false;\n'+bridge,ctx);
  const send=(data,options={})=>listeners.message({origin:'https://erakeun.github.io',source,data,...options});
  const payload=n=>({type:'erica-seat-planner:nameplates:v1',source:'erica-seat-planner',transferId:`transfer-${n}`,people:Array.from({length:n},(_,i)=>({name:`가상${i}`,organization:'감사기관',position:'담당',logoKey:'none'}))});
  return {state,store,messages,send,payload,nodes,ctx,status};

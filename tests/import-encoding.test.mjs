@@ -50,6 +50,8 @@ function harness() {
   const printPages = [0, 1].map(index => ({ classList: { toggle: (...args) => toggles.push([index, ...args]) } }));
   const context = vm.createContext({
     TextDecoder, Uint8Array, ArrayBuffer, FileReader, state,
+    STORAGE_KEY: 'test-project', lastSavedProject: null, projectRecoveryBlocked: false,
+    localStorage: { getItem: () => null, setItem() {} },
     BUILTIN_LEFT_LOGOS: { hanyang: {} }, defaultDesign: { titleSeparator: " " },
     cryptoId: () => `test-${++nextId}`,
     renderAll: () => { calls.renders++; },

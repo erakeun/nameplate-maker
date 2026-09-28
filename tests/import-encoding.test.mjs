@@ -213,3 +213,5 @@ test("JSON project import keeps its independent UTF-8 text-reader path", () => {
   assert.deepEqual(h.calls.statuses, ["작업 파일을 불러왔습니다."]);
   assert.deepEqual(h.calls.reads, [{ method: "readAsText", encoding: "utf-8" }]);
 });
+
+test('project person sanitization preserves intentional display whitespace and line breaks',()=>{const h=harness();const source={id:'display-id',name:' 가상 ',organization:'가상\n기관 ',position:' 담당 ',logoKey:'default',seatId:'',replacesParticipantId:''};const result=h.context.sanitizePerson(source);assert.equal(result.name,source.name);assert.equal(result.organization,source.organization);assert.equal(result.position,source.position);assert.equal(result.seatId,'');assert.equal(result.replacesParticipantId,'');});

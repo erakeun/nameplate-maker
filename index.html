@@ -1,14 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-REQY4913H3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-REQY4913H3');
-  </script>
+
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -2139,6 +2132,9 @@
 
   <input type="file" id="projectFileInput" accept=".json,application/json" hidden />
 
+  <script src="mach-contract.js"></script>
+  <script src="nameplate-changes.js"></script>
+  <script src="mach-nameplate-ui.js"></script>
   <script>
     (() => {
       "use strict";
@@ -2336,6 +2332,9 @@
         feedbackText: $("#feedbackText")
       };
 
+      let machPrint;
+      let resetMachReceipts = () => {};
+      let refreshMachUI = () => {};
       let currentTextOverflowIssues = [];
       let renderFrameId = 0;
       let mobilePreviewReturnFocus = null;
@@ -2350,10 +2349,13 @@
       function sanitizePerson(person = {}) {
         return {
           id: person.id || cryptoId(),
-          name: String(person.name || "").trim(),
-          organization: String(person.organization || "").trim(),
-          position: String(person.position || "").trim(),
-          logoKey: normalizeExistingLogoKey(person.logoKey || "default")
+          name: String(person.name || ""),
+          organization: String(person.organization || ""),
+          position: String(person.position || ""),
+          logoKey: normalizeExistingLogoKey(person.logoKey || "default"),
+          ...(typeof person.status === "string" ? { status: person.status } : {}),
+          ...(typeof person.seatId === "string" ? { seatId: person.seatId } : {}),
+          ...(typeof person.replacesParticipantId === "string" ? { replacesParticipantId: person.replacesParticipantId } : {})
         };
       }
 
@@ -2945,7 +2947,7 @@
       function renderTable() {
         elements.peopleTableBody.replaceChildren();
         elements.emptyMessage.style.display = state.people.length ? "none" : "block";
-        elements.peopleCount.textContent = `${state.people.length}명`;
+        elements.peopleCount.textContent = state.mach?.eventId ? `활성 ${state.people.filter(NameplateChanges.active).length}명 · 이력 포함 ${state.people.length}명` : `${state.people.length}명`;
 
         state.people.forEach((person, index) => {
           const tr = document.createElement("tr");
@@ -3102,6 +3104,7 @@
           updateTextOverflowUi([]);
           fitPreviewScale();
           saveLocal();
+          refreshMachUI();
           return;
         }
 
@@ -3125,7 +3128,7 @@
           `${state.selectedIndex + 1} / ${state.people.length}`;
 
         state.people.forEach((person, index) => {
-          elements.printStage.appendChild(
+          if (NameplateChanges.active(person)) elements.printStage.appendChild(
             createPage(person, index, true)
           );
 
@@ -3152,6 +3155,7 @@
         });
 
         saveLocal();
+        refreshMachUI();
       }
 
       function renderAll() {
@@ -3595,7 +3599,8 @@
           people: state.people,
           customLogos: state.customLogos,
           design: state.design,
-          selectedIndex: state.selectedIndex
+          selectedIndex: state.selectedIndex,
+          mach: state.mach
         };
 
         try {
@@ -3621,6 +3626,9 @@
           if (!raw) return;
 
           const saved = JSON.parse(raw);
+          if (typeof NameplateChanges !== "undefined") NameplateChanges.validateProject(saved);
+          if (saved.mach) state.mach = saved.mach;
+          if (!saved.mach || saved?.people?.some(person => !person?.id)) localStorage.setItem(`${STORAGE_KEY}:before-migration`, raw);
           if (!saved || !Array.isArray(saved.people) || saved.people.some(person => !person || typeof person !== "object")) throw new Error("invalid-project");
 
           if (Array.isArray(saved.customLogos)) {
@@ -3666,8 +3674,13 @@
 
           const reader = new FileReader();
 
-          reader.onload = () =>
-            resolve(String(reader.result || ""));
+          reader.onload = () => {
+            const dataUrl = String(reader.result || "");
+            try {
+              NameplateChanges.validateProject({ people: [], design: {}, customLogos: [{ dataUrl }] });
+              resolve(dataUrl);
+            } catch (error) { reject(error); }
+          };
 
           reader.onerror = () =>
             reject(new Error("이미지를 읽지 못했습니다."));
@@ -3706,7 +3719,9 @@
           savedAt: new Date().toISOString(),
           people: state.people,
           customLogos: state.customLogos,
-          design: state.design
+          design: state.design,
+          selectedIndex: state.selectedIndex,
+          mach: state.mach
         };
 
         downloadText(
@@ -3725,6 +3740,7 @@
             const parsed =
               JSON.parse(String(reader.result || ""));
 
+            if (typeof NameplateChanges !== "undefined") NameplateChanges.validateProject(parsed);
             if (!Array.isArray(parsed.people)) {
               throw new Error("명단 형식이 없습니다.");
             }
@@ -3738,7 +3754,15 @@
             const raw = localStorage.getItem(STORAGE_KEY);
             if (raw !== lastSavedProject) throw new Error("다른 창에서 프로젝트가 변경되었습니다.");
             if (raw) localStorage.setItem(`${STORAGE_KEY}:before-seat-planner`, raw);
+            const nextDesign = { ...defaultDesign, ...importedDesign };
+            if (importedDesign.textColor && !importedDesign.nameColor) nextDesign.nameColor = importedDesign.textColor;
+            if (importedDesign.textColor && !importedDesign.titleColor) nextDesign.titleColor = importedDesign.textColor;
+            const nextMach = typeof NameplateChanges !== "undefined" ? NameplateChanges.metadata(parsed.mach, cryptoId()) : parsed.mach;
+            const savedNext = JSON.stringify({ people: nextPeople, customLogos: nextLogos, design: nextDesign, selectedIndex: 0, mach: nextMach });
+            localStorage.setItem(STORAGE_KEY, savedNext);
+            lastSavedProject = savedNext;
             projectRecoveryBlocked = false;
+            state.mach = nextMach;
             state.customLogos = nextLogos;
             state.people = nextPeople;
             state.design = { ...defaultDesign, ...importedDesign };
@@ -3748,6 +3772,7 @@
             state.selectedIndex = 0;
 
             renderAll();
+            if (typeof resetMachReceipts === "function") resetMachReceipts();
             showStatus("작업 파일을 불러왔습니다.");
           } catch (error) {
             showStatus(
@@ -3771,6 +3796,7 @@
       }
 
       function loadDelimitedFile(file) {
+        if (state.mach?.eventId) { showStatus("연결된 행사는 ID가 포함된 연동 JSON으로 변경분을 확인해 주세요. CSV는 새 단독 작업에서 불러올 수 있습니다."); return; }
         const reader = new FileReader();
 
         reader.onload = () => {
@@ -3806,6 +3832,7 @@
       }
 
       function printPages(mode) {
+        if (typeof machPrint === "function") return machPrint(mode);
         if (!state.people.length) {
           showStatus("먼저 명단을 추가해 주세요.");
           return;
@@ -4042,6 +4069,7 @@
       });
 
       $("#replaceBulkBtn").addEventListener("click", () => {
+        if (state.mach?.eventId) { showStatus("연결된 행사는 변경분 확인을 사용해 주세요. 명단을 유지했습니다."); return; }
         const people = parseRows(elements.bulkInput.value);
 
         if (!people.length) {
@@ -4523,7 +4551,8 @@
       transferDialog.querySelector("#seat-planner-transfer-accept").addEventListener("click", () => {
         const transfer = pendingSeatPlannerTransfer;
         if (!transfer) return;
-        const previous = JSON.stringify({ people: state.people, customLogos: state.customLogos, design: state.design, selectedIndex: state.selectedIndex });
+        if (state.mach?.eventId || state.mach?.printJobs?.length || Object.keys(state.mach?.confirmed || {}).length) { showStatus("연결 행사 또는 출력 이력이 있는 작업은 변경분 확인 방식으로 다시 보내 주세요. 기존 명단·출력 이력을 유지합니다."); return; }
+        const previous = JSON.stringify({ people: state.people, customLogos: state.customLogos, design: state.design, selectedIndex: state.selectedIndex, mach: state.mach });
         const next = JSON.stringify({ people: transfer.people, customLogos: state.customLogos, design: state.design, selectedIndex: 0 });
         try {
           if (projectRecoveryBlocked || localStorage.getItem(STORAGE_KEY) !== lastSavedProject) {
@@ -4626,6 +4655,24 @@
       } catch (_) {}
 
       restoreLocal();
+      if (!projectRecoveryBlocked) {
+        try { state.mach = NameplateChanges.metadata(state.mach, cryptoId()); }
+        catch (_) { projectRecoveryBlocked = true; }
+      }
+      const machUI = mountMachNameplates({
+        state, storageKey: STORAGE_KEY, getRaw: () => lastSavedProject,
+        blocked: () => projectRecoveryBlocked,
+        setRaw: raw => { lastSavedProject = raw; },
+        renderAll, showStatus, createPage, fitText, applyCssVariables,
+        getLeftLogoInfo, getTemplateInfo,
+        footerInfo: () => FOOTER_LOGOS[state.design.footerLogo] || FOOTER_LOGOS.hanyang,
+        printStage: elements.printStage, previewPage: elements.previewPage,
+        newId: cryptoId, exportProject, downloadText,
+        getOverflow: () => refreshTextOverflowState()
+      });
+      machPrint = machUI.print;
+      resetMachReceipts = machUI.invalidate;
+      refreshMachUI = machUI.refresh;
       renderAll();
     })();
   </script>

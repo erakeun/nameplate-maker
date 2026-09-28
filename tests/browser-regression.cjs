@@ -19,7 +19,7 @@ const label = target ? 'production' : 'local';
     if (!resolved.startsWith(repo + path.sep)) { res.writeHead(403); res.end(); return; }
     try {
       const data = await fs.readFile(resolved);
-      res.setHeader('Content-Type', resolved.endsWith('.html') ? 'text/html; charset=utf-8' : 'image/png');
+      res.setHeader('Content-Type', resolved.endsWith('.html') ? 'text/html; charset=utf-8' : resolved.endsWith('.js') ? 'text/javascript; charset=utf-8' : 'image/png');
       res.end(data);
     } catch { res.writeHead(404); res.end(); }
   });

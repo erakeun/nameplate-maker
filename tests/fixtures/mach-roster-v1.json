@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1, "kind": "roster", "eventId": "synthetic-mach-event",
+  "eventName": "가상 검증 행사", "revision": 1, "baseRevision": 0,
+  "transferId": "synthetic-mach-transfer",
+  "participants": [
+    {"participantId":"synthetic-a","name":"가상참석자","organization":"가상기관 A","position":"가상직책","status":"attending","replacesParticipantId":"","seatId":"","seatLocked":false},
+    {"participantId":"synthetic-b","name":"가상참석자","organization":"가상기관 B","position":"가상직책","status":"attending","replacesParticipantId":"","seatId":"","seatLocked":false}
+  ]
+}

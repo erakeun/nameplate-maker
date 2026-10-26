@@ -1490,6 +1490,12 @@
 .mach-home-link:focus-visible{outline:3px solid #165dcb;outline-offset:3px}
 @media print{.mach-home-nav{display:none!important}}
 </style>
+
+<style id="mach-feedback-style">
+.mach-feedback-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:8px 14px;box-sizing:border-box;border:1px solid #b6c7dd;border-radius:8px;background:#fff;color:#145cbd;font:inherit;line-height:1.4;text-align:center;text-decoration:underline}
+.mach-feedback-link:focus-visible{outline:3px solid #165dcb;outline-offset:3px}
+@media print{.mach-feedback-link,[data-mach-feedback-container]{display:none!important}}
+</style>
 </head>
 
 <body>
@@ -1933,44 +1939,11 @@
         </div>
       </section>
 
-      <section class="section">
-        <h2>4. 수정요청 · 불편사항</h2>
-
+      <section class="section" data-mach-feedback-container data-html2canvas-ignore="true">
+        <h2>4. 의견 보내기</h2>
         <div class="feedback-box">
-          <div class="grid-2">
-            <div class="field">
-              <label for="feedbackType">종류</label>
-              <select id="feedbackType">
-                <option value="불편사항">불편사항</option>
-                <option value="기능추가">기능 추가 요청</option>
-                <option value="오류">오류 신고</option>
-                <option value="디자인">디자인 의견</option>
-                <option value="기타">기타</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="feedbackName">작성자·부서 (선택)</label>
-              <input type="text" id="feedbackName" placeholder="예: 발전협력팀 홍길동" />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="feedbackText">내용</label>
-            <textarea id="feedbackText" placeholder="예: 50명 입력할 때 로고를 한 번에 바꾸는 기능이 있었으면 좋겠어요."></textarea>
-          </div>
-
-          <div class="btn-row">
-            <button class="btn primary" id="feedbackIssueBtn">GitHub에 수정요청 남기기</button>
-            <button class="btn" id="feedbackMailBtn">메일 앱으로 보내기</button>
-            <button class="btn" id="feedbackCopyBtn">내용 복사</button>
-          </div>
-
-          <div class="feedback-help">
-            GitHub 버튼은 <strong>erakeun/nameplate-maker</strong>의 새 Issue 작성 화면을 엽니다.
-            GitHub 로그인이 없는 사용자는 ‘메일 앱으로 보내기’ 또는 ‘내용 복사’를 이용할 수 있습니다.
-            메일 수신 주소는 코드 상단의 <strong>FEEDBACK_EMAIL</strong> 값에 한 번만 입력하면 됩니다.
-          </div>
+          <a class="mach-feedback-link" data-mach-feedback="02" href="https://script.google.com/macros/s/AKfycby2ShSY4ruQr9Ku-QlljB05Ygk3ygDRtX-hXWO0hfUmEULl-jK9Z7mqh_k2m9GSV70v/exec?tool=02" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">의견 보내기 (새 창)</a>
+          <p class="feedback-help">불편신고·수정요청·응원을 비공개로 보낼 수 있습니다. 현재 작업 내용은 전송되지 않습니다.</p>
         </div>
       </section>
 
@@ -2155,19 +2128,6 @@
       const APP_VERSION = "2.9.1";
       const APP_VERSION_LABEL = `V${APP_VERSION} · RESPONSIVE SAFE PRINT`;
 
-      /*
-        =========================================================
-        사용자 설정
-        =========================================================
-
-        1) 수정요청을 받을 이메일 주소를 아래에 입력하세요.
-           예: const FEEDBACK_EMAIL = "example@hanyang.ac.kr";
-
-        2) GitHub 저장소 주소를 바꾸고 싶다면 FEEDBACK_ISSUE_URL을 수정하세요.
-      */
-      const FEEDBACK_EMAIL = "keun0810@hanyang.ac.kr";
-      const FEEDBACK_ISSUE_URL = "https://github.com/erakeun/nameplate-maker/issues/new";
-
       const STORAGE_KEY = "nameplate-maker-project-v27";
       let lastSavedProject = null;
       let projectRecoveryBlocked = false;
@@ -2339,10 +2299,7 @@
         thumbs: $("#thumbs"),
         status: $("#status"),
         csvFileInput: $("#csvFileInput"),
-        projectFileInput: $("#projectFileInput"),
-        feedbackType: $("#feedbackType"),
-        feedbackName: $("#feedbackName"),
-        feedbackText: $("#feedbackText")
+        projectFileInput: $("#projectFileInput")
       };
 
       let machPrint;
@@ -3947,106 +3904,6 @@
         });
       }
 
-      function buildFeedbackText() {
-        const type =
-          elements.feedbackType.value || "기타";
-
-        const name =
-          elements.feedbackName.value.trim() || "미기재";
-
-        const text =
-          elements.feedbackText.value.trim();
-
-        if (!text) return "";
-
-        return [
-          `[명패 생성기 수정요청]`,
-          ``,
-          `종류: ${type}`,
-          `작성자·부서: ${name}`,
-          `버전: ${APP_VERSION_LABEL}`,
-          ``,
-          `내용`,
-          text
-        ].join("\n");
-      }
-
-      function copyToClipboard(text) {
-        if (navigator.clipboard && window.isSecureContext) {
-          return navigator.clipboard.writeText(text);
-        }
-
-        return new Promise((resolve, reject) => {
-          try {
-            const textarea = document.createElement("textarea");
-            textarea.value = text;
-            textarea.style.position = "fixed";
-            textarea.style.opacity = "0";
-
-            document.body.appendChild(textarea);
-            textarea.focus();
-            textarea.select();
-
-            document.execCommand("copy");
-            textarea.remove();
-
-            resolve();
-          } catch (error) {
-            reject(error);
-          }
-        });
-      }
-
-      function sendFeedbackToGithub() {
-        const body = buildFeedbackText();
-
-        if (!body) {
-          showStatus("수정요청 내용을 먼저 적어 주세요.");
-          return;
-        }
-
-        const title =
-          `[${elements.feedbackType.value}] 명패 생성기 수정요청`;
-
-        const url =
-          `${FEEDBACK_ISSUE_URL}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
-
-        window.open(url, "_blank", "noopener,noreferrer");
-      }
-
-      function sendFeedbackByMail() {
-        const body = buildFeedbackText();
-
-        if (!body) {
-          showStatus("수정요청 내용을 먼저 적어 주세요.");
-          return;
-        }
-
-        const subject =
-          `[${elements.feedbackType.value}] 명패 생성기 수정요청`;
-
-        if (!FEEDBACK_EMAIL) {
-          copyToClipboard(body)
-            .then(() => {
-              showStatus(
-                "FEEDBACK_EMAIL이 비어 있어 요청 내용을 복사했습니다. 코드의 FEEDBACK_EMAIL에 받을 주소를 입력해 주세요."
-              );
-            })
-            .catch(() => {
-              showStatus(
-                "FEEDBACK_EMAIL이 비어 있습니다. 코드 상단에 받을 이메일 주소를 입력해 주세요."
-              );
-            });
-
-          return;
-        }
-
-        const mailto =
-          `mailto:${encodeURIComponent(FEEDBACK_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-        window.location.href = mailto;
-      }
-
       function openMobilePreview() {
         if (!window.matchMedia("(max-width: 1050px)").matches) return;
 
@@ -4444,35 +4301,6 @@
 
         renderAll();
         showStatus("디자인을 초기화했습니다.");
-      });
-
-      $("#feedbackIssueBtn").addEventListener(
-        "click",
-        sendFeedbackToGithub
-      );
-
-      $("#feedbackMailBtn").addEventListener(
-        "click",
-        sendFeedbackByMail
-      );
-
-      $("#feedbackCopyBtn").addEventListener("click", () => {
-        const body = buildFeedbackText();
-
-        if (!body) {
-          showStatus("수정요청 내용을 먼저 적어 주세요.");
-          return;
-        }
-
-        copyToClipboard(body)
-          .then(() => {
-            showStatus("수정요청 내용을 복사했습니다.");
-          })
-          .catch(() => {
-            showStatus(
-              "복사하지 못했습니다. 내용을 직접 선택해 복사해 주세요."
-            );
-          });
       });
 
       elements.mobilePreviewToggleBtn.addEventListener(

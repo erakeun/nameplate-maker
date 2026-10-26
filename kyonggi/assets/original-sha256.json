@@ -1,0 +1,30 @@
+[
+  {
+    "file": "giryong-1.png",
+    "sha256": "0abcfdbe004426064e8c2430f5c95fc76cae9ea07060b4369b4e4f6ef2db2410"
+  },
+  {
+    "file": "giryong-2.png",
+    "sha256": "bfc9897ce6f7769147c64390f685ae3436228ab861f2682cc2aac1dcd7474d5d"
+  },
+  {
+    "file": "giryong-3.png",
+    "sha256": "bfc7fe1b5b65b007ea2eb67bb226f8d35257fa60c3655c9e4f1d921b20dbb426"
+  },
+  {
+    "file": "giryong-4.png",
+    "sha256": "ae2ef39e27fff27a44a9c1727f9b317e03ba5bcb4af92d83aa9ebc7f286906ba"
+  },
+  {
+    "file": "giryong-5.png",
+    "sha256": "050128bef00c0e82149130bf70ea326d1d05065d571cc3163933889b088705cc"
+  },
+  {
+    "file": "giryong-6.png",
+    "sha256": "e14092e89b5c731599e5dd8526a18b4e759d199b81ba343dd2cf0b6dc78173c9"
+  },
+  {
+    "file": "logo.png",
+    "sha256": "674638898839e4ae24611ad0292074e0d989fbaeaf127ba3a584e1e95e0f1438"
+  }
+]

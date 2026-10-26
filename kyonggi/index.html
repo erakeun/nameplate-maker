@@ -1,0 +1,4399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>경기대학교 명패 제작기</title>
+  <link rel="icon" href="data:," />
+
+  <style>
+    :root {
+      --ui-bg: #f3f5f8;
+      --ui-card: #ffffff;
+      --ui-line: #d9e0e8;
+      --ui-text: #1f2937;
+      --ui-muted: #667085;
+      --ui-primary: #215292;
+      --ui-primary-dark: #083c67;
+      --ui-danger: #c93636;
+      --ui-success: #1d7a45;
+
+      --plate-name-color: #215292;
+      --plate-title-color: #215292;
+      --plate-border: #215292;
+
+      --plate-width: 250mm;
+      --plate-height: 80mm;
+      --plate-stack-height: 160mm;
+      --plate-fold-y: 80mm;
+      --plate-name-size: 78pt;
+      --plate-title-size: 27pt;
+      --plate-footer-size: 10pt;
+      --plate-name-spacing: 0.18em;
+
+      --plate-name-x: 0mm;
+      --plate-name-y: 0mm;
+      --plate-title-x: 0mm;
+      --plate-title-y: 0mm;
+      --plate-logo-width: 54mm;
+      --plate-logo-x: 0mm;
+      --plate-logo-y: 0mm;
+
+      --footer-logo-width: 58mm;
+      --footer-logo-x: 0mm;
+      --footer-logo-y: 0mm;
+
+      --plate-font: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo",
+                    "Malgun Gothic", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .app > *,
+    .panel,
+    .workspace,
+    .section,
+    .people-wrap {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--ui-bg);
+      color: var(--ui-text);
+      font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo",
+                   "Malgun Gothic", Arial, sans-serif;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid #1c70b7;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 5px rgba(28, 112, 183, .18);
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 20px;
+      background: rgba(255,255,255,.96);
+      border-bottom: 1px solid var(--ui-line);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 21px;
+      letter-spacing: -0.03em;
+    }
+
+    .version-badge {
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #eaf2f8;
+      color: var(--ui-primary);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      color: var(--ui-muted);
+      font-size: 13px;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(370px, 450px) minmax(0, 1fr);
+      height: calc(100vh - 72px);
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .panel {
+      height: 100%;
+      min-height: 0;
+      padding: 18px;
+      background: #fff;
+      border-right: 1px solid var(--ui-line);
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+    }
+
+    .workspace {
+      position: sticky;
+      top: 0;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      padding: 22px;
+      overflow: auto;
+      align-self: start;
+    }
+
+    .section {
+      margin-bottom: 16px;
+      padding: 16px;
+      border: 1px solid var(--ui-line);
+      border-radius: 14px;
+      background: var(--ui-card);
+      box-shadow: 0 2px 10px rgba(15,23,42,.04);
+    }
+
+    .section h2 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+
+    .section h3 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+    }
+
+    .hint {
+      margin: -4px 0 12px;
+      color: var(--ui-muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 11px;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    .field label,
+    .field-label {
+      color: #344054;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .field input[type="text"],
+    .field input[type="email"],
+    .field input[type="number"],
+    .field input[type="file"],
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid #cfd7e2;
+      border-radius: 9px;
+      background: #fff;
+      padding: 9px 10px;
+      color: var(--ui-text);
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: #4f8dbc;
+      box-shadow: 0 0 0 3px rgba(11,79,135,.10);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 72px;
+      align-items: center;
+      gap: 9px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .color-row {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    input[type="color"] {
+      width: 42px;
+      height: 38px;
+      padding: 2px;
+      border: 1px solid #cfd7e2;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin: 8px 0;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .check-row input {
+      margin-top: 2px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 1px solid #cfd7e2;
+      border-radius: 9px;
+      background: #fff;
+      color: #253041;
+      font-weight: 700;
+      font-size: 13px;
+      text-decoration: none;
+      transition: .15s ease;
+    }
+
+    .btn:hover {
+      background: #f6f8fa;
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      border-color: var(--ui-primary);
+      background: var(--ui-primary);
+      color: #fff;
+    }
+
+    .btn.primary:hover {
+      background: var(--ui-primary-dark);
+    }
+
+    .btn.success {
+      border-color: var(--ui-success);
+      background: var(--ui-success);
+      color: #fff;
+    }
+
+    .btn.danger {
+      border-color: #f0caca;
+      color: var(--ui-danger);
+    }
+
+    .btn.small {
+      min-height: 44px;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .bulk-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .people-wrap {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-inline: contain;
+      border: 1px solid var(--ui-line);
+      border-radius: 10px;
+    }
+
+    .people-table {
+      width: 100%;
+      min-width: 790px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .people-table th,
+    .people-table td {
+      padding: 7px;
+      border-bottom: 1px solid #edf0f4;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .people-table th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f8fafc;
+      color: #475467;
+      font-size: 11px;
+    }
+
+    .people-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .people-table tr.has-text-overflow td {
+      background: #fff8f6;
+    }
+
+    .people-table input[aria-invalid="true"] {
+      border-color: #d92d20;
+      box-shadow: 0 0 0 2px rgba(217, 45, 32, .12);
+    }
+
+    .people-table input[type="text"],
+    .people-table select {
+      width: 100%;
+      min-width: 110px;
+      padding: 7px 8px;
+      border: 1px solid #d5dce5;
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .row-number {
+      width: 34px;
+      color: var(--ui-muted);
+      text-align: center !important;
+    }
+
+    .empty-message {
+      padding: 24px;
+      color: var(--ui-muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .logo-manager {
+      display: grid;
+      gap: 10px;
+    }
+
+    .custom-logo-add {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .custom-logo-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .custom-logo-item {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 9px;
+      padding: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #fafbfc;
+    }
+
+    .custom-logo-thumb {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 38px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .custom-logo-thumb img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .custom-logo-name {
+      min-width: 0;
+      overflow: hidden;
+      font-size: 12px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .built-in-note {
+      padding: 10px;
+      border-radius: 9px;
+      background: #f7fafc;
+      color: var(--ui-muted);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .preview-title {
+      min-width: 0;
+    }
+
+    .preview-title h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .preview-title p {
+      margin: 4px 0 0;
+      color: var(--ui-muted);
+      font-size: 12px;
+    }
+
+    .page-navigation {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .page-counter {
+      min-width: 82px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .preview-zone {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      min-height: 620px;
+      padding: 18px;
+      border: 1px solid var(--ui-line);
+      border-radius: 16px;
+      background:
+        linear-gradient(45deg, #eef1f5 25%, transparent 25%) 0 0 / 24px 24px,
+        linear-gradient(45deg, transparent 75%, #eef1f5 75%) 0 0 / 24px 24px,
+        linear-gradient(45deg, transparent 75%, #eef1f5 75%) 12px -12px / 24px 24px,
+        linear-gradient(45deg, #eef1f5 25%, #f7f8fa 25%) 12px 12px / 24px 24px;
+      overflow: hidden;
+    }
+
+    .preview-scaler {
+      width: 297mm;
+      height: 210mm;
+      transform-origin: top center;
+    }
+
+    .paper-page {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 297mm;
+      height: 210mm;
+      background: #fff;
+      box-shadow: 0 12px 32px rgba(15,23,42,.18);
+      overflow: hidden;
+    }
+
+    .nameplate-stack {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: var(--plate-width);
+      height: var(--plate-stack-height);
+      gap: 0;
+      overflow: visible;
+    }
+
+    .nameplate-stack .nameplate {
+      flex: 0 0 var(--plate-height);
+    }
+
+    .fold-guide {
+      position: absolute;
+      z-index: 20;
+      left: 0;
+      right: 0;
+      top: var(--plate-fold-y);
+      height: 0;
+      border-top: 0.22mm dashed rgba(15, 23, 42, .28);
+      pointer-events: none;
+    }
+
+    .fold-guide-label {
+      position: absolute;
+      z-index: 21;
+      top: calc(var(--plate-fold-y) - 3.2mm);
+      left: 50%;
+      transform: translateX(-50%);
+      padding: .5mm 2mm;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      color: #7b8794;
+      font-size: 6.5pt;
+      font-weight: 700;
+      letter-spacing: .02em;
+      pointer-events: none;
+    }
+
+    .nameplate {
+      position: relative;
+      width: var(--plate-width);
+      height: var(--plate-height);
+      border: 0.75mm solid var(--plate-border);
+      background: #fff;
+      color: var(--plate-name-color);
+      overflow: hidden;
+      font-family: var(--plate-font);
+    }
+
+    .nameplate.back-rotated {
+      transform: rotate(180deg);
+    }
+
+    .nameplate.has-template {
+      border: 0;
+      background: #fff;
+    }
+
+    .plate-template-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .nameplate.has-template .plate-footer {
+      border-top: 0;
+    }
+
+    .nameplate.has-template .plate-footer::before {
+      display: none;
+    }
+
+    .plate-main {
+      position: absolute;
+      z-index: 1;
+      inset: 0 0 10mm 0;
+      display: grid;
+      grid-template-columns: 67mm minmax(0, 1fr);
+      align-items: stretch;
+    }
+
+    .logo-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      padding: 5mm 4mm 3mm 6mm;
+    }
+
+    .logo-box img {
+      display: block;
+      width: var(--plate-logo-width);
+      max-width: 100%;
+      max-height: 62mm;
+      object-fit: contain;
+      transform: translate(var(--plate-logo-x), var(--plate-logo-y));
+    }
+
+    .logo-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 49mm;
+      height: 49mm;
+      padding: 3mm;
+      border: 0.55mm dashed #b9c5d2;
+      border-radius: 5mm;
+      color: #9aa7b5;
+      font-size: 10pt;
+      font-weight: 800;
+      line-height: 1.35;
+      letter-spacing: .03em;
+      text-align: center;
+    }
+
+    .plate-text {
+      display: grid;
+      grid-template-rows: 29mm minmax(0, 1fr);
+      min-width: 0;
+      padding: 2.5mm 8mm 2mm 1mm;
+    }
+
+    .plate-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      overflow: hidden;
+      padding: 2mm 1mm 0;
+      color: var(--plate-title-color);
+      font-size: var(--plate-title-size);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+      white-space: nowrap;
+      text-align: center;
+      transform: translate(var(--plate-title-x), var(--plate-title-y));
+    }
+
+    .plate-name {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      overflow: hidden;
+      padding: 0 1mm 3mm;
+      color: var(--plate-name-color);
+      font-size: var(--plate-name-size);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: var(--plate-name-spacing);
+      white-space: nowrap;
+      text-align: center;
+      transform: translate(var(--plate-name-x), var(--plate-name-y));
+    }
+
+    .plate-footer {
+      position: absolute;
+      z-index: 1;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 10mm;
+      border-top: 2.05mm solid var(--plate-border);
+      color: var(--plate-border);
+    }
+
+    .plate-footer::before {
+      content: "";
+      position: absolute;
+      top: -2.05mm;
+      right: 61mm;
+      width: 9mm;
+      height: 2.05mm;
+      background: #fff;
+      clip-path: polygon(100% 0, 0 100%, 100% 100%);
+    }
+
+    .footer-logo-box {
+      position: absolute;
+      right: 10mm;
+      top: 1.2mm;
+      width: var(--footer-logo-width);
+      height: 6.2mm;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      overflow: visible;
+      transform: translate(var(--footer-logo-x), var(--footer-logo-y));
+    }
+
+    .footer-logo-box img {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      object-position: right center;
+    }
+
+    .footer-logo-missing {
+      color: #98a2b3;
+      font-size: 6.5pt;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .page-label {
+      position: absolute;
+      top: 5mm;
+      left: 7mm;
+      color: #98a2b3;
+      font-size: 8pt;
+    }
+
+    .thumbs {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 4px 2px 10px;
+      overflow-x: auto;
+    }
+
+    .thumb {
+      flex: 0 0 auto;
+      min-width: 92px;
+      min-height: 44px;
+      padding: 8px 10px;
+      border: 1px solid var(--ui-line);
+      border-radius: 9px;
+      background: #fff;
+      color: #344054;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .thumb.active {
+      border-color: var(--ui-primary);
+      box-shadow: 0 0 0 2px rgba(11,79,135,.12);
+      color: var(--ui-primary);
+      font-weight: 800;
+    }
+
+    .thumb.has-text-overflow {
+      border-color: #d92d20;
+      color: #b42318;
+    }
+
+    .status {
+      display: none;
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 999;
+      max-width: min(460px, calc(100vw - 36px));
+      padding: 11px 14px;
+      border-radius: 10px;
+      background: #152436;
+      color: #fff;
+      box-shadow: 0 10px 26px rgba(0,0,0,.22);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .template-card {
+      display: grid;
+      gap: 7px;
+      padding: 8px;
+      border: 1px solid #d7dee8;
+      border-radius: 10px;
+      background: #fff;
+      text-align: left;
+      transition: .15s ease;
+    }
+
+    .template-card:hover {
+      border-color: #89a9c6;
+      background: #f8fbfd;
+    }
+
+    .template-card.active {
+      border-color: var(--ui-primary);
+      box-shadow: 0 0 0 2px rgba(11,79,135,.12);
+      background: #f6fbff;
+    }
+
+    .template-thumb {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 1;
+      overflow: hidden;
+      border-radius: 6px;
+      background: #fff center / 100% 100% no-repeat;
+    }
+
+    .template-thumb.basic { border: 1px solid #215292; }
+    .template-thumb.basic::before {
+      content: "";
+      position: absolute;
+      left: 24%;
+      top: 18%;
+      bottom: 21%;
+      width: 1px;
+      background: #a7b8c7;
+    }
+    .template-thumb.basic::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 8%;
+      left: 0;
+      height: 2px;
+      background: #215292;
+    }
+    .template-thumb.minimal { background-image: url("assets/template-minimal.svg"); }
+    .template-thumb.frame { background-image: url("assets/template-frame.svg"); }
+    .template-thumb.gold { background-image: url("assets/template-gold.svg"); }
+    .template-thumb.geometric { background-image: url("assets/template-geometric.svg"); }
+
+    .template-card-title {
+      color: #344054;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+    .template-card-sub {
+      color: #98a2b3;
+      font-size: 10px;
+      line-height: 1.3;
+    }
+    .template-note {
+      margin: -3px 0 11px;
+      color: #667085;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+
+    .color-simple-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .palette-toolbar {
+      display: grid;
+      grid-template-columns: 145px minmax(0, 1fr);
+      gap: 9px;
+      align-items: center;
+      margin: 6px 0 12px;
+    }
+
+    .palette-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .palette-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      padding: 8px 10px;
+      border: 1px solid #d8e0e8;
+      border-radius: 999px;
+      background: #fff;
+      color: #344054;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .palette-chip:hover {
+      border-color: #9db0c2;
+      background: #f8fafc;
+    }
+
+    .palette-dot {
+      width: 14px;
+      height: 14px;
+      flex: 0 0 14px;
+      border: 1px solid rgba(0,0,0,.15);
+      border-radius: 50%;
+      background: var(--chip-color);
+    }
+
+    .advanced-colors {
+      margin: 4px 0 12px;
+      border: 1px solid #e1e7ee;
+      border-radius: 10px;
+      background: #fafbfc;
+      overflow: hidden;
+    }
+
+    .advanced-colors summary {
+      padding: 10px 12px;
+      color: #475467;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .advanced-color-body {
+      padding: 0 12px 12px;
+    }
+
+    .mixed-color-note {
+      margin-top: 5px;
+      color: #8a6c22;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .text-overflow-alert {
+      margin: 10px 0 12px;
+      padding: 11px 12px;
+      border: 2px solid #f04438;
+      border-radius: 10px;
+      background: #fff4f2;
+      color: #912018;
+      font-size: 12px;
+      font-weight: 750;
+      line-height: 1.55;
+    }
+
+    .text-overflow-alert[hidden] {
+      display: none;
+    }
+
+    .text-overflow-warning {
+      outline: 1.2mm dashed #d92d20;
+      outline-offset: -1.8mm;
+      text-overflow: ellipsis;
+    }
+
+    .preview-overflow-badge {
+      display: none;
+      position: absolute;
+      z-index: 60;
+      top: 5mm;
+      right: 7mm;
+      padding: 1.2mm 2.6mm;
+      border-radius: 999px;
+      background: #b42318;
+      color: #fff;
+      font-size: 7pt;
+      font-weight: 900;
+      letter-spacing: -.01em;
+    }
+
+    .paper-page.has-text-overflow .preview-overflow-badge {
+      display: block;
+    }
+
+    .mobile-preview-toggle,
+    .mobile-preview-backdrop,
+    .mobile-preview-close {
+      display: none;
+    }
+
+
+    .size-preset-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 110px 110px;
+      gap: 9px;
+      align-items: end;
+    }
+
+    .size-summary {
+      margin-top: 8px;
+      padding: 9px 10px;
+      border: 1px solid #e1e7ee;
+      border-radius: 9px;
+      background: #f8fafc;
+      color: #475467;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .size-summary strong {
+      color: #172b3f;
+    }
+
+    .size-warning {
+      margin-top: 7px;
+      color: #b42318;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+
+    .settings-action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .settings-lock-status {
+      margin-top: 8px;
+      min-height: 17px;
+      color: #667085;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .settings-lock-status.locked {
+      color: #9f4a14;
+      font-weight: 800;
+    }
+
+    body.settings-locked [data-settings-section] {
+      position: relative;
+    }
+
+    body.settings-locked [data-settings-section]::after {
+      content: "설정 잠금 중";
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      z-index: 10;
+      padding: 3px 7px;
+      border: 1px solid #ead7bd;
+      border-radius: 999px;
+      background: #fff8ed;
+      color: #9f4a14;
+      font-size: 10px;
+      font-weight: 800;
+      pointer-events: none;
+    }
+
+    .cut-mark {
+      position: absolute;
+      z-index: 40;
+      width: 6mm;
+      height: 6mm;
+      pointer-events: none;
+      box-sizing: border-box;
+    }
+
+    .cut-mark.tl {
+      left: -4mm;
+      top: -4mm;
+      border-top: .18mm solid #111;
+      border-left: .18mm solid #111;
+    }
+
+    .cut-mark.tr {
+      right: -4mm;
+      top: -4mm;
+      border-top: .18mm solid #111;
+      border-right: .18mm solid #111;
+    }
+
+    .cut-mark.bl {
+      left: -4mm;
+      bottom: -4mm;
+      border-bottom: .18mm solid #111;
+      border-left: .18mm solid #111;
+    }
+
+    .cut-mark.br {
+      right: -4mm;
+      bottom: -4mm;
+      border-bottom: .18mm solid #111;
+      border-right: .18mm solid #111;
+    }
+
+    .test-print-page {
+      gap: 16mm;
+      color: #111;
+    }
+
+    .test-print-head {
+      text-align: center;
+      font-size: 13pt;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .test-print-sub {
+      margin-top: 2mm;
+      color: #555;
+      font-size: 9pt;
+      font-weight: 500;
+    }
+
+    .test-ruler-wrap {
+      display: grid;
+      justify-items: center;
+      gap: 4mm;
+    }
+
+    .test-ruler-line {
+      position: relative;
+      width: 100mm;
+      height: 0;
+      border-top: .35mm solid #111;
+    }
+
+    .test-ruler-line::before,
+    .test-ruler-line::after {
+      content: "";
+      position: absolute;
+      top: -2.3mm;
+      width: .35mm;
+      height: 4.6mm;
+      background: #111;
+    }
+
+    .test-ruler-line::before {
+      left: 0;
+    }
+
+    .test-ruler-line::after {
+      right: 0;
+    }
+
+    .test-ruler-label {
+      font-size: 10pt;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    .privacy-note {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 9px;
+      background: #f7fafc;
+      color: var(--ui-muted);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    details.patch {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #fafbfc;
+      overflow: hidden;
+    }
+
+    details.patch summary {
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .patch-body {
+      padding: 0 12px 12px;
+      color: #475467;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .patch-item {
+      padding: 8px 0;
+      border-top: 1px solid #edf0f4;
+    }
+
+    .patch-version {
+      font-weight: 800;
+      color: var(--ui-primary);
+    }
+
+    .feedback-box {
+      display: grid;
+      gap: 9px;
+    }
+
+    .feedback-help {
+      padding: 9px 10px;
+      border-radius: 9px;
+      background: #fff9e7;
+      color: #725b14;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .print-stage {
+      position: fixed;
+      left: -100000px;
+      top: 0;
+      visibility: hidden;
+    }
+
+    @media (max-width: 1050px) {
+      html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      .app {
+        grid-template-columns: 1fr;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        min-height: 0;
+        overflow: visible;
+      }
+
+      .panel {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        border-right: 0;
+        border-bottom: 1px solid var(--ui-line);
+      }
+
+      .workspace {
+        position: static;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+      }
+
+      .preview-zone {
+        min-height: 480px;
+      }
+
+      .check-row {
+        min-height: 44px;
+        align-items: center;
+      }
+
+      .check-row input {
+        width: 20px;
+        height: 20px;
+        margin-top: 0;
+      }
+
+      .people-table input[type="text"],
+      .people-table select {
+        min-height: 44px;
+      }
+
+      .mobile-preview-toggle {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 80;
+        display: inline-flex;
+        min-width: 132px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, .28);
+      }
+
+      .mobile-preview-close {
+        display: inline-flex;
+      }
+
+      body.mobile-preview-open {
+        overflow: hidden;
+      }
+
+      body.mobile-preview-open .mobile-preview-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: block;
+        border: 0;
+        background: rgba(15, 23, 42, .55);
+      }
+
+      body.mobile-preview-open .workspace {
+        position: fixed;
+        inset: 12px;
+        z-index: 101;
+        width: auto;
+        max-width: 760px;
+        height: auto;
+        max-height: calc(100dvh - 24px);
+        margin: 0 auto;
+        padding: 16px;
+        border-radius: 16px;
+        background: var(--ui-bg);
+        box-shadow: 0 18px 48px rgba(15, 23, 42, .34);
+        overflow: auto;
+        overscroll-behavior: contain;
+      }
+
+      body.mobile-preview-open .preview-zone {
+        height: 360px;
+        min-height: 360px !important;
+      }
+
+      body.mobile-preview-open .mobile-preview-toggle {
+        display: none;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .app-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .header-actions .btn {
+        flex: 1;
+      }
+
+      .panel, .workspace {
+        padding: 12px;
+      }
+
+      .grid-2,
+      .grid-3,
+      .color-simple-grid,
+      .template-grid,
+      .palette-toolbar,
+      .size-preset-grid,
+      .bulk-actions,
+      .custom-logo-add {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      body.mobile-preview-open .preview-zone {
+        height: 280px;
+        min-height: 280px !important;
+      }
+
+      .mobile-preview-toggle {
+        right: 12px;
+        bottom: 12px;
+      }
+    }
+
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+
+    @media print {
+      html, body {
+        width: 297mm;
+        min-height: 210mm;
+        margin: 0 !important;
+        background: #fff !important;
+      }
+
+      body > *:not(.print-stage) {
+        display: none !important;
+      }
+
+      .print-stage {
+        position: static !important;
+        left: auto !important;
+        top: auto !important;
+        display: block !important;
+        visibility: visible !important;
+      }
+
+      .print-stage .paper-page {
+        display: flex;
+        width: 297mm !important;
+        height: 210mm !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .print-stage .paper-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      body.print-current .print-stage .paper-page:not(.is-current) {
+        display: none !important;
+      }
+
+      .page-label,
+      .logo-placeholder,
+      .fold-guide,
+      .fold-guide-label,
+      .preview-overflow-badge {
+        display: none !important;
+      }
+
+      .nameplate {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
+<style id="mach-home-navigation-style">
+/* Screen navigation only. Keep outside all generated artwork. */
+.mach-home-nav{display:block;max-width:100%;margin:0 0 12px;box-sizing:border-box}
+.mach-home-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:4px 8px;box-sizing:border-box;border-radius:6px;background:#fff;text-decoration:none}
+.mach-home-link img{aspect-ratio:3/1;display:block;width:168px;max-width:100%;height:auto;object-fit:contain}
+.mach-home-link:focus-visible{outline:3px solid #165dcb;outline-offset:3px}
+@media print{.mach-home-nav{display:none!important}}
+</style>
+
+<style id="mach-feedback-style">
+.mach-feedback-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:8px 14px;box-sizing:border-box;border:1px solid #b6c7dd;border-radius:8px;background:#fff;color:#145cbd;font:inherit;line-height:1.4;text-align:center;text-decoration:underline}
+.mach-feedback-link:focus-visible{outline:3px solid #165dcb;outline-offset:3px}
+@media print{.mach-feedback-link,[data-mach-feedback-container]{display:none!important}}
+</style>
+<style>
+.logo-box img {max-height:calc(var(--plate-height) - 22mm); object-fit:contain;}
+.template-thumb.minimal,.template-thumb.frame,.template-thumb.gold,.template-thumb.geometric {background-size:100% 100%;}
+</style></head>
+
+<body>
+  <header class="app-header">
+    <div class="brand">
+<div class="mach-home-nav" data-html2canvas-ignore="true">
+  <a class="mach-home-link" href="https://erakeun.github.io/ERICAAI/" aria-label="MACH 홈으로 이동">
+    <img src="../assets/mach-selected-A.svg" alt="PROJECT MACH" decoding="async">
+  </a>
+</div>
+      <div class="brand-line">
+        <h1>경기대학교 명패 제작기</h1>
+        <span class="version-badge" id="versionBadge"></span>
+      </div>
+      <p>명단 붙여넣기 → 명패 디자인 선택 → 로고·글자색 설정 → A4 양면 명패 자동 생성</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn" id="saveProjectBtn">작업 저장</button>
+      <button class="btn" id="loadProjectBtn">작업 불러오기</button>
+      <button class="btn" id="printCurrentBtn">현재 1장 인쇄</button>
+      <button class="btn primary" id="printAllBtn">전체 인쇄·PDF</button>
+    </div>
+  </header>
+
+  <main class="app">
+    <aside class="panel">
+
+<section class="section" data-settings-section>
+        <h2>인쇄 설정</h2>
+
+        <div class="field">
+          <label for="platePreset">명패 규격</label>
+
+          <div class="size-preset-grid">
+            <select id="platePreset">
+              <option value="200x70">소형 · 200 × 70 mm</option>
+              <option value="200x80">중형 · 200 × 80 mm</option>
+              <option value="250x80" selected>대형 · 250 × 80 mm</option>
+              <option value="255x85">대형+ · 255 × 85 mm</option>
+              <option value="custom">사용자 지정</option>
+            </select>
+
+            <div class="field" style="margin:0;">
+              <label for="plateWidth">가로 mm</label>
+              <input type="number" id="plateWidth" min="100" max="290" step="1" value="250" />
+            </div>
+
+            <div class="field" style="margin:0;">
+              <label for="plateHeight">세로 mm</label>
+              <input type="number" id="plateHeight" min="45" max="100" step="1" value="80" />
+            </div>
+          </div>
+
+          <div class="size-summary" id="plateSizeSummary">
+            명패 1면 <strong>250 × 80mm</strong> · 양면 연속 출력 <strong>250 × 160mm</strong>
+          </div>
+          <div class="size-warning" id="plateSizeWarning"></div>
+        </div>
+
+        <div class="field" style="margin-top:12px;">
+          <label class="check-row">
+            <input type="checkbox" id="autoScaleElements" checked />
+            <span>명패 규격 변경 시 글자·로고를 자동 비례 조정</span>
+          </label>
+
+          <label class="check-row">
+            <input type="checkbox" id="showCutMarks" />
+            <span>인쇄할 때 재단선 표시</span>
+          </label>
+        </div>
+
+        <div class="settings-action-row">
+          <button type="button" class="btn small" id="testPrintBtn" data-lock-exempt="true">100mm 테스트 인쇄</button>
+          <button type="button" class="btn small" id="resetAdjustmentsBtn">위치·크기 초기화</button>
+          <button type="button" class="btn small" id="settingsLockBtn" data-lock-exempt="true">설정 잠금</button>
+        </div>
+
+        <div class="settings-lock-status" id="settingsLockStatus"></div>
+
+        <p class="hint" style="margin-bottom:0;">
+          인쇄창에서 <strong>A4 · 가로 · 배율 100% · 여백 없음 · 머리글/바닥글 해제</strong>로 설정하세요.
+          선택한 규격의 앞·뒷면을 붙여 한 사람당 A4 한 페이지에 출력합니다.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>
+          <span>1. 명단 입력</span>
+          <span id="peopleCount" style="font-size:12px;color:#667085;">0명</span>
+        </h2>
+
+        <p class="hint">
+          엑셀에서 <strong>이름 · 소속 · 직책 · 좌측 로고</strong> 순서로 복사해 붙여넣을 수 있습니다.
+          로고 열을 비우면 아래에서 선택한 <strong>좌측 기본 로고·기룡이</strong>가 적용됩니다.
+          외부기관 로고를 먼저 등록한 뒤 기관명을 4번째 열에 넣으면 사람별로 자동 지정됩니다.
+        </p>
+
+        <div class="field">
+          <label for="bulkInput">엑셀·CSV 붙여넣기</label>
+          <textarea id="bulkInput" placeholder="홍길동&#9;경기대학교&#9;행사 담당&#9;경기대학교&#10;김예시&#9;경기대학교&#9;진행 담당&#9;기본&#10;이협력&#9;ABC주식회사&#9;대표&#9;ABC주식회사"></textarea>
+        </div>
+
+        <div class="bulk-actions">
+          <button class="btn primary" id="replaceBulkBtn">붙여넣은 명단으로 교체</button>
+          <button class="btn" id="appendBulkBtn">기존 명단 뒤에 추가</button>
+          <button class="btn" id="addPersonBtn">빈 행 1개 추가</button>
+          <button class="btn" id="csvImportBtn">CSV·TSV 파일 불러오기</button>
+        </div>
+
+        <input type="file" id="csvFileInput" accept=".csv,.tsv,.txt" hidden />
+
+        <h3>현재 명단</h3>
+
+        <div class="people-wrap">
+          <table class="people-table" aria-label="명패 대상자 명단">
+            <thead>
+              <tr>
+                <th class="row-number">#</th>
+                <th>이름</th>
+                <th>소속·기관</th>
+                <th>직책·직위</th>
+                <th>좌측 로고</th>
+                <th style="width:55px;">삭제</th>
+              </tr>
+            </thead>
+            <tbody id="peopleTableBody"></tbody>
+          </table>
+
+          <div class="empty-message" id="emptyMessage">명단이 없습니다.</div>
+        </div>
+
+        <div class="btn-row" style="margin-top:10px;">
+          <button class="btn danger small" id="clearPeopleBtn">명단 전체 삭제</button>
+        </div>
+      </section>
+
+      <section class="section" data-settings-section>
+        <h2>2. 로고 설정</h2>
+
+        <div class="logo-manager">
+          <div class="field">
+            <label for="defaultLeftLogo">좌측 기본 로고</label>
+            <select id="defaultLeftLogo"><option value="giryong-1">기룡이 1</option><option value="giryong-2">기룡이 2</option><option value="giryong-3">기룡이 3</option><option value="giryong-4">기룡이 4</option><option value="giryong-5">기룡이 5</option><option value="giryong-6">기룡이 6</option>
+              <option value="kyonggi">경기대학교</option>
+              <option value="none">로고 없음</option>
+            </select>
+          </div>
+
+          <div class="built-in-note">공식 자산은 원래 비율과 색상을 유지합니다. 크기·위치 조절 후에는 주변 여백과 겹침을 확인하세요.</div>
+
+          <h3>좌측 로고 크기·위치</h3>
+
+          <div class="field">
+            <label for="logoWidth">좌측 로고 크기</label>
+            <div class="range-row">
+              <input type="range" id="logoWidth" min="20" max="65" value="54" />
+              <input type="number" id="logoWidthNumber" min="20" max="65" value="54" aria-label="좌측 로고 크기 숫자 입력" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="logoX">좌측 로고 좌우 위치</label>
+            <div class="range-row">
+              <input type="range" id="logoX" min="-25" max="25" step="1" value="0" />
+              <input type="number" id="logoXNumber" min="-25" max="25" step="1" value="0" aria-label="좌측 로고 좌우 위치 숫자 입력" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="logoY">좌측 로고 상하 위치</label>
+            <div class="range-row">
+              <input type="range" id="logoY" min="-20" max="20" step="1" value="0" />
+              <input type="number" id="logoYNumber" min="-20" max="20" step="1" value="0" aria-label="좌측 로고 상하 위치 숫자 입력" />
+            </div>
+          </div>
+
+          <h3>외부기관 좌측 로고 추가</h3>
+
+          <div class="custom-logo-add">
+            <div class="field" style="margin:0;">
+              <label for="customLogoName">기관명</label>
+              <input type="text" id="customLogoName" placeholder="예: 안산시 / ABC주식회사" />
+            </div>
+
+            <div class="field" style="margin:0;">
+              <label for="customLogoFile">로고 파일</label>
+              <input type="file" id="customLogoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+            </div>
+
+            <button class="btn success" id="addCustomLogoBtn">추가</button>
+          </div>
+
+          <div class="custom-logo-list" id="customLogoList"></div>
+
+          <div class="privacy-note">
+            외부기관 로고는 서버로 전송하지 않고 현재 브라우저 안에서만 처리합니다.
+            작업 저장 기능을 이용하면 외부기관 로고도 JSON 작업 파일 안에 함께 저장됩니다.
+          </div>
+
+          <h3>하단 로고</h3>
+
+          <div class="field">
+            <label for="footerLogo">하단 로고 선택</label>
+            <select id="footerLogo">
+              <option value="kyonggi">경기대학교</option>
+              <option value="none">표시 안 함</option>
+            </select>
+          </div>
+
+          <div class="built-in-note">공식 자산은 원래 비율과 색상을 유지합니다. 크기·위치 조절 후에는 주변 여백과 겹침을 확인하세요.</div>
+
+          <h3>하단 로고 크기·위치</h3>
+
+          <div class="field">
+            <label for="footerLogoWidth">하단 로고 크기</label>
+            <div class="range-row">
+              <input type="range" id="footerLogoWidth" min="20" max="90" value="58" />
+              <input type="number" id="footerLogoWidthNumber" min="20" max="90" value="58" aria-label="하단 로고 크기 숫자 입력" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="footerLogoX">하단 로고 좌우 위치</label>
+            <div class="range-row">
+              <input type="range" id="footerLogoX" min="-35" max="35" step="1" value="0" />
+              <input type="number" id="footerLogoXNumber" min="-35" max="35" step="1" value="0" aria-label="하단 로고 좌우 위치 숫자 입력" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="footerLogoY">하단 로고 상하 위치</label>
+            <div class="range-row">
+              <input type="range" id="footerLogoY" min="-15" max="15" step="0.5" value="0" />
+              <input type="number" id="footerLogoYNumber" min="-15" max="15" step="0.5" value="0" aria-label="하단 로고 상하 위치 숫자 입력" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" data-settings-section>
+        <h2>3. 문구와 디자인</h2>
+
+        <div class="field">
+          <label>명패 디자인</label>
+
+          <div class="template-grid" id="templateGrid">
+            <button type="button" class="template-card active" data-template="basic">
+              <span class="template-thumb basic"></span>
+              <span class="template-card-title">기본형</span>
+              <span class="template-card-sub">기존 경기블루 명패</span>
+            </button>
+            <button type="button" class="template-card" data-template="minimal">
+              <span class="template-thumb minimal"></span>
+              <span class="template-card-title">모던 미니멀</span>
+              <span class="template-card-sub">얇은 선 중심의 심플형</span>
+            </button>
+            <button type="button" class="template-card" data-template="frame">
+              <span class="template-thumb frame"></span>
+              <span class="template-card-title">블루 프레임</span>
+              <span class="template-card-sub">격식 있는 프레임형</span>
+            </button>
+            <button type="button" class="template-card" data-template="gold">
+              <span class="template-thumb gold"></span>
+              <span class="template-card-title">코랄 포인트</span>
+              <span class="template-card-sub">따뜻한 코랄 색상의 행사형</span>
+            </button>
+            <button type="button" class="template-card" data-template="geometric">
+              <span class="template-thumb geometric"></span>
+              <span class="template-card-title">그린 가든</span>
+              <span class="template-card-sub">사선 포인트의 현대적인 형태</span>
+            </button>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn small" id="recommendedColorBtn">이 디자인 추천 색상 적용</button>
+          </div>
+        </div>
+
+        <div class="template-note">
+          디자인을 바꾸면 해당 디자인의 추천 글자색을 자동 적용합니다.
+          이후 아래 색상에서 원하는 색으로 다시 바꿀 수 있습니다.
+        </div>
+
+        <div class="field">
+          <label for="titleSeparator">소속과 직책 사이</label>
+          <select id="titleSeparator">
+            <option value=" ">공백 1칸</option>
+            <option value=" · ">가운데점</option>
+            <option value=" | ">세로선</option>
+            <option value="__LINE_BREAK__">줄바꿈</option>
+          </select>
+        </div>
+
+        <div class="color-simple-grid">
+          <div class="field">
+            <label for="overallTextColor">글자색</label>
+            <div class="color-row">
+              <input type="color" id="overallTextColor" value="#215292" />
+              <input type="text" id="overallTextColorHex" value="#215292" aria-label="글자색 HEX 값" />
+            </div>
+            <div class="mixed-color-note" id="mixedColorNote"></div>
+          </div>
+
+          <div class="field">
+            <label for="borderColor">선·외곽선색 (기본형)</label>
+            <div class="color-row">
+              <input type="color" id="borderColor" value="#215292" />
+              <input type="text" id="borderColorHex" value="#215292" aria-label="선·외곽선색 HEX 값" />
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>대표색 빠른 선택</label>
+          <div class="palette-toolbar">
+            <select id="paletteTarget" aria-label="대표색 적용 대상">
+              <option value="text">글자 전체</option>
+              <option value="border">선·외곽선</option>
+              <option value="name">이름만</option>
+              <option value="title">소속·직책만</option>
+            </select>
+
+            <div class="palette-swatches" id="paletteSwatches">
+              <button type="button" class="palette-chip" data-color="#215292" data-label="경기블루"><span class="palette-dot" style="--chip-color:#215292;"></span>경기블루</button>
+              <button type="button" class="palette-chip" data-color="#215292" data-label="딥 네이비"><span class="palette-dot" style="--chip-color:#215292;"></span>딥 네이비</button>
+              <button type="button" class="palette-chip" data-color="#111111" data-label="블랙"><span class="palette-dot" style="--chip-color:#111111;"></span>블랙</button>
+              <button type="button" class="palette-chip" data-color="#3b4148" data-label="차콜"><span class="palette-dot" style="--chip-color:#3b4148;"></span>차콜</button>
+              <button type="button" class="palette-chip" data-color="#EB7654" data-label="골드"><span class="palette-dot" style="--chip-color:#EB7654;"></span>골드</button>
+              <button type="button" class="palette-chip" data-color="#7a2232" data-label="버건디"><span class="palette-dot" style="--chip-color:#7a2232;"></span>버건디</button>
+              <button type="button" class="palette-chip" data-color="#1f5b48" data-label="딥그린"><span class="palette-dot" style="--chip-color:#1f5b48;"></span>딥그린</button>
+              <button type="button" class="palette-chip" data-color="#7b8794" data-label="그레이"><span class="palette-dot" style="--chip-color:#7b8794;"></span>그레이</button>
+            </div>
+          </div>
+        </div>
+
+        <details class="advanced-colors">
+          <summary>세부 글자 색상 설정</summary>
+          <div class="advanced-color-body">
+            <div class="grid-2">
+              <div class="field">
+                <label for="nameColor">이름 색상</label>
+                <div class="color-row">
+                  <input type="color" id="nameColor" value="#215292" />
+                  <input type="text" id="nameColorHex" value="#215292" aria-label="이름 색상 HEX 값" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="titleColor">소속·직책 색상</label>
+                <div class="color-row">
+                  <input type="color" id="titleColor" value="#215292" />
+                  <input type="text" id="titleColorHex" value="#215292" aria-label="소속·직책 색상 HEX 값" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <div class="field">
+          <label for="nameSize">이름 크기</label>
+          <div class="range-row">
+            <input type="range" id="nameSize" min="40" max="105" value="78" />
+            <input type="number" id="nameSizeNumber" min="40" max="105" value="78" aria-label="이름 크기 숫자 입력" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="nameX">이름 좌우 위치</label>
+          <div class="range-row">
+            <input type="range" id="nameX" min="-35" max="35" step="1" value="0" />
+            <input type="number" id="nameXNumber" min="-35" max="35" step="1" value="0" aria-label="이름 좌우 위치 숫자 입력" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="nameY">이름 상하 위치</label>
+          <div class="range-row">
+            <input type="range" id="nameY" min="-20" max="20" step="1" value="0" />
+            <input type="number" id="nameYNumber" min="-20" max="20" step="1" value="0" aria-label="이름 상하 위치 숫자 입력" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="titleSize">상단 문구 크기</label>
+          <div class="range-row">
+            <input type="range" id="titleSize" min="15" max="44" value="27" />
+            <input type="number" id="titleSizeNumber" min="15" max="44" value="27" aria-label="상단 문구 크기 숫자 입력" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="titleX">상단 문구 좌우 위치</label>
+          <div class="range-row">
+            <input type="range" id="titleX" min="-35" max="35" step="1" value="0" />
+            <input type="number" id="titleXNumber" min="-35" max="35" step="1" value="0" aria-label="상단 문구 좌우 위치 숫자 입력" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="titleY">상단 문구 상하 위치</label>
+          <div class="range-row">
+            <input type="range" id="titleY" min="-18" max="18" step="1" value="0" />
+            <input type="number" id="titleYNumber" min="-18" max="18" step="1" value="0" aria-label="상단 문구 상하 위치 숫자 입력" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="nameSpacing">이름 자간</label>
+          <div class="range-row">
+            <input type="range" id="nameSpacing" min="-2" max="35" value="18" />
+            <input type="number" id="nameSpacingNumber" min="-2" max="35" value="18" aria-label="이름 자간 숫자 입력" />
+          </div>
+        </div>
+<label class="check-row">
+          <input type="checkbox" id="autoFit" checked />
+          <span>긴 이름과 상단 문구는 지정 크기에서 자동으로 축소</span>
+        </label>
+
+        <label class="check-row">
+          <input type="checkbox" id="rotateBack" checked />
+          <span>위쪽 명패를 180도 회전 (명패케이스용 권장)</span>
+        </label>
+
+        <label class="check-row">
+          <input type="checkbox" id="showPageLabel" />
+          <span>화면 미리보기에 페이지 번호 표시</span>
+        </label>
+
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn small" id="saveDesignBtn">디자인 기본값 저장</button>
+          <button class="btn small" id="resetDesignBtn">디자인 초기화</button>
+        </div>
+      </section>
+
+      <section class="section"><h2>경기대 에디션 안내</h2><p class="helper">학교 공식 서비스가 아닌 사용자 제작 도구입니다. 예시는 모두 가상입니다. 경기대 전용 의견 수집은 아직 연결하지 않았습니다.</p><details><summary>공식 캠퍼스 주소 · 자산 출처</summary><p>수원캠퍼스 (16227) 경기도 수원시 영통구 광교산로 154-42</p><p>서울캠퍼스 (03746) 서울특별시 서대문구 경기대로 9길 24</p><a href="SOURCES.md">공식 자산 출처와 사용 안내</a></details></section>
+
+      <section class="section">
+        <h2>패치 내역</h2>
+
+        <details class="patch" open>
+          <summary>업데이트 기록 보기</summary>
+
+          <div class="patch-body"><p>경기대학교 전용 시안 5종, 공식 로고 및 기룡이 6종. 기존 명패 편집·인쇄·명단 및 작업 파일 기능을 계승합니다.</p></div></details>
+      </section>
+
+      
+    </aside>
+
+    <section class="workspace" id="previewWorkspace" aria-label="인쇄 미리보기">
+      <div class="preview-toolbar">
+        <div class="preview-title">
+          <h2>인쇄 미리보기</h2>
+          <p id="selectedPersonLabel">대상자를 추가해 주세요.</p>
+        </div>
+
+        <div class="page-navigation">
+          <button class="btn small" id="prevBtn">이전</button>
+          <div class="page-counter" id="pageCounter">0 / 0</div>
+          <button class="btn small" id="nextBtn">다음</button>
+          <button class="btn small mobile-preview-close" id="mobilePreviewCloseBtn" type="button">미리보기 닫기</button>
+        </div>
+      </div>
+
+      <div class="text-overflow-alert" id="textOverflowAlert" role="alert" tabindex="-1" hidden></div>
+
+      <div class="preview-zone" id="previewZone">
+        <div class="preview-scaler" id="previewScaler">
+          <div id="previewPage"></div>
+        </div>
+      </div>
+
+      <div class="thumbs" id="thumbs"></div>
+    </section>
+  </main>
+
+  <button class="btn primary mobile-preview-toggle" id="mobilePreviewToggleBtn" type="button" aria-controls="previewWorkspace" aria-expanded="false">미리보기 열기</button>
+  <button class="mobile-preview-backdrop" id="mobilePreviewBackdrop" type="button" aria-label="미리보기 닫기"></button>
+
+  <div class="print-stage" id="printStage" aria-hidden="true"></div>
+  <div class="status" id="status"></div>
+
+  <input type="file" id="projectFileInput" accept=".json,application/json" hidden />
+
+  <script src="../mach-contract.js"></script>
+  <script src="../nameplate-changes.js"></script>
+  <script src="../mach-nameplate-ui.js"></script>
+  <script>
+    (() => {
+      "use strict";
+
+      const APP_VERSION = "2.9.1";
+      const APP_VERSION_LABEL = `V${APP_VERSION} · KYONGGI`;
+
+      const STORAGE_KEY = "kyonggi-nameplate-maker-project-v1";
+      let lastSavedProject = null;
+      let projectRecoveryBlocked = false;
+      const DESIGN_KEY = "kyonggi-nameplate-maker-design-v1";
+
+      const BUILTIN_LEFT_LOGOS = {
+        "giryong-1": {label: "기룡이 1", src: "assets/giryong-1.png"},
+        "giryong-2": {label: "기룡이 2", src: "assets/giryong-2.png"},
+        "giryong-3": {label: "기룡이 3", src: "assets/giryong-3.png"},
+        "giryong-4": {label: "기룡이 4", src: "assets/giryong-4.png"},
+        "giryong-5": {label: "기룡이 5", src: "assets/giryong-5.png"},
+        "giryong-6": {label: "기룡이 6", src: "assets/giryong-6.png"},
+        kyonggi: {
+          label: "경기대학교",
+          src: "assets/logo.png"
+        },
+        none: {
+          label: "로고 없음",
+          src: ""
+        }
+      };
+
+      const FOOTER_LOGOS = {
+        kyonggi: {
+          label: "경기대학교",
+          src: "assets/logo.png"
+        },
+        none: {label: "표시 안 함", src: ""}
+      };
+
+      const PLATE_SIZE_PRESETS = {
+        "200x70": { width: 200, height: 70, label: "소형 · 200 × 70 mm" },
+        "200x80": { width: 200, height: 80, label: "중형 · 200 × 80 mm" },
+        "250x80": { width: 250, height: 80, label: "대형 · 250 × 80 mm" },
+        "255x85": { width: 255, height: 85, label: "대형+ · 255 × 85 mm" }
+      };
+
+      const PLATE_TEMPLATES = {
+        basic: { label: "기본형", src: "", colors: { name: "#215292", title: "#215292", border: "#215292" } },
+        minimal: { label: "모던 미니멀", src: "assets/template-minimal.svg", colors: { name: "#215292", title: "#215292", border: "#215292" } },
+        frame: { label: "블루 프레임", src: "assets/template-frame.svg", colors: { name: "#215292", title: "#215292", border: "#215292" } },
+        gold: { label: "코랄 포인트", src: "assets/template-gold.svg", colors: { name: "#222222", title: "#215292", border: "#EB7654" } },
+        geometric: { label: "그린 가든", src: "assets/template-geometric.svg", colors: { name: "#215292", title: "#215292", border: "#215292" } }
+      };
+
+      const defaultDesign = {
+        defaultLeftLogo: "giryong-1",
+        footerLogo: "kyonggi",
+        templateStyle: "basic",
+        platePreset: "250x80",
+        plateWidth: 250,
+        plateHeight: 80,
+        autoScaleElements: true,
+        showCutMarks: false,
+        settingsLocked: false,
+        nameColor: "#215292",
+        titleColor: "#215292",
+        borderColor: "#215292",
+        nameSize: 78,
+        nameX: 0,
+        nameY: 0,
+        titleSize: 27,
+        titleX: 0,
+        titleY: 0,
+        nameSpacing: 18,
+        logoWidth: 54,
+        logoX: 0,
+        logoY: 0,
+        footerLogoWidth: 58,
+        footerLogoX: 0,
+        footerLogoY: 0,
+        titleSeparator: " ",
+        autoFit: true,
+        rotateBack: true,
+        showPageLabel: false
+      };
+
+      const state = {
+        people: [
+          {
+            id: cryptoId(),
+            name: "홍길동",
+            organization: "경기대학교",
+            position: "행사 담당",
+            logoKey: "default"
+          }
+        ],
+        customLogos: [],
+        design: { ...defaultDesign },
+        selectedIndex: 0
+      };
+
+      const $ = (selector) => document.querySelector(selector);
+      const $$ = (selector) => [...document.querySelectorAll(selector)];
+
+      const elements = {
+        versionBadge: $("#versionBadge"),
+        peopleCount: $("#peopleCount"),
+        bulkInput: $("#bulkInput"),
+        peopleTableBody: $("#peopleTableBody"),
+        emptyMessage: $("#emptyMessage"),
+        defaultLeftLogo: $("#defaultLeftLogo"),
+        customLogoName: $("#customLogoName"),
+        customLogoFile: $("#customLogoFile"),
+        customLogoList: $("#customLogoList"),
+        footerLogo: $("#footerLogo"),
+        templateCards: $$(".template-card"),
+        recommendedColorBtn: $("#recommendedColorBtn"),
+        titleSeparator: $("#titleSeparator"),
+        overallTextColor: $("#overallTextColor"),
+        overallTextColorHex: $("#overallTextColorHex"),
+        mixedColorNote: $("#mixedColorNote"),
+        paletteTarget: $("#paletteTarget"),
+        paletteChips: $$(".palette-chip"),
+        nameColor: $("#nameColor"),
+        nameColorHex: $("#nameColorHex"),
+        titleColor: $("#titleColor"),
+        titleColorHex: $("#titleColorHex"),
+        borderColor: $("#borderColor"),
+        borderColorHex: $("#borderColorHex"),
+        nameSize: $("#nameSize"),
+        nameSizeNumber: $("#nameSizeNumber"),
+        nameX: $("#nameX"),
+        nameXNumber: $("#nameXNumber"),
+        nameY: $("#nameY"),
+        nameYNumber: $("#nameYNumber"),
+        titleSize: $("#titleSize"),
+        titleSizeNumber: $("#titleSizeNumber"),
+        titleX: $("#titleX"),
+        titleXNumber: $("#titleXNumber"),
+        titleY: $("#titleY"),
+        titleYNumber: $("#titleYNumber"),
+        nameSpacing: $("#nameSpacing"),
+        nameSpacingNumber: $("#nameSpacingNumber"),
+        logoWidth: $("#logoWidth"),
+        logoWidthNumber: $("#logoWidthNumber"),
+        logoX: $("#logoX"),
+        logoXNumber: $("#logoXNumber"),
+        logoY: $("#logoY"),
+        logoYNumber: $("#logoYNumber"),
+        footerLogoWidth: $("#footerLogoWidth"),
+        footerLogoWidthNumber: $("#footerLogoWidthNumber"),
+        footerLogoX: $("#footerLogoX"),
+        footerLogoXNumber: $("#footerLogoXNumber"),
+        footerLogoY: $("#footerLogoY"),
+        footerLogoYNumber: $("#footerLogoYNumber"),
+        autoFit: $("#autoFit"),
+        rotateBack: $("#rotateBack"),
+        showPageLabel: $("#showPageLabel"),
+        platePreset: $("#platePreset"),
+        plateWidth: $("#plateWidth"),
+        plateHeight: $("#plateHeight"),
+        plateSizeSummary: $("#plateSizeSummary"),
+        plateSizeWarning: $("#plateSizeWarning"),
+        autoScaleElements: $("#autoScaleElements"),
+        showCutMarks: $("#showCutMarks"),
+        testPrintBtn: $("#testPrintBtn"),
+        resetAdjustmentsBtn: $("#resetAdjustmentsBtn"),
+        settingsLockBtn: $("#settingsLockBtn"),
+        settingsLockStatus: $("#settingsLockStatus"),
+        previewWorkspace: $("#previewWorkspace"),
+        previewZone: $("#previewZone"),
+        previewScaler: $("#previewScaler"),
+        previewPage: $("#previewPage"),
+        printStage: $("#printStage"),
+        pageCounter: $("#pageCounter"),
+        selectedPersonLabel: $("#selectedPersonLabel"),
+        textOverflowAlert: $("#textOverflowAlert"),
+        mobilePreviewToggleBtn: $("#mobilePreviewToggleBtn"),
+        mobilePreviewCloseBtn: $("#mobilePreviewCloseBtn"),
+        mobilePreviewBackdrop: $("#mobilePreviewBackdrop"),
+        thumbs: $("#thumbs"),
+        status: $("#status"),
+        csvFileInput: $("#csvFileInput"),
+        projectFileInput: $("#projectFileInput")
+      };
+
+      let machPrint;
+      let resetMachReceipts = () => {};
+      let refreshMachUI = () => {};
+      let currentTextOverflowIssues = [];
+      let renderFrameId = 0;
+      let mobilePreviewReturnFocus = null;
+
+      elements.versionBadge.textContent = APP_VERSION_LABEL;
+
+      function cryptoId() {
+        if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+        return "id-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+      }
+
+      function sanitizePerson(person = {}) {
+        return {
+          id: person.id || cryptoId(),
+          name: String(person.name || ""),
+          organization: String(person.organization || ""),
+          position: String(person.position || ""),
+          logoKey: normalizeExistingLogoKey(person.logoKey || "default"),
+          ...(typeof person.status === "string" ? { status: person.status } : {}),
+          ...(typeof person.seatId === "string" ? { seatId: person.seatId } : {}),
+          ...(typeof person.replacesParticipantId === "string" ? { replacesParticipantId: person.replacesParticipantId } : {})
+        };
+      }
+
+      function sanitizeCustomLogo(logo = {}) {
+        return {
+          id: String(logo.id || ("custom-" + cryptoId())),
+          name: String(logo.name || "외부기관").trim(),
+          dataUrl: String(logo.dataUrl || "")
+        };
+      }
+
+      function normalizeExistingLogoKey(key) {
+        const value = String(key || "").trim();
+        if (value === "default") return "default";
+        if (Object.prototype.hasOwnProperty.call(BUILTIN_LEFT_LOGOS, value)) return value;
+        if (value.startsWith("custom-")) return value;
+        return "default";
+      }
+
+      function resolveLogoKeyFromText(raw) {
+        const value = String(raw || "").trim();
+        if (!value) return "default";
+
+        const lower = value.toLowerCase();
+        if (["기본", "default", "기본로고"].includes(lower)) return "default";
+        if (["경기대", "경기대학교", "kyonggi", "kgu"].includes(lower)) return "kyonggi";
+        const character = lower.match(/^(?:기룡이\s*|giryong-)([1-6])$/);
+        if (character) return `giryong-${character[1]}`;
+        if (["없음", "로고없음", "none", "x"].includes(lower)) return "none";
+
+        const custom = state.customLogos.find(
+          logo => logo.name.trim().toLowerCase() === lower
+        );
+        return custom ? custom.id : "default";
+      }
+
+      function clamp(value, min, max) {
+        const number = Number(value);
+        if (!Number.isFinite(number)) return min;
+        return Math.min(max, Math.max(min, number));
+      }
+
+      function showStatus(message) {
+        elements.status.textContent = message;
+        elements.status.classList.add("show");
+
+        clearTimeout(showStatus.timer);
+
+        showStatus.timer = setTimeout(() => {
+          elements.status.classList.remove("show");
+        }, 3000);
+      }
+
+      function parseRows(text) {
+        const lines = String(text || "")
+          .replace(/\r/g, "")
+          .split("\n")
+          .map(line => line.trim())
+          .filter(Boolean);
+
+        return lines.map(line => {
+          let columns;
+
+          if (line.includes("\t")) {
+            columns = line.split("\t");
+          } else {
+            columns = parseCsvLine(line);
+          }
+
+          columns = columns.map(value => String(value || "").trim());
+
+          return sanitizePerson({
+            name: columns[0] || "",
+            organization: columns[1] || "",
+            position: columns[2] || "",
+            logoKey: resolveLogoKeyFromText(columns[3] || "")
+          });
+        }).filter(person =>
+          person.name || person.organization || person.position
+        );
+      }
+
+      function parseCsvLine(line) {
+        const result = [];
+        let value = "";
+        let inQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          const next = line[i + 1];
+
+          if (char === '"' && inQuotes && next === '"') {
+            value += '"';
+            i++;
+          } else if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === "," && !inQuotes) {
+            result.push(value);
+            value = "";
+          } else {
+            value += char;
+          }
+        }
+
+        result.push(value);
+        return result;
+      }
+
+      function getTitle(person) {
+        const parts = [person.organization, person.position].filter(Boolean);
+
+        if (state.design.titleSeparator === "__LINE_BREAK__") {
+          return parts.join("\n");
+        }
+
+        return parts.join(state.design.titleSeparator);
+      }
+
+      function getEffectiveLeftLogoKey(person) {
+        const key = person.logoKey || "default";
+
+        if (key === "default") {
+          return state.design.defaultLeftLogo || "kyonggi";
+        }
+
+        return key;
+      }
+
+      function getLeftLogoInfo(person) {
+        const key = getEffectiveLeftLogoKey(person);
+
+        if (BUILTIN_LEFT_LOGOS[key]) {
+          return {
+            key,
+            label: BUILTIN_LEFT_LOGOS[key].label,
+            src: BUILTIN_LEFT_LOGOS[key].src,
+            isBuiltIn: true
+          };
+        }
+
+        const custom = state.customLogos.find(logo => logo.id === key);
+
+        if (custom) {
+          return {
+            key: custom.id,
+            label: custom.name,
+            src: custom.dataUrl,
+            isBuiltIn: false
+          };
+        }
+
+        const fallback =
+          BUILTIN_LEFT_LOGOS[state.design.defaultLeftLogo] ||
+          BUILTIN_LEFT_LOGOS.kyonggi;
+
+        return {
+          key: state.design.defaultLeftLogo,
+          label: fallback.label,
+          src: fallback.src,
+          isBuiltIn: true
+        };
+      }
+
+      function applyCssVariables() {
+        const root = document.documentElement;
+
+        root.style.setProperty("--plate-name-color", state.design.nameColor);
+        root.style.setProperty("--plate-title-color", state.design.titleColor);
+        root.style.setProperty("--plate-border", state.design.borderColor);
+
+        root.style.setProperty("--plate-width", `${state.design.plateWidth}mm`);
+        root.style.setProperty("--plate-height", `${state.design.plateHeight}mm`);
+        root.style.setProperty("--plate-stack-height", `${state.design.plateHeight * 2}mm`);
+        root.style.setProperty("--plate-fold-y", `${state.design.plateHeight}mm`);
+
+        root.style.setProperty("--plate-name-size", `${state.design.nameSize}pt`);
+        root.style.setProperty("--plate-name-x", `${state.design.nameX}mm`);
+        root.style.setProperty("--plate-name-y", `${state.design.nameY}mm`);
+
+        root.style.setProperty("--plate-title-size", `${state.design.titleSize}pt`);
+        root.style.setProperty("--plate-title-x", `${state.design.titleX}mm`);
+        root.style.setProperty("--plate-title-y", `${state.design.titleY}mm`);
+
+        root.style.setProperty("--plate-name-spacing", `${state.design.nameSpacing / 100}em`);
+        root.style.setProperty("--plate-logo-width", `${state.design.logoWidth}mm`);
+        root.style.setProperty("--plate-logo-x", `${state.design.logoX}mm`);
+        root.style.setProperty("--plate-logo-y", `${state.design.logoY}mm`);
+
+        root.style.setProperty("--footer-logo-width", `${state.design.footerLogoWidth}mm`);
+        root.style.setProperty("--footer-logo-x", `${state.design.footerLogoX}mm`);
+        root.style.setProperty("--footer-logo-y", `${state.design.footerLogoY}mm`);
+      }
+
+      function getTemplateInfo() {
+        return PLATE_TEMPLATES[state.design.templateStyle] || PLATE_TEMPLATES.basic;
+      }
+
+      function detectPlatePreset(width, height) {
+        const match = Object.entries(PLATE_SIZE_PRESETS).find(
+          ([, preset]) =>
+            Number(preset.width) === Number(width) &&
+            Number(preset.height) === Number(height)
+        );
+
+        return match ? match[0] : "custom";
+      }
+
+      function updatePlateSizeSummary() {
+        const width = Number(state.design.plateWidth) || 250;
+        const height = Number(state.design.plateHeight) || 80;
+        const stackHeight = height * 2;
+
+        elements.plateSizeSummary.innerHTML =
+          `명패 1면 <strong>${width} × ${height}mm</strong> · ` +
+          `양면 연속 출력 <strong>${width} × ${stackHeight}mm</strong>`;
+
+        const warnings = [];
+
+        if (width > 297) {
+          warnings.push("가로가 A4 297mm를 초과합니다.");
+        }
+
+        if (stackHeight > 210) {
+          warnings.push("앞·뒷면을 합친 높이가 A4 210mm를 초과합니다.");
+        }
+
+        elements.plateSizeWarning.textContent = warnings.join(" ");
+      }
+
+      function scaleAndClamp(value, ratio, min, max) {
+        const next = Number(value) * ratio;
+        return Math.round(Math.min(max, Math.max(min, next)) * 10) / 10;
+      }
+
+      function scaleDesignForPlateSize(oldWidth, oldHeight, newWidth, newHeight) {
+        if (!state.design.autoScaleElements) return;
+
+        if (!oldWidth || !oldHeight) return;
+
+        const widthRatio = newWidth / oldWidth;
+        const heightRatio = newHeight / oldHeight;
+        const uniformRatio = Math.min(widthRatio, heightRatio);
+
+        state.design.nameSize =
+          scaleAndClamp(state.design.nameSize, uniformRatio, 40, 105);
+
+        state.design.titleSize =
+          scaleAndClamp(state.design.titleSize, uniformRatio, 15, 44);
+
+        state.design.logoWidth =
+          scaleAndClamp(state.design.logoWidth, uniformRatio, 20, 65);
+
+        state.design.footerLogoWidth =
+          scaleAndClamp(state.design.footerLogoWidth, uniformRatio, 20, 90);
+
+        state.design.nameX =
+          scaleAndClamp(state.design.nameX, widthRatio, -35, 35);
+
+        state.design.titleX =
+          scaleAndClamp(state.design.titleX, widthRatio, -35, 35);
+
+        state.design.logoX =
+          scaleAndClamp(state.design.logoX, widthRatio, -25, 25);
+
+        state.design.footerLogoX =
+          scaleAndClamp(state.design.footerLogoX, widthRatio, -35, 35);
+
+        state.design.nameY =
+          scaleAndClamp(state.design.nameY, heightRatio, -20, 20);
+
+        state.design.titleY =
+          scaleAndClamp(state.design.titleY, heightRatio, -18, 18);
+
+        state.design.logoY =
+          scaleAndClamp(state.design.logoY, heightRatio, -20, 20);
+
+        state.design.footerLogoY =
+          scaleAndClamp(state.design.footerLogoY, heightRatio, -15, 15);
+      }
+
+      function setPlateSize(width, height, presetKey = null) {
+        const safeWidth = Math.min(290, Math.max(100, Number(width) || 250));
+        const safeHeight = Math.min(100, Math.max(45, Number(height) || 80));
+
+        const oldWidth = Number(state.design.plateWidth) || 250;
+        const oldHeight = Number(state.design.plateHeight) || 80;
+
+        if (safeWidth !== oldWidth || safeHeight !== oldHeight) {
+          scaleDesignForPlateSize(
+            oldWidth,
+            oldHeight,
+            safeWidth,
+            safeHeight
+          );
+        }
+
+        state.design.plateWidth = safeWidth;
+        state.design.plateHeight = safeHeight;
+        state.design.platePreset =
+          presetKey || detectPlatePreset(safeWidth, safeHeight);
+
+        syncControlsFromState();
+        renderPreviewOnly();
+      }
+
+      function resetAdjustments() {
+        const width = Number(state.design.plateWidth) || 250;
+        const height = Number(state.design.plateHeight) || 80;
+        const baseScale = Math.min(width / 250, height / 80);
+
+        state.design.nameSize =
+          Math.round(Math.min(105, Math.max(40, 78 * baseScale)) * 10) / 10;
+
+        state.design.titleSize =
+          Math.round(Math.min(44, Math.max(15, 27 * baseScale)) * 10) / 10;
+
+        state.design.logoWidth =
+          Math.round(Math.min(65, Math.max(20, 54 * baseScale)) * 10) / 10;
+
+        state.design.footerLogoWidth =
+          Math.round(Math.min(90, Math.max(20, 58 * baseScale)) * 10) / 10;
+
+        state.design.nameX = 0;
+        state.design.nameY = 0;
+        state.design.titleX = 0;
+        state.design.titleY = 0;
+        state.design.logoX = 0;
+        state.design.logoY = 0;
+        state.design.footerLogoX = 0;
+        state.design.footerLogoY = 0;
+        state.design.nameSpacing = 18;
+
+        syncControlsFromState();
+        renderPreviewOnly();
+      }
+
+      function applySettingsLock() {
+        const locked = Boolean(state.design.settingsLocked);
+
+        document.body.classList.toggle("settings-locked", locked);
+
+        $$("[data-settings-section] input, [data-settings-section] select, [data-settings-section] textarea, [data-settings-section] button")
+          .forEach(control => {
+            if (control.dataset.lockExempt === "true") {
+              control.disabled = false;
+              return;
+            }
+
+            control.disabled = locked;
+          });
+
+        elements.settingsLockBtn.textContent =
+          locked ? "설정 잠금 해제" : "설정 잠금";
+
+        elements.settingsLockStatus.textContent =
+          locked
+            ? "디자인 설정이 잠겨 있습니다. 명단은 계속 수정할 수 있습니다."
+            : "";
+
+        elements.settingsLockStatus.classList.toggle("locked", locked);
+      }
+
+      function applyRecommendedColors(templateStyle = state.design.templateStyle) {
+        const template = PLATE_TEMPLATES[templateStyle] || PLATE_TEMPLATES.basic;
+        state.design.nameColor = template.colors.name;
+        state.design.titleColor = template.colors.title;
+        state.design.borderColor = template.colors.border;
+      }
+
+      function setTemplateStyle(templateStyle, applyColors = true) {
+        if (!PLATE_TEMPLATES[templateStyle]) templateStyle = "basic";
+        state.design.templateStyle = templateStyle;
+        if (applyColors) applyRecommendedColors(templateStyle);
+        syncControlsFromState();
+        renderPreviewOnly();
+      }
+
+      function createLogoBox(person) {
+        const logoBox = document.createElement("div");
+        logoBox.className = "logo-box";
+
+        const logo = getLeftLogoInfo(person);
+
+        if (!logo.src) {
+          const placeholder = document.createElement("div");
+          placeholder.className = "logo-placeholder";
+          placeholder.textContent = "로고 없음";
+          logoBox.appendChild(placeholder);
+          return logoBox;
+        }
+
+        const img = document.createElement("img");
+        img.src = logo.src;
+        img.alt = logo.label;
+
+        img.addEventListener("error", () => {
+          img.remove();
+
+          const placeholder = document.createElement("div");
+          placeholder.className = "logo-placeholder";
+          placeholder.textContent = `${logo.label}
+로고 파일 없음`;
+
+          logoBox.appendChild(placeholder);
+        }, { once: true });
+
+        logoBox.appendChild(img);
+        return logoBox;
+      }
+
+      function createNameplate(person, isBack = false, personIndex = -1) {
+        const plate = document.createElement("div");
+        plate.className = "nameplate";
+        plate.dataset.personIndex = String(personIndex);
+
+        if (isBack && state.design.rotateBack) {
+          plate.classList.add("back-rotated");
+        }
+
+        const template = getTemplateInfo();
+
+        if (template.src) {
+          plate.classList.add("has-template");
+          const templateImage = document.createElement("img");
+          templateImage.className = "plate-template-bg";
+          templateImage.src = template.src;
+          templateImage.alt = "";
+          templateImage.setAttribute("aria-hidden", "true");
+          plate.appendChild(templateImage);
+        }
+
+        const main = document.createElement("div");
+        main.className = "plate-main";
+
+        const logoBox = createLogoBox(person);
+
+        const textBox = document.createElement("div");
+        textBox.className = "plate-text";
+
+        const title = document.createElement("div");
+        title.className = "plate-title auto-fit-title";
+        title.dataset.personIndex = String(personIndex);
+        title.dataset.overflowField = "title";
+        title.textContent = getTitle(person) || "소속 및 직책";
+
+        if (state.design.titleSeparator === "__LINE_BREAK__") {
+          title.style.whiteSpace = "pre-line";
+          title.style.textAlign = "center";
+        }
+
+        const name = document.createElement("div");
+        name.className = "plate-name auto-fit-name";
+        name.dataset.personIndex = String(personIndex);
+        name.dataset.overflowField = "name";
+        name.textContent = person.name || "이름";
+
+        textBox.append(title, name);
+        main.append(logoBox, textBox);
+
+        const footer = document.createElement("div");
+        footer.className = "plate-footer";
+
+        const footerLogoBox = document.createElement("div");
+        footerLogoBox.className = "footer-logo-box";
+
+        const footerLogo =
+          FOOTER_LOGOS[state.design.footerLogo] || FOOTER_LOGOS.kyonggi;
+
+        const footerImg = document.createElement("img");
+        footerImg.src = footerLogo.src;
+        footerImg.alt = footerLogo.label;
+
+        footerImg.addEventListener("error", () => {
+          footerImg.remove();
+
+          const missing = document.createElement("div");
+          missing.className = "footer-logo-missing";
+          missing.textContent = `${footerLogo.label} 하단 로고 파일 없음`;
+
+          footerLogoBox.appendChild(missing);
+        }, { once: true });
+
+        if (footerLogo.src) footerLogoBox.appendChild(footerImg);
+        footer.appendChild(footerLogoBox);
+        plate.append(main, footer);
+
+        return plate;
+      }
+
+      function createPage(person, index, forPrint = false) {
+        const page = document.createElement("div");
+        page.className = "paper-page";
+        page.dataset.index = String(index);
+
+        if (forPrint && index === state.selectedIndex) {
+          page.classList.add("is-current");
+        }
+
+        if (state.design.showPageLabel && !forPrint) {
+          const label = document.createElement("div");
+          label.className = "page-label";
+          label.textContent = `${index + 1}페이지 · ${person.name || "이름 없음"}`;
+          page.appendChild(label);
+        }
+
+        const stack = document.createElement("div");
+        stack.className = "nameplate-stack";
+
+        const front = createNameplate(person, false, index);
+        const back = createNameplate(person, true, index);
+
+        // 명패케이스 삽입 방향에 맞춰
+        // 180도 회전된 반대면을 위쪽, 정상면을 아래쪽에 배치
+        stack.append(back, front);
+
+        if (!forPrint) {
+          const overflowBadge = document.createElement("div");
+          overflowBadge.className = "preview-overflow-badge";
+          overflowBadge.textContent = "텍스트 영역 초과";
+          page.appendChild(overflowBadge);
+
+          const guide = document.createElement("div");
+          guide.className = "fold-guide";
+
+          const guideLabel = document.createElement("div");
+          guideLabel.className = "fold-guide-label";
+          guideLabel.textContent = "접점";
+
+          stack.append(guide, guideLabel);
+        }
+
+        if (state.design.showCutMarks) {
+          ["tl", "tr", "bl", "br"].forEach(position => {
+            const mark = document.createElement("span");
+            mark.className = `cut-mark ${position}`;
+            stack.appendChild(mark);
+          });
+        }
+
+        page.appendChild(stack);
+        return page;
+      }
+
+      function buildLogoSelect(person, index) {
+        const select = document.createElement("select");
+        select.setAttribute(
+          "aria-label",
+          `${index + 1}번 ${person.name || "이름 없음"} 좌측 로고`
+        );
+
+        const options = [
+          {
+            value: "default",
+            label: `기본 (${BUILTIN_LEFT_LOGOS[state.design.defaultLeftLogo]?.label || "경기대학교"})`
+          },
+          { value: "kyonggi", label: "경기대학교" },
+{ value: "giryong-1", label: "기룡이 1" },
+{ value: "giryong-2", label: "기룡이 2" },
+{ value: "giryong-3", label: "기룡이 3" },
+{ value: "giryong-4", label: "기룡이 4" },
+{ value: "giryong-5", label: "기룡이 5" },
+{ value: "giryong-6", label: "기룡이 6" },
+          { value: "none", label: "로고 없음" },
+          ...state.customLogos.map(logo => ({
+            value: logo.id,
+            label: logo.name
+          }))
+        ];
+
+        options.forEach(optionData => {
+          const option = document.createElement("option");
+          option.value = optionData.value;
+          option.textContent = optionData.label;
+          select.appendChild(option);
+        });
+
+        const currentKey = options.some(option => option.value === person.logoKey)
+          ? person.logoKey
+          : "default";
+
+        select.value = currentKey;
+
+        select.addEventListener("change", () => {
+          state.people[index].logoKey = select.value;
+          renderPreviewOnly();
+          saveLocal();
+        });
+
+        select.addEventListener("focus", () => {
+          state.selectedIndex = index;
+          renderPreviewOnly();
+        });
+
+        return select;
+      }
+
+      function renderTable() {
+        elements.peopleTableBody.replaceChildren();
+        elements.emptyMessage.style.display = state.people.length ? "none" : "block";
+        elements.peopleCount.textContent = state.mach?.eventId ? `활성 ${state.people.filter(NameplateChanges.active).length}명 · 이력 포함 ${state.people.length}명` : `${state.people.length}명`;
+
+        state.people.forEach((person, index) => {
+          const tr = document.createElement("tr");
+          tr.dataset.id = person.id;
+          tr.dataset.index = String(index);
+
+          const numberCell = document.createElement("td");
+          numberCell.className = "row-number";
+          numberCell.textContent = String(index + 1);
+
+          const nameCell = document.createElement("td");
+          nameCell.appendChild(createTableInput(
+            person.name, "name", index, "이름"
+          ));
+
+          const orgCell = document.createElement("td");
+          orgCell.appendChild(createTableInput(
+            person.organization, "organization", index, "소속·기관"
+          ));
+
+          const positionCell = document.createElement("td");
+          positionCell.appendChild(createTableInput(
+            person.position, "position", index, "직책·직위"
+          ));
+
+          const logoCell = document.createElement("td");
+          logoCell.appendChild(buildLogoSelect(person, index));
+
+          const deleteCell = document.createElement("td");
+          const deleteButton = document.createElement("button");
+
+          deleteButton.className = "btn danger small";
+          deleteButton.type = "button";
+          deleteButton.textContent = "삭제";
+          deleteButton.setAttribute(
+            "aria-label",
+            `${index + 1}번 ${person.name || "이름 없음"} 삭제`
+          );
+
+          deleteButton.addEventListener("click", () => {
+            state.people.splice(index, 1);
+            state.selectedIndex = Math.min(
+              state.selectedIndex,
+              Math.max(0, state.people.length - 1)
+            );
+            renderAll();
+          });
+
+          deleteCell.appendChild(deleteButton);
+
+          tr.append(
+            numberCell,
+            nameCell,
+            orgCell,
+            positionCell,
+            logoCell,
+            deleteCell
+          );
+
+          elements.peopleTableBody.appendChild(tr);
+        });
+      }
+
+      function createTableInput(value, key, index, label) {
+        const input = document.createElement("input");
+
+        input.type = "text";
+        input.value = value;
+        input.placeholder = label;
+        input.dataset.personField = key;
+        input.setAttribute("aria-label", `${index + 1}번 ${label}`);
+
+        input.addEventListener("input", () => {
+          state.people[index][key] = input.value;
+          renderPreviewOnly();
+          saveLocal();
+        });
+
+        input.addEventListener("focus", () => {
+          state.selectedIndex = index;
+          renderPreviewOnly();
+        });
+
+        return input;
+      }
+
+      function renderCustomLogoList() {
+        elements.customLogoList.replaceChildren();
+
+        if (!state.customLogos.length) {
+          const empty = document.createElement("div");
+          empty.className = "built-in-note";
+          empty.textContent = "등록된 외부기관 좌측 로고가 없습니다.";
+          elements.customLogoList.appendChild(empty);
+          return;
+        }
+
+        state.customLogos.forEach(logo => {
+          const item = document.createElement("div");
+          item.className = "custom-logo-item";
+
+          const thumb = document.createElement("div");
+          thumb.className = "custom-logo-thumb";
+
+          const img = document.createElement("img");
+          img.src = logo.dataUrl;
+          img.alt = logo.name;
+          thumb.appendChild(img);
+
+          const name = document.createElement("div");
+          name.className = "custom-logo-name";
+          name.textContent = logo.name;
+
+          const remove = document.createElement("button");
+          remove.className = "btn danger small";
+          remove.type = "button";
+          remove.textContent = "삭제";
+
+          remove.addEventListener("click", () => {
+            if (!confirm(`'${logo.name}' 로고를 삭제할까요?`)) return;
+
+            state.customLogos = state.customLogos.filter(item => item.id !== logo.id);
+
+            state.people.forEach(person => {
+              if (person.logoKey === logo.id) {
+                person.logoKey = "default";
+              }
+            });
+
+            renderAll();
+            showStatus("외부기관 좌측 로고를 삭제했습니다.");
+          });
+
+          item.append(thumb, name, remove);
+          elements.customLogoList.appendChild(item);
+        });
+      }
+
+      function renderPreviewOnly() {
+        applyCssVariables();
+
+        if (renderFrameId) {
+          cancelAnimationFrame(renderFrameId);
+          renderFrameId = 0;
+        }
+
+        elements.previewPage.replaceChildren();
+        elements.printStage.replaceChildren();
+        elements.thumbs.replaceChildren();
+
+        if (!state.people.length) {
+          elements.pageCounter.textContent = "0 / 0";
+          elements.selectedPersonLabel.textContent = "대상자를 추가해 주세요.";
+          updateTextOverflowUi([]);
+          fitPreviewScale();
+          saveLocal();
+          refreshMachUI();
+          return;
+        }
+
+        state.selectedIndex = clamp(
+          state.selectedIndex,
+          0,
+          state.people.length - 1
+        );
+
+        const selected = state.people[state.selectedIndex];
+        const leftLogoLabel = getLeftLogoInfo(selected).label;
+
+        elements.previewPage.appendChild(
+          createPage(selected, state.selectedIndex, false)
+        );
+
+        elements.selectedPersonLabel.textContent =
+          `${selected.name || "이름 없음"} · ${getTitle(selected) || "상단 문구 없음"} · 좌측 ${leftLogoLabel}`;
+
+        elements.pageCounter.textContent =
+          `${state.selectedIndex + 1} / ${state.people.length}`;
+
+        state.people.forEach((person, index) => {
+          if (NameplateChanges.active(person)) elements.printStage.appendChild(
+            createPage(person, index, true)
+          );
+
+          const thumb = document.createElement("button");
+          thumb.className =
+            "thumb" + (index === state.selectedIndex ? " active" : "");
+          thumb.type = "button";
+          thumb.dataset.index = String(index);
+          thumb.textContent =
+            `${index + 1}. ${person.name || "이름 없음"}`;
+
+          thumb.addEventListener("click", () => {
+            state.selectedIndex = index;
+            renderPreviewOnly();
+          });
+
+          elements.thumbs.appendChild(thumb);
+        });
+
+        renderFrameId = requestAnimationFrame(() => {
+          renderFrameId = 0;
+          refreshTextOverflowState();
+          fitPreviewScale();
+        });
+
+        saveLocal();
+        refreshMachUI();
+      }
+
+      function renderAll() {
+        renderTable();
+        renderCustomLogoList();
+        syncControlsFromState();
+        renderPreviewOnly();
+      }
+
+      function isTextOverflowing(element) {
+        return (
+          element.scrollWidth > element.clientWidth + 1 ||
+          element.scrollHeight > element.clientHeight + 1
+        );
+      }
+
+      function measureTextOverflow(element, text) {
+        if (!text) return false;
+
+        const clone = element.cloneNode(false);
+        clone.classList.remove("text-overflow-warning");
+        clone.textContent = text;
+        clone.style.position = "fixed";
+        clone.style.left = "-100000px";
+        clone.style.top = "0";
+        clone.style.width = `${element.clientWidth}px`;
+        clone.style.height = `${element.clientHeight}px`;
+        clone.style.transform = "none";
+        clone.style.visibility = "hidden";
+        clone.style.pointerEvents = "none";
+
+        document.body.appendChild(clone);
+        const overflow = isTextOverflowing(clone);
+        clone.remove();
+
+        return overflow;
+      }
+
+      function createOverflowIssue(personIndex, field) {
+        const labels = {
+          name: "이름",
+          organization: "소속",
+          position: "직책"
+        };
+
+        return {
+          personIndex,
+          field,
+          label: labels[field]
+        };
+      }
+
+      function fitText(container) {
+        const fitTargets = [
+          ...container.querySelectorAll(".auto-fit-name"),
+          ...container.querySelectorAll(".auto-fit-title")
+        ];
+
+        const issues = new Map();
+
+        fitTargets.forEach(element => {
+          const isName = element.classList.contains("auto-fit-name");
+          const start = isName
+            ? state.design.nameSize
+            : state.design.titleSize;
+          const min = isName ? 34 : 12;
+
+          let size = start;
+          let guard = 0;
+
+          element.style.fontSize = `${size}pt`;
+
+          while (
+            state.design.autoFit &&
+            isTextOverflowing(element) &&
+            size > min &&
+            guard < 120
+          ) {
+            size -= 1;
+            element.style.fontSize = `${size}pt`;
+            guard++;
+          }
+
+          const overflow = isTextOverflowing(element);
+          element.classList.toggle("text-overflow-warning", overflow);
+
+          if (!overflow) return;
+
+          const personIndex = Number(element.dataset.personIndex);
+          const person = state.people[personIndex];
+
+          if (!person || personIndex < 0) return;
+
+          if (isName) {
+            issues.set(
+              `${personIndex}:name`,
+              createOverflowIssue(personIndex, "name")
+            );
+            return;
+          }
+
+          const organizationOverflow = measureTextOverflow(
+            element,
+            person.organization
+          );
+          const positionOverflow = measureTextOverflow(
+            element,
+            person.position
+          );
+
+          if (organizationOverflow) {
+            issues.set(
+              `${personIndex}:organization`,
+              createOverflowIssue(personIndex, "organization")
+            );
+          }
+
+          if (positionOverflow) {
+            issues.set(
+              `${personIndex}:position`,
+              createOverflowIssue(personIndex, "position")
+            );
+          }
+
+          if (!organizationOverflow && !positionOverflow) {
+            [
+              ["organization", person.organization],
+              ["position", person.position]
+            ].forEach(([field, value]) => {
+              if (!value) return;
+              issues.set(
+                `${personIndex}:${field}`,
+                createOverflowIssue(personIndex, field)
+              );
+            });
+          }
+        });
+
+        return [...issues.values()];
+      }
+
+      function updateTextOverflowUi(issues) {
+        currentTextOverflowIssues = issues;
+
+        const fieldsByPerson = new Map();
+        issues.forEach(issue => {
+          if (!fieldsByPerson.has(issue.personIndex)) {
+            fieldsByPerson.set(issue.personIndex, new Set());
+          }
+          fieldsByPerson.get(issue.personIndex).add(issue.field);
+        });
+
+        $$("#peopleTableBody tr").forEach((row, index) => {
+          const fields = fieldsByPerson.get(index) || new Set();
+          row.classList.toggle("has-text-overflow", fields.size > 0);
+
+          row.querySelectorAll("input[data-person-field]").forEach(input => {
+            const invalid = fields.has(input.dataset.personField);
+            if (invalid) {
+              input.setAttribute("aria-invalid", "true");
+              input.setAttribute("aria-describedby", "textOverflowAlert");
+            } else {
+              input.removeAttribute("aria-invalid");
+              input.removeAttribute("aria-describedby");
+            }
+          });
+        });
+
+        $$(".thumb").forEach((thumb, index) => {
+          const hasOverflow = fieldsByPerson.has(index);
+          thumb.classList.toggle("has-text-overflow", hasOverflow);
+          thumb.title = hasOverflow ? "텍스트 영역 초과 항목이 있습니다." : "";
+        });
+
+        const selectedHasOverflow = fieldsByPerson.has(state.selectedIndex);
+        const previewPaper = elements.previewPage.querySelector(".paper-page");
+        previewPaper?.classList.toggle("has-text-overflow", selectedHasOverflow);
+
+        if (!issues.length) {
+          elements.textOverflowAlert.hidden = true;
+          elements.textOverflowAlert.textContent = "";
+          return;
+        }
+
+        const summaries = [...fieldsByPerson.entries()].map(
+          ([personIndex, fields]) => {
+            const person = state.people[personIndex];
+            const fieldLabels = [...fields].map(field =>
+              createOverflowIssue(personIndex, field).label
+            );
+            return `${personIndex + 1}. ${person?.name || "이름 없음"} (${fieldLabels.join(", ")})`;
+          }
+        );
+
+        const visibleSummaries = summaries.slice(0, 5);
+        const remainingCount = summaries.length - visibleSummaries.length;
+        const remainingText = remainingCount > 0
+          ? ` · 그 외 ${remainingCount}명`
+          : "";
+
+        elements.textOverflowAlert.textContent =
+          `인쇄 영역을 초과한 텍스트가 있습니다: ${visibleSummaries.join(" · ")}${remainingText}. ` +
+          "내용을 줄이거나 글자 크기·자간을 조정한 뒤 인쇄해 주세요.";
+        elements.textOverflowAlert.hidden = false;
+      }
+
+      function refreshTextOverflowState() {
+        fitText(elements.previewPage);
+        const issues = fitText(elements.printStage);
+        updateTextOverflowUi(issues);
+        return issues;
+      }
+
+      function focusOverflowIssue(issue) {
+        const row = elements.peopleTableBody.querySelector(
+          `tr[data-index="${issue.personIndex}"]`
+        );
+        const input = row?.querySelector(
+          `input[data-person-field="${issue.field}"]`
+        );
+
+        if (input) {
+          input.focus();
+          input.scrollIntoView({ block: "center", inline: "nearest" });
+          return;
+        }
+
+        elements.textOverflowAlert.focus();
+      }
+
+      function fitPreviewScale() {
+        const availableWidth =
+          Math.max(280, elements.previewZone.clientWidth - 36);
+
+        const availableHeight =
+          Math.max(360, elements.previewZone.clientHeight - 36);
+
+        const pageWidthPx = 297 * (96 / 25.4);
+        const pageHeightPx = 210 * (96 / 25.4);
+
+        const scale = Math.min(
+          availableWidth / pageWidthPx,
+          availableHeight / pageHeightPx,
+          0.92
+        );
+
+        elements.previewScaler.style.transform = `scale(${scale})`;
+
+        elements.previewZone.style.minHeight =
+          `${Math.max(360, pageHeightPx * scale + 36)}px`;
+      }
+
+      function syncControlsFromState() {
+        const d = state.design;
+
+        elements.defaultLeftLogo.value =
+          BUILTIN_LEFT_LOGOS[d.defaultLeftLogo] ? d.defaultLeftLogo : "kyonggi";
+
+        elements.footerLogo.value =
+          FOOTER_LOGOS[d.footerLogo] ? d.footerLogo : "kyonggi";
+
+        const currentTemplate =
+          PLATE_TEMPLATES[d.templateStyle] ? d.templateStyle : "basic";
+
+        elements.templateCards.forEach(card => {
+          const active = card.dataset.template === currentTemplate;
+          card.classList.toggle("active", active);
+          card.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+
+        elements.titleSeparator.value = d.titleSeparator;
+        elements.nameColor.value = d.nameColor;
+        elements.nameColorHex.value = d.nameColor;
+        elements.titleColor.value = d.titleColor;
+        elements.titleColorHex.value = d.titleColor;
+        elements.borderColor.value = d.borderColor;
+        elements.borderColorHex.value = d.borderColor;
+
+        syncOverallTextColorDisplay();
+
+        setPairedValue("nameSize", d.nameSize);
+        setPairedValue("nameX", d.nameX);
+        setPairedValue("nameY", d.nameY);
+
+        setPairedValue("titleSize", d.titleSize);
+        setPairedValue("titleX", d.titleX);
+        setPairedValue("titleY", d.titleY);
+
+        setPairedValue("nameSpacing", d.nameSpacing);
+        setPairedValue("logoWidth", d.logoWidth);
+        setPairedValue("logoX", d.logoX);
+        setPairedValue("logoY", d.logoY);
+        setPairedValue("footerLogoWidth", d.footerLogoWidth);
+        setPairedValue("footerLogoX", d.footerLogoX);
+        setPairedValue("footerLogoY", d.footerLogoY);
+
+        elements.autoFit.checked = d.autoFit;
+        elements.rotateBack.checked = d.rotateBack;
+        elements.showPageLabel.checked = d.showPageLabel;
+
+        const detectedPreset =
+          PLATE_SIZE_PRESETS[d.platePreset]
+            ? d.platePreset
+            : detectPlatePreset(d.plateWidth, d.plateHeight);
+
+        elements.platePreset.value = detectedPreset;
+        elements.plateWidth.value = d.plateWidth;
+        elements.plateHeight.value = d.plateHeight;
+
+        elements.autoScaleElements.checked =
+          d.autoScaleElements !== false;
+
+        elements.showCutMarks.checked =
+          Boolean(d.showCutMarks);
+
+        updatePlateSizeSummary();
+        applySettingsLock();
+      }
+
+      function setPairedValue(key, value) {
+        elements[key].value = value;
+        elements[`${key}Number`].value = value;
+      }
+
+      function bindPair(key, min, max, stateKey = key) {
+        const range = elements[key];
+        const number = elements[`${key}Number`];
+
+        const update = (value) => {
+          const safe = clamp(value, min, max);
+
+          range.value = safe;
+          number.value = safe;
+          state.design[stateKey] = safe;
+
+          renderPreviewOnly();
+        };
+
+        range.addEventListener("input", () => update(range.value));
+        number.addEventListener("input", () => update(number.value));
+      }
+
+      function normalizeHex(value, fallback) {
+        const text = String(value || "").trim();
+
+        if (/^#[0-9a-fA-F]{6}$/.test(text)) {
+          return text.toLowerCase();
+        }
+
+        if (/^[0-9a-fA-F]{6}$/.test(text)) {
+          return "#" + text.toLowerCase();
+        }
+
+        return fallback;
+      }
+
+      function syncOverallTextColorDisplay() {
+        const same =
+          String(state.design.nameColor).toLowerCase() ===
+          String(state.design.titleColor).toLowerCase();
+
+        const displayColor = state.design.nameColor || "#215292";
+
+        elements.overallTextColor.value = displayColor;
+        elements.overallTextColorHex.value = displayColor;
+
+        elements.mixedColorNote.textContent = same
+          ? ""
+          : "이름과 소속·직책에 서로 다른 색상이 적용되어 있습니다.";
+      }
+
+      function setOverallTextColor(color) {
+        const valid = normalizeHex(color, state.design.nameColor || "#215292");
+
+        state.design.nameColor = valid;
+        state.design.titleColor = valid;
+
+        elements.nameColor.value = valid;
+        elements.nameColorHex.value = valid;
+        elements.titleColor.value = valid;
+        elements.titleColorHex.value = valid;
+
+        syncOverallTextColorDisplay();
+        renderPreviewOnly();
+      }
+
+      function applyPaletteColor(color, target) {
+        const valid = normalizeHex(color, "#215292");
+
+        if (target === "text") {
+          state.design.nameColor = valid;
+          state.design.titleColor = valid;
+        } else if (target === "border") {
+          state.design.borderColor = valid;
+        } else if (target === "name") {
+          state.design.nameColor = valid;
+        } else if (target === "title") {
+          state.design.titleColor = valid;
+        }
+
+        syncControlsFromState();
+        renderPreviewOnly();
+      }
+
+      function bindColor(colorElement, hexElement, stateKey) {
+        colorElement.addEventListener("input", () => {
+          hexElement.value = colorElement.value;
+          state.design[stateKey] = colorElement.value;
+
+          if (stateKey === "nameColor" || stateKey === "titleColor") {
+            syncOverallTextColorDisplay();
+          }
+
+          renderPreviewOnly();
+        });
+
+        hexElement.addEventListener("change", () => {
+          const valid = normalizeHex(
+            hexElement.value,
+            state.design[stateKey]
+          );
+
+          hexElement.value = valid;
+          colorElement.value = valid;
+          state.design[stateKey] = valid;
+
+          if (stateKey === "nameColor" || stateKey === "titleColor") {
+            syncOverallTextColorDisplay();
+          }
+
+          renderPreviewOnly();
+        });
+      }
+
+      function saveLocal() {
+        if (projectRecoveryBlocked) {
+          showStatus("저장된 프로젝트를 읽지 못해 원본을 보존했습니다. 작업 저장으로 원본을 내려받은 뒤 유효한 JSON을 불러와 주세요.");
+          return;
+        }
+        const payload = {
+          people: state.people,
+          customLogos: state.customLogos,
+          design: state.design,
+          selectedIndex: state.selectedIndex,
+          mach: state.mach
+        };
+
+        try {
+          if (localStorage.getItem(STORAGE_KEY) !== lastSavedProject) {
+            showStatus("다른 창의 최신 프로젝트를 보호하기 위해 저장을 중지했습니다. 현재 작업을 JSON으로 내보낸 뒤 새로고침해 주세요.");
+            return;
+          }
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(payload)
+          );
+          lastSavedProject = JSON.stringify(payload);
+        } catch (error) {
+          console.warn("자동 저장 실패:", error);
+        }
+      }
+
+      function restoreLocal() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          lastSavedProject = raw;
+
+          if (!raw) return;
+
+          const saved = JSON.parse(raw);
+          if (typeof NameplateChanges !== "undefined") NameplateChanges.validateProject(saved);
+          if (saved.mach) state.mach = saved.mach;
+          if (!saved.mach || saved?.people?.some(person => !person?.id)) localStorage.setItem(`${STORAGE_KEY}:before-migration`, raw);
+          if (!saved || !Array.isArray(saved.people) || saved.people.some(person => !person || typeof person !== "object")) throw new Error("invalid-project");
+
+          if (Array.isArray(saved.customLogos)) {
+            state.customLogos = saved.customLogos.map(sanitizeCustomLogo);
+          }
+
+          if (Array.isArray(saved.people)) {
+            state.people =
+              saved.people.map(sanitizePerson);
+          }
+
+          const savedDesign = saved.design || {};
+          state.design = { ...defaultDesign, ...savedDesign };
+          if (savedDesign.textColor && !savedDesign.nameColor) state.design.nameColor = savedDesign.textColor;
+          if (savedDesign.textColor && !savedDesign.titleColor) state.design.titleColor = savedDesign.textColor;
+
+          state.selectedIndex = clamp(
+            saved.selectedIndex || 0,
+            0,
+            Math.max(0, state.people.length - 1)
+          );
+        } catch (error) {
+          projectRecoveryBlocked = true;
+        }
+      }
+
+      function readImageFile(file) {
+        return new Promise((resolve, reject) => {
+          if (!file) {
+            reject(new Error("파일이 없습니다."));
+            return;
+          }
+
+          if (!file.type.startsWith("image/")) {
+            reject(new Error("이미지 파일만 올릴 수 있습니다."));
+            return;
+          }
+
+          if (file.size > 6 * 1024 * 1024) {
+            reject(new Error("로고는 6MB 이하 파일을 사용해 주세요."));
+            return;
+          }
+
+          const reader = new FileReader();
+
+          reader.onload = () => {
+            const dataUrl = String(reader.result || "");
+            try {
+              NameplateChanges.validateProject({ people: [], design: {}, customLogos: [{ dataUrl }] });
+              resolve(dataUrl);
+            } catch (error) { reject(error); }
+          };
+
+          reader.onerror = () =>
+            reject(new Error("이미지를 읽지 못했습니다."));
+
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function downloadText(
+        filename,
+        text,
+        type = "application/json"
+      ) {
+        const blob = new Blob([text], { type });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+
+        anchor.href = url;
+        anchor.download = filename;
+
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+
+        URL.revokeObjectURL(url);
+      }
+
+      function exportProject() {
+        if (projectRecoveryBlocked && lastSavedProject) {
+          downloadText("명패작업_복구용_원본.json", lastSavedProject);
+          return;
+        }
+        const payload = {
+          app: "kyonggi-nameplate-maker",
+          version: APP_VERSION,
+          savedAt: new Date().toISOString(),
+          people: state.people,
+          customLogos: state.customLogos,
+          design: state.design,
+          selectedIndex: state.selectedIndex,
+          mach: state.mach
+        };
+
+        downloadText(
+          `명패작업_${new Date().toISOString().slice(0,10)}.json`,
+          JSON.stringify(payload, null, 2)
+        );
+
+        showStatus("현재 명단·로고·디자인을 작업 파일로 저장했습니다.");
+      }
+
+      function importProject(file) {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          try {
+            const parsed =
+              JSON.parse(String(reader.result || ""));
+
+            if (parsed.app && parsed.app !== "kyonggi-nameplate-maker") throw new Error("경기대 명패 작업 파일만 불러올 수 있습니다.");
+            if (parsed.design && !["kyonggi", "none", ...Array.from({length:6},(_,i)=>`giryong-${i+1}`)].includes(parsed.design.defaultLeftLogo)) throw new Error("다른 에디션의 디자인입니다.");
+            if (typeof NameplateChanges !== "undefined") NameplateChanges.validateProject(parsed);
+            if (!Array.isArray(parsed.people)) {
+              throw new Error("명단 형식이 없습니다.");
+            }
+            if (parsed.people.some(person => !person || typeof person !== "object")) throw new Error("잘못된 참석자 형식");
+            const nextLogos = Array.isArray(parsed.customLogos)
+              ? parsed.customLogos.map(sanitizeCustomLogo)
+              : [];
+            const nextPeople = parsed.people.map(sanitizePerson);
+            const importedDesign = parsed.design || {};
+            if (typeof importedDesign !== "object" || Array.isArray(importedDesign)) throw new Error("잘못된 디자인 형식");
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw !== lastSavedProject) throw new Error("다른 창에서 프로젝트가 변경되었습니다.");
+            if (raw) localStorage.setItem(`${STORAGE_KEY}:before-seat-planner`, raw);
+            const nextDesign = { ...defaultDesign, ...importedDesign };
+            if (importedDesign.textColor && !importedDesign.nameColor) nextDesign.nameColor = importedDesign.textColor;
+            if (importedDesign.textColor && !importedDesign.titleColor) nextDesign.titleColor = importedDesign.textColor;
+            const nextMach = typeof NameplateChanges !== "undefined" ? NameplateChanges.metadata(parsed.mach, cryptoId()) : parsed.mach;
+            const savedNext = JSON.stringify({ people: nextPeople, customLogos: nextLogos, design: nextDesign, selectedIndex: 0, mach: nextMach });
+            localStorage.setItem(STORAGE_KEY, savedNext);
+            lastSavedProject = savedNext;
+            projectRecoveryBlocked = false;
+            state.mach = nextMach;
+            state.customLogos = nextLogos;
+            state.people = nextPeople;
+            state.design = { ...defaultDesign, ...importedDesign };
+            if (importedDesign.textColor && !importedDesign.nameColor) state.design.nameColor = importedDesign.textColor;
+            if (importedDesign.textColor && !importedDesign.titleColor) state.design.titleColor = importedDesign.textColor;
+
+            state.selectedIndex = 0;
+
+            renderAll();
+            if (typeof resetMachReceipts === "function") resetMachReceipts();
+            showStatus("작업 파일을 불러왔습니다.");
+          } catch (error) {
+            showStatus(
+              "작업 파일을 읽지 못했습니다. 올바른 JSON 파일인지 확인해 주세요."
+            );
+          }
+        };
+
+        reader.readAsText(file, "utf-8");
+      }
+
+      function decodeDelimitedText(buffer) {
+        try {
+          // Reject invalid UTF-8 instead of silently inserting replacement characters.
+          // The default ignoreBOM: false removes a leading UTF-8 BOM.
+          return new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+        } catch (error) {
+          // WHATWG euc-kr includes Windows CP949/MS949 (Unified Hangul Code).
+          return new TextDecoder("euc-kr", { fatal: true }).decode(buffer);
+        }
+      }
+
+      function loadDelimitedFile(file) {
+        if (state.mach?.eventId) { showStatus("연결된 행사는 ID가 포함된 연동 JSON으로 변경분을 확인해 주세요. CSV는 새 단독 작업에서 불러올 수 있습니다."); return; }
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          let text;
+          try {
+            text = decodeDelimitedText(reader.result);
+          } catch (error) {
+            showStatus("파일의 문자 인코딩을 확인해 주세요.");
+            return;
+          }
+
+          const people = parseRows(text);
+
+          if (!people.length) {
+            showStatus(
+              "명단을 찾지 못했습니다. 열 순서는 이름, 소속, 직책, 좌측 로고입니다."
+            );
+            return;
+          }
+
+          state.people = people;
+          state.selectedIndex = 0;
+
+          renderAll();
+          showStatus(`${people.length}명의 명단을 불러왔습니다.`);
+        };
+
+        reader.onerror = () => {
+          showStatus("파일을 읽지 못했습니다. 다시 시도해 주세요.");
+        };
+
+        reader.readAsArrayBuffer(file);
+      }
+
+      function printPages(mode) {
+        if (typeof machPrint === "function") return machPrint(mode);
+        if (!state.people.length) {
+          showStatus("먼저 명단을 추가해 주세요.");
+          return;
+        }
+
+        const issues = refreshTextOverflowState();
+        const blockingIssues = mode === "current"
+          ? issues.filter(issue => issue.personIndex === state.selectedIndex)
+          : issues;
+
+        if (blockingIssues.length) {
+          const firstIssue = blockingIssues[0];
+          const person = state.people[firstIssue.personIndex];
+          showStatus(
+            `${firstIssue.personIndex + 1}번 ${person?.name || "이름 없음"}의 ${firstIssue.label}이(가) 출력 영역을 초과해 인쇄를 중단했습니다.`
+          );
+          focusOverflowIssue(firstIssue);
+          return;
+        }
+
+        $$(".print-stage .paper-page").forEach(
+          (page, index) => {
+            page.classList.toggle(
+              "is-current",
+              index === state.selectedIndex
+            );
+          }
+        );
+
+        document.body.classList.toggle(
+          "print-current",
+          mode === "current"
+        );
+
+        requestAnimationFrame(() => {
+          fitText(elements.printStage);
+          window.print();
+        });
+      }
+
+      function createTestPrintPage() {
+        const page = document.createElement("div");
+        page.className = "paper-page test-print-page";
+
+        const head = document.createElement("div");
+        head.className = "test-print-head";
+        head.innerHTML =
+          '인쇄 배율 확인용 100mm 테스트' +
+          '<div class="test-print-sub">아래 선을 자로 재서 정확히 100mm인지 확인하세요. 다르면 인쇄 배율을 100%로 다시 설정하세요.</div>';
+
+        const rulerWrap = document.createElement("div");
+        rulerWrap.className = "test-ruler-wrap";
+
+        const line = document.createElement("div");
+        line.className = "test-ruler-line";
+
+        const label = document.createElement("div");
+        label.className = "test-ruler-label";
+        label.textContent = "정확히 100mm";
+
+        rulerWrap.append(line, label);
+
+        const person =
+          state.people[state.selectedIndex] ||
+          state.people[0] ||
+          {
+            name: "TEST",
+            org: "경기대학교",
+            role: "인쇄 확인",
+            logoKey: "default"
+          };
+
+        const sample = createNameplate(person, false);
+
+        page.append(head, rulerWrap, sample);
+        return page;
+      }
+
+      function printTestPage() {
+        document.body.classList.remove("print-current");
+
+        elements.printStage.replaceChildren(
+          createTestPrintPage()
+        );
+
+        const restoreAfterPrint = () => {
+          renderPreviewOnly();
+        };
+
+        window.addEventListener(
+          "afterprint",
+          restoreAfterPrint,
+          { once: true }
+        );
+
+        requestAnimationFrame(() => {
+          fitText(elements.printStage);
+          window.print();
+        });
+      }
+
+      function openMobilePreview() {
+        if (!window.matchMedia("(max-width: 1050px)").matches) return;
+
+        mobilePreviewReturnFocus = document.activeElement;
+        document.body.classList.add("mobile-preview-open");
+        elements.mobilePreviewToggleBtn.setAttribute("aria-expanded", "true");
+        elements.previewWorkspace.setAttribute("role", "dialog");
+        elements.previewWorkspace.setAttribute("aria-modal", "true");
+
+        requestAnimationFrame(() => {
+          fitPreviewScale();
+          elements.mobilePreviewCloseBtn.focus();
+        });
+      }
+
+      function closeMobilePreview(restoreFocus = true) {
+        const wasOpen = document.body.classList.contains("mobile-preview-open");
+
+        document.body.classList.remove("mobile-preview-open");
+        elements.mobilePreviewToggleBtn.setAttribute("aria-expanded", "false");
+        elements.previewWorkspace.removeAttribute("role");
+        elements.previewWorkspace.removeAttribute("aria-modal");
+
+        if (wasOpen && restoreFocus && mobilePreviewReturnFocus?.focus) {
+          mobilePreviewReturnFocus.focus();
+        }
+
+        mobilePreviewReturnFocus = null;
+      }
+
+      window.addEventListener("afterprint", () => {
+        document.body.classList.remove("print-current");
+      });
+
+      $("#replaceBulkBtn").addEventListener("click", () => {
+        if (state.mach?.eventId) { showStatus("연결된 행사는 변경분 확인을 사용해 주세요. 명단을 유지했습니다."); return; }
+        const people = parseRows(elements.bulkInput.value);
+
+        if (!people.length) {
+          showStatus("붙여넣은 명단을 읽지 못했습니다.");
+          return;
+        }
+
+        state.people = people;
+        state.selectedIndex = 0;
+
+        renderAll();
+        showStatus(`${people.length}명의 명단으로 교체했습니다.`);
+      });
+
+      $("#appendBulkBtn").addEventListener("click", () => {
+        const people = parseRows(elements.bulkInput.value);
+
+        if (!people.length) {
+          showStatus("붙여넣은 명단을 읽지 못했습니다.");
+          return;
+        }
+
+        state.people.push(...people);
+
+        renderAll();
+        showStatus(
+          `${people.length}명을 기존 명단 뒤에 추가했습니다.`
+        );
+      });
+
+      $("#addPersonBtn").addEventListener("click", () => {
+        state.people.push(
+          sanitizePerson({
+            logoKey: "default"
+          })
+        );
+
+        state.selectedIndex =
+          state.people.length - 1;
+
+        renderAll();
+      });
+
+      $("#clearPeopleBtn").addEventListener("click", () => {
+        if (!confirm("현재 명단을 전부 삭제할까요?")) return;
+
+        state.people = [];
+        state.selectedIndex = 0;
+
+        renderAll();
+      });
+
+      $("#csvImportBtn").addEventListener("click", () => {
+        elements.csvFileInput.click();
+      });
+
+      elements.csvFileInput.addEventListener("change", () => {
+        const file =
+          elements.csvFileInput.files?.[0];
+
+        if (file) {
+          loadDelimitedFile(file);
+        }
+
+        elements.csvFileInput.value = "";
+      });
+
+      elements.defaultLeftLogo.addEventListener("change", () => {
+        state.design.defaultLeftLogo = elements.defaultLeftLogo.value;
+        renderAll();
+      });
+
+      $("#addCustomLogoBtn").addEventListener("click", async () => {
+        const name = elements.customLogoName.value.trim();
+        const file = elements.customLogoFile.files?.[0];
+
+        if (!name) {
+          showStatus("외부기관 이름을 입력해 주세요.");
+          return;
+        }
+
+        if (!file) {
+          showStatus("외부기관 로고 파일을 선택해 주세요.");
+          return;
+        }
+
+        if (
+          state.customLogos.some(
+            logo => logo.name.trim().toLowerCase() === name.toLowerCase()
+          )
+        ) {
+          showStatus("같은 이름의 외부기관 로고가 이미 있습니다.");
+          return;
+        }
+
+        try {
+          const dataUrl = await readImageFile(file);
+
+          state.customLogos.push({
+            id: "custom-" + cryptoId(),
+            name,
+            dataUrl
+          });
+
+          elements.customLogoName.value = "";
+          elements.customLogoFile.value = "";
+
+          renderAll();
+          showStatus(`'${name}' 좌측 로고를 추가했습니다.`);
+        } catch (error) {
+          showStatus(
+            error.message || "외부기관 로고를 추가하지 못했습니다."
+          );
+        }
+      });
+
+      elements.footerLogo.addEventListener("change", () => {
+        state.design.footerLogo = elements.footerLogo.value;
+        renderPreviewOnly();
+      });
+
+      elements.templateCards.forEach(card => {
+        card.addEventListener("click", () => {
+          setTemplateStyle(card.dataset.template, true);
+          showStatus(`${PLATE_TEMPLATES[card.dataset.template]?.label || "디자인"}을 적용했습니다.`);
+        });
+      });
+
+      elements.recommendedColorBtn.addEventListener("click", () => {
+        applyRecommendedColors();
+        syncControlsFromState();
+        renderPreviewOnly();
+        showStatus("현재 디자인의 추천 색상을 적용했습니다.");
+      });
+
+      elements.titleSeparator.addEventListener("change", () => {
+        state.design.titleSeparator =
+          elements.titleSeparator.value;
+
+        renderPreviewOnly();
+      });
+
+      elements.overallTextColor.addEventListener("input", () => {
+        elements.overallTextColorHex.value = elements.overallTextColor.value;
+        setOverallTextColor(elements.overallTextColor.value);
+      });
+
+      elements.overallTextColorHex.addEventListener("change", () => {
+        const valid = normalizeHex(
+          elements.overallTextColorHex.value,
+          state.design.nameColor
+        );
+
+        elements.overallTextColor.value = valid;
+        elements.overallTextColorHex.value = valid;
+        setOverallTextColor(valid);
+      });
+
+      elements.paletteChips.forEach(chip => {
+        chip.addEventListener("click", () => {
+          const color = chip.dataset.color;
+          const label = chip.dataset.label || color;
+          const target = elements.paletteTarget.value;
+
+          applyPaletteColor(color, target);
+          showStatus(`${label} 색상을 적용했습니다.`);
+        });
+      });
+
+      bindColor(
+        elements.nameColor,
+        elements.nameColorHex,
+        "nameColor"
+      );
+
+      bindColor(
+        elements.titleColor,
+        elements.titleColorHex,
+        "titleColor"
+      );
+
+      bindColor(
+        elements.borderColor,
+        elements.borderColorHex,
+        "borderColor"
+      );
+
+      bindPair("nameSize", 40, 105);
+      bindPair("nameX", -35, 35);
+      bindPair("nameY", -20, 20);
+
+      bindPair("titleSize", 15, 44);
+      bindPair("titleX", -35, 35);
+      bindPair("titleY", -18, 18);
+
+      bindPair("nameSpacing", -2, 35);
+      bindPair("logoWidth", 20, 65);
+      bindPair("logoX", -25, 25);
+      bindPair("logoY", -20, 20);
+      bindPair("footerLogoWidth", 20, 90);
+      bindPair("footerLogoX", -35, 35);
+      bindPair("footerLogoY", -15, 15);
+
+      elements.autoFit.addEventListener("change", () => {
+        state.design.autoFit =
+          elements.autoFit.checked;
+
+        renderPreviewOnly();
+      });
+
+      elements.rotateBack.addEventListener("change", () => {
+        state.design.rotateBack =
+          elements.rotateBack.checked;
+
+        renderPreviewOnly();
+      });
+
+      elements.showPageLabel.addEventListener("change", () => {
+        state.design.showPageLabel =
+          elements.showPageLabel.checked;
+
+        renderPreviewOnly();
+      });
+
+      elements.platePreset.addEventListener("change", () => {
+        const key = elements.platePreset.value;
+
+        if (key === "custom") {
+          state.design.platePreset = "custom";
+          return;
+        }
+
+        const preset = PLATE_SIZE_PRESETS[key];
+
+        if (preset) {
+          setPlateSize(preset.width, preset.height, key);
+          showStatus(`${preset.label} 규격을 적용했습니다.`);
+        }
+      });
+
+      function handleCustomPlateSize() {
+        setPlateSize(
+          Number(elements.plateWidth.value),
+          Number(elements.plateHeight.value)
+        );
+      }
+
+      elements.plateWidth.addEventListener("change", handleCustomPlateSize);
+      elements.plateHeight.addEventListener("change", handleCustomPlateSize);
+
+      elements.autoScaleElements.addEventListener("change", () => {
+        state.design.autoScaleElements =
+          elements.autoScaleElements.checked;
+
+        renderPreviewOnly();
+      });
+
+      elements.showCutMarks.addEventListener("change", () => {
+        state.design.showCutMarks =
+          elements.showCutMarks.checked;
+
+        renderPreviewOnly();
+      });
+
+      elements.resetAdjustmentsBtn.addEventListener("click", () => {
+        if (!confirm("현재 명패 규격에 맞춰 위치·크기 조절값을 초기화할까요?")) {
+          return;
+        }
+
+        resetAdjustments();
+        showStatus("위치·크기 조절값을 초기화했습니다.");
+      });
+
+      elements.settingsLockBtn.addEventListener("click", () => {
+        state.design.settingsLocked =
+          !state.design.settingsLocked;
+
+        applySettingsLock();
+        saveLocal();
+
+        showStatus(
+          state.design.settingsLocked
+            ? "디자인 설정을 잠갔습니다."
+            : "디자인 설정 잠금을 해제했습니다."
+        );
+      });
+
+      elements.testPrintBtn.addEventListener("click", () => {
+        printTestPage();
+      });
+
+      $("#prevBtn").addEventListener("click", () => {
+        if (!state.people.length) return;
+
+        state.selectedIndex =
+          (state.selectedIndex - 1 + state.people.length) %
+          state.people.length;
+
+        renderPreviewOnly();
+      });
+
+      $("#nextBtn").addEventListener("click", () => {
+        if (!state.people.length) return;
+
+        state.selectedIndex =
+          (state.selectedIndex + 1) %
+          state.people.length;
+
+        renderPreviewOnly();
+      });
+
+      $("#printCurrentBtn").addEventListener(
+        "click",
+        () => printPages("current")
+      );
+
+      $("#printAllBtn").addEventListener(
+        "click",
+        () => printPages("all")
+      );
+
+      $("#saveProjectBtn").addEventListener(
+        "click",
+        exportProject
+      );
+
+      $("#loadProjectBtn").addEventListener("click", () => {
+        elements.projectFileInput.click();
+      });
+
+      elements.projectFileInput.addEventListener("change", () => {
+        const file =
+          elements.projectFileInput.files?.[0];
+
+        if (file) {
+          importProject(file);
+        }
+
+        elements.projectFileInput.value = "";
+      });
+
+      $("#saveDesignBtn").addEventListener("click", () => {
+        localStorage.setItem(
+          DESIGN_KEY,
+          JSON.stringify(state.design)
+        );
+
+        showStatus(
+          "현재 디자인을 이 브라우저의 기본값으로 저장했습니다."
+        );
+      });
+
+      $("#resetDesignBtn").addEventListener("click", () => {
+        if (!confirm("디자인 설정을 초기값으로 되돌릴까요?")) {
+          return;
+        }
+
+        state.design = { ...defaultDesign };
+
+        renderAll();
+        showStatus("디자인을 초기화했습니다.");
+      });
+
+      elements.mobilePreviewToggleBtn.addEventListener(
+        "click",
+        openMobilePreview
+      );
+
+      elements.mobilePreviewCloseBtn.addEventListener(
+        "click",
+        () => closeMobilePreview()
+      );
+
+      elements.mobilePreviewBackdrop.addEventListener(
+        "click",
+        () => closeMobilePreview()
+      );
+
+      document.addEventListener("keydown", event => {
+        const previewOpen =
+          document.body.classList.contains("mobile-preview-open");
+
+        if (
+          event.key === "Escape" &&
+          previewOpen
+        ) {
+          closeMobilePreview();
+          return;
+        }
+
+        if (event.key === "Tab" && previewOpen) {
+          const focusable = $$([
+            "#previewWorkspace button:not([disabled])",
+            "#previewWorkspace [href]",
+            "#previewWorkspace input:not([disabled])",
+            "#previewWorkspace select:not([disabled])",
+            "#previewWorkspace textarea:not([disabled])",
+            "#previewWorkspace [tabindex]:not([tabindex='-1'])"
+          ].join(",")).filter(element => element.offsetParent !== null);
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last?.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first?.focus();
+          }
+        }
+      });
+
+      window.addEventListener(
+        "resize",
+        () => {
+          fitPreviewScale();
+          if (!window.matchMedia("(max-width: 1050px)").matches) {
+            closeMobilePreview(false);
+          }
+        }
+      );
+
+      const SEAT_PLANNER_ORIGIN = "https://erakeun.github.io";
+      let lastSeatPlannerTransferId = "";
+      try { lastSeatPlannerTransferId = localStorage.getItem(`${STORAGE_KEY}:last-transfer`) || ""; } catch { /* Import will report storage failures. */ }
+      let pendingSeatPlannerTransfer = null;
+      const rejectedSeatPlannerTransfers = new Set();
+      const transferDialog = document.createElement("dialog");
+      transferDialog.setAttribute("aria-labelledby", "seat-planner-transfer-title");
+      transferDialog.style.cssText = "max-width:520px;width:calc(100% - 40px);border:1px solid #ccd5df;border-radius:16px;padding:24px;color:#142c45";
+      transferDialog.innerHTML = '<h2 id="seat-planner-transfer-title">좌석배치 명단 가져오기</h2><p id="seat-planner-transfer-summary"></p><p>기존 명패 명단은 교체됩니다. 현재 명단·디자인을 먼저 백업한 뒤 가져옵니다. 기관 로고는 가져온 후 직접 지정해 주세요.</p><div style="display:flex;gap:12px;flex-wrap:wrap"><button type="button" id="seat-planner-transfer-cancel">취소 · 기존 명단 유지</button><button type="button" id="seat-planner-transfer-accept">백업 후 가져오기</button></div>';
+      document.body.append(transferDialog);
+      const respondToSeatPlanner = (transfer, accepted) => transfer.source?.postMessage({
+        type: accepted ? "erica-seat-planner:nameplates:accepted" : "erica-seat-planner:nameplates:rejected",
+        transferId: transfer.transferId,
+        count: transfer.people.length
+      }, transfer.origin);
+      function cancelSeatPlannerTransfer() {
+        if (pendingSeatPlannerTransfer) {
+          rejectedSeatPlannerTransfers.add(pendingSeatPlannerTransfer.transferId);
+          if (rejectedSeatPlannerTransfers.size > 100) rejectedSeatPlannerTransfers.delete(rejectedSeatPlannerTransfers.values().next().value);
+          respondToSeatPlanner(pendingSeatPlannerTransfer, false);
+        }
+        pendingSeatPlannerTransfer = null;
+        transferDialog.close();
+      }
+      transferDialog.querySelector("#seat-planner-transfer-cancel").addEventListener("click", cancelSeatPlannerTransfer);
+      transferDialog.addEventListener("cancel", event => { event.preventDefault(); cancelSeatPlannerTransfer(); });
+      transferDialog.querySelector("#seat-planner-transfer-accept").addEventListener("click", () => {
+        const transfer = pendingSeatPlannerTransfer;
+        if (!transfer) return;
+        if (state.mach?.eventId || state.mach?.printJobs?.length || Object.keys(state.mach?.confirmed || {}).length) { showStatus("연결 행사 또는 출력 이력이 있는 작업은 변경분 확인 방식으로 다시 보내 주세요. 기존 명단·출력 이력을 유지합니다."); return; }
+        const previous = JSON.stringify({ people: state.people, customLogos: state.customLogos, design: state.design, selectedIndex: state.selectedIndex, mach: state.mach });
+        const next = JSON.stringify({ people: transfer.people, customLogos: state.customLogos, design: state.design, selectedIndex: 0 });
+        try {
+          if (projectRecoveryBlocked || localStorage.getItem(STORAGE_KEY) !== lastSavedProject) {
+            showStatus("다른 창에서 명단이 변경되었습니다. 기존 명단 보호를 위해 새로고침 후 다시 전송해 주세요.");
+            return;
+          }
+          // Never replace the current list unless its complete project can be backed up.
+          localStorage.setItem(`${STORAGE_KEY}:before-seat-planner`, previous);
+          localStorage.setItem(STORAGE_KEY, next);
+          lastSavedProject = next;
+        } catch {
+          showStatus("백업 또는 저장에 실패하여 가져오지 않았습니다. 기존 명단을 유지합니다.");
+          return;
+        }
+        state.people = transfer.people;
+        state.selectedIndex = 0;
+        lastSeatPlannerTransferId = transfer.transferId;
+        try { localStorage.setItem(`${STORAGE_KEY}:last-transfer`, transfer.transferId); } catch { /* The project itself is already saved. */ }
+        pendingSeatPlannerTransfer = null;
+        transferDialog.close();
+        renderAll();
+        respondToSeatPlanner(transfer, true);
+        showStatus(`좌석배치기에서 ${transfer.people.length}명의 명단을 받았습니다. 교체 전 백업은 하단 버튼에서 내려받을 수 있습니다.`);
+      });
+      const transferBackupButton = document.createElement("button");
+      transferBackupButton.type = "button";
+      transferBackupButton.textContent = "좌석배치 연동 전 프로젝트 백업 내려받기";
+      transferBackupButton.style.cssText = "margin:16px";
+      transferBackupButton.addEventListener("click", () => {
+        let raw;
+        try { raw = localStorage.getItem(`${STORAGE_KEY}:before-seat-planner`); } catch { showStatus("백업 저장소에 접근할 수 없습니다."); return; }
+        if (!raw) { showStatus("좌석배치 연동 전 백업이 없습니다."); return; }
+        const blobUrl = URL.createObjectURL(new Blob([raw], { type: "application/json" }));
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = "nameplate-before-seat-planner.json";
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      });
+      document.body.append(transferBackupButton);
+      window.addEventListener("message", event => {
+        const data = event.data;
+        const localPreview = ["localhost", "127.0.0.1"].includes(location.hostname);
+        const allowedLocalOrigin = localPreview && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(event.origin);
+        if (
+          (event.origin !== SEAT_PLANNER_ORIGIN && !allowedLocalOrigin) ||
+          event.source !== window.opener ||
+          !data ||
+          data.type !== "erica-seat-planner:nameplates:v1" ||
+          data.source !== "erica-seat-planner" ||
+          typeof data.transferId !== "string" || !data.transferId || data.transferId.length > 120 ||
+          !Array.isArray(data.people) ||
+          !data.people.length || data.people.length > 63 ||
+          data.people.some(person => !person || typeof person !== "object" || ["name", "organization", "position"].some(key => typeof person[key] !== "string" || person[key].length > 500))
+        ) return;
+
+        const people = data.people
+          .map(person => sanitizePerson({
+            name: person?.name,
+            organization: person?.organization,
+            position: person?.position,
+            logoKey: typeof person?.logoKey === "string" ? person.logoKey : "none"
+          }))
+          .filter(person => person.name || person.organization || person.position);
+
+        if (!people.length) return;
+        const transfer = { people, transferId: data.transferId, source: event.source, origin: event.origin };
+        if (data.transferId === lastSeatPlannerTransferId) { respondToSeatPlanner(transfer, true); return; }
+        if (rejectedSeatPlannerTransfers.has(data.transferId)) { respondToSeatPlanner(transfer, false); return; }
+        if (pendingSeatPlannerTransfer) return;
+        pendingSeatPlannerTransfer = transfer;
+        transferDialog.querySelector("#seat-planner-transfer-summary").textContent = `받을 명단 ${people.length}명 · 현재 명단 ${state.people.length}명`;
+        transferDialog.showModal();
+      });
+
+      if ("ResizeObserver" in window) {
+        const resizeObserver =
+          new ResizeObserver(fitPreviewScale);
+
+        resizeObserver.observe(
+          elements.previewZone
+        );
+      }
+
+      try {
+        const savedDesign =
+          JSON.parse(
+            localStorage.getItem(DESIGN_KEY) ||
+            "null"
+          );
+
+        if (
+          savedDesign &&
+          typeof savedDesign === "object"
+        ) {
+          state.design = { ...state.design, ...savedDesign };
+          if (savedDesign.textColor && !savedDesign.nameColor) state.design.nameColor = savedDesign.textColor;
+          if (savedDesign.textColor && !savedDesign.titleColor) state.design.titleColor = savedDesign.textColor;
+        }
+      } catch (_) {}
+
+      restoreLocal();
+      if (!projectRecoveryBlocked) {
+        try { state.mach = NameplateChanges.metadata(state.mach, cryptoId()); }
+        catch (_) { projectRecoveryBlocked = true; }
+      }
+      const machUI = mountMachNameplates({
+        state, storageKey: STORAGE_KEY, getRaw: () => lastSavedProject,
+        blocked: () => projectRecoveryBlocked,
+        setRaw: raw => { lastSavedProject = raw; },
+        renderAll, showStatus, createPage, fitText, applyCssVariables,
+        getLeftLogoInfo, getTemplateInfo,
+        footerInfo: () => FOOTER_LOGOS[state.design.footerLogo] || FOOTER_LOGOS.kyonggi,
+        printStage: elements.printStage, previewPage: elements.previewPage,
+        newId: cryptoId, exportProject, downloadText,
+        getOverflow: () => refreshTextOverflowState()
+      });
+      machPrint = machUI.print;
+      resetMachReceipts = machUI.invalidate;
+      refreshMachUI = machUI.refresh;
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
